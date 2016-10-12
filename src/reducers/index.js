@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
 import todos from './todos';
+import todoDialog from './todoDialog'
 
 const rootReducer = combineReducers({
-    todos
+    todos,
+    todoDialog
 });
 
 export default rootReducer;

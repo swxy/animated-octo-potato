@@ -12,7 +12,8 @@ const TODO_FILTERS = {
 export default class MainSection extends Component {
     static propTypes = {
         todos: PropTypes.array.isRequired,
-        actions: PropTypes.object.isRequired
+        actions: PropTypes.object.isRequired,
+        toggleTodoDialog: PropTypes.func.isRequired
     };
 
     state = { filter: SHOW_ALL };
@@ -65,7 +66,7 @@ export default class MainSection extends Component {
             <section className="main">
                 {this.renderToggleAll(completedCount)}
                 <ul className="todo-list">
-                    {filteredTodos.map(todo => <TodoItem key={todo.id} todo={todo} {...actions}/>)}
+                    {filteredTodos.map(todo => <TodoItem toggleTodoDialog={this.props.toggleTodoDialog} key={todo.id} todo={todo} {...actions}/>)}
                 </ul>
                 {this.renderFooter(completedCount)}
             </section>

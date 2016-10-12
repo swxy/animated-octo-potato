@@ -7,7 +7,8 @@ export default class TodoItem extends Component {
         todo: PropTypes.object.isRequired,
         editTodo: PropTypes.func.isRequired,
         deleteTodo: PropTypes.func.isRequired,
-        completeTodo: PropTypes.func.isRequired
+        completeTodo: PropTypes.func.isRequired,
+        toggleTodoDialog: PropTypes.func.isRequired
     };
 
     state = {
@@ -15,7 +16,8 @@ export default class TodoItem extends Component {
     };
 
     handleDoubleClick = () => {
-        this.setState({ editing: true });
+        //this.setState({ editing: true });
+        this.props.toggleTodoDialog(true, this.props.todo);
     };
 
     handleSave = (id, text) => {
@@ -30,7 +32,7 @@ export default class TodoItem extends Component {
     render () {
         const { todo, completeTodo, deleteTodo } = this.props;
         let element;
-        if (this.state.editing) {
+        if (this.props.editing) {
             element = (<TodoTextInput
                 text={todo.text}
                 editing={this.state.editing}
@@ -44,7 +46,7 @@ export default class TodoItem extends Component {
                             checked={todo.completed}
                             onChange={() => completeTodo(todo.id)} />
                     <label onDoubleClick={this.handleDoubleClick}>
-                        {todo.text}
+                        {todo.text} --- {todo.date}
                     </label>
                     <button className="destroy" onClick={() => deleteTodo(todo.id)} />
                 </div>
