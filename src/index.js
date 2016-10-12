@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import App from './containers/App';
 import reducer from './reducers';
 import 'antd/dist/antd.css';
-import './index.css';
+import './index.less';
 
 const store = createStore(reducer);
 

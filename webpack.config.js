@@ -27,10 +27,15 @@ module.exports = {
             plugins: [["import", {
                 "libraryName": "antd",
                 "style": "css"   // or 'css'
+            }],['antd', {
+                style: 'css', // if true, use less
             }]]
         },{
             test: /\.css$/,
             loader: 'style!css'
+        },{
+            test: /\.less$/,
+            loader: "style!css!less"
         }]
     },
     plugins: [

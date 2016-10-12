@@ -1,16 +1,21 @@
 import React, { PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Header from '../components/Header';
+import Navigation from '../components/Navigation';
 import MainSection from '../components/MainSection';
 import TodoDialog from '../components/TodoDialog';
 import * as TodoActions from '../actions';
 
 const App = ({todos, dialogData, actions}) => (
-    <div>
-        <Header addTodo={actions.addTodo} toggleTodoDialog={actions.toggleTodoDialog}/>
+    <div className="page-wrapper">
+        <Navigation/>
         <MainSection todos={todos} actions={actions} toggleTodoDialog={actions.toggleTodoDialog}/>
-        <TodoDialog onSave={actions.addTodo} visible={dialogData.visible} todo={dialogData.todo}  toggleTodoDialog={actions.toggleTodoDialog}/>
+        <TodoDialog
+            onEdit={actions.editTodo}
+            onSave={actions.addTodo}
+            visible={dialogData.visible}
+            todo={dialogData.todo}
+            toggleTodoDialog={actions.toggleTodoDialog}/>
     </div>
 );
 
