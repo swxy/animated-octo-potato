@@ -40,8 +40,8 @@ export default class TodoList extends Component {
 
         const columns = [{
             title: '序号',
-            dataIndex: 'id',
-            key: 'id'
+            key: 'id',
+            render: (text, record, index) => (index + 1)
         }, {
             title: '待办',
             dataIndex: 'text',
