@@ -5,7 +5,7 @@ const initialState = {
     todo: {}
 };
 
-export default function todoDialog (state = initialState, action) {
+export default function TodoDialog (state = initialState, action) {
     switch (action.type) {
         case TOGGLE_TODO_DIALOG:
             let nextState = {todo: {}, visible: !state.visible};

@@ -7,3 +7,5 @@ export const editTodo = (id, text, date) => ({type: types.EDIT_TODO, id, text, d
 export const completeTodo = id => ({type: types.COMPLETE_TODO, id});
 export const completeAll = () => ({type: types.COMPLETE_ALL});
 export const clearCompleted = () => ({type: types.CLEAR_COMPLETED});
+
+export const filterTodo  = (status, startDate, endDate) => ({type: types.FILTER_TODO, status, startDate, endDate});

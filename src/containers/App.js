@@ -6,10 +6,10 @@ import MainSection from '../components/MainSection';
 import TodoDialog from '../components/TodoDialog';
 import * as TodoActions from '../actions';
 
-const App = ({todos, dialogData, actions}) => (
+const App = ({todos, dialogData, constraint, actions}) => (
     <div className="page-wrapper">
         <Navigation/>
-        <MainSection todos={todos} actions={actions} toggleTodoDialog={actions.toggleTodoDialog}/>
+        <MainSection todos={todos} constraint={constraint} actions={actions}/>
         <TodoDialog
             onEdit={actions.editTodo}
             onSave={actions.addTodo}
@@ -26,7 +26,8 @@ App.propTypes = {
 
 const mapStateToProps = state => ({
     todos: state.todos,
-    dialogData: state.todoDialog
+    dialogData: state.todoDialog,
+    constraint: state.todoFilter
 });
 
 const mapDispathToProps = dispath => ({

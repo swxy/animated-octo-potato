@@ -35,7 +35,6 @@ export default class TodoDialog extends Component {
     }
 
     handleOk() {
-        console.log(this.props);
         const text = this.state.text;
         const date = this.state.date.format('YYYY-MM-DD');
         const id = this.props.todo.id;
@@ -50,7 +49,6 @@ export default class TodoDialog extends Component {
     }
 
     handleCancel(e) {
-        console.log('Clicked cancel');
         this.hideModal();
         this.clearState();
     }

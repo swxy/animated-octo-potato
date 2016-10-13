@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Button, Form, DatePicker, Select } from 'antd';
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters';
+import moment from 'moment';
 
 const FILTER_TITLES = {
     [SHOW_ALL]: '全部',
@@ -13,12 +14,14 @@ const Option = Select.Option;
 
 export default class Header extends Component {
     static propTypes = {
-        toggleTodoDialog: PropTypes.func.isRequired
+        toggleTodoDialog: PropTypes.func.isRequired,
+        todoConstraint: PropTypes.object.isRequired,
+        filterTodo: PropTypes.func.isRequired
     };
     state = {
-        status: this.props.status || SHOW_ALL,
-        startValue: null,
-        endValue: null,
+        status: this.props.todoConstraint.status || SHOW_ALL,
+        startDate: this.props.todoConstraint.startDate ? moment(this.props.todoConstraint.startDate) : null,
+        endDate: this.props.todoConstraint.endDate ? moment(this.props.todoConstraint.endDate) : null,
         endOpen: false
     };
     handleSave = text => {
@@ -32,20 +35,21 @@ export default class Header extends Component {
 
     handleSubmit = e => {
         e.preventDefault();
-
+        const {status, startDate, endDate} = this.state;
+        this.props.filterTodo(status, startDate, endDate);
     };
 
-    disabledStartDate(startValue) {
-        if (!startValue || !this.state.endValue) {
+    disabledStartDate(startDate) {
+        if (!startDate || !this.state.endDate) {
             return false;
         }
-        return startValue.valueOf() > this.state.endValue.valueOf();
+        return startDate.valueOf() > this.state.endDate.valueOf();
     };
-    disabledEndDate(endValue) {
-        if (!endValue || !this.state.startValue) {
+    disabledEndDate(endDate) {
+        if (!endDate || !this.state.startDate) {
             return false;
         }
-        return endValue.valueOf() <= this.state.startValue.valueOf();
+        return endDate.valueOf() <= this.state.startDate.valueOf();
     };
 
     onChange(field, value) {
@@ -54,10 +58,10 @@ export default class Header extends Component {
         });
     };
     onStartChange(value) {
-        this.onChange('startValue', value);
+        this.onChange('startDate', value);
     };
     onEndChange(value) {
-        this.onChange('endValue', value);
+        this.onChange('endDate', value);
     };
     handleStartOpenChange(open) {
         if (!open) {
@@ -92,7 +96,7 @@ export default class Header extends Component {
                         label="日期">
                         <DatePicker
                             disabledDate={this.disabledStartDate.bind(this)}
-                            value={this.state.startValue}
+                            value={this.state.startDate}
                             placeholder="Start"
                             onChange={this.onStartChange.bind(this)}
                             onOpenChange={this.handleStartOpenChange.bind(this)}
@@ -100,7 +104,7 @@ export default class Header extends Component {
                         {' - '}
                         <DatePicker
                             disabledDate={this.disabledEndDate.bind(this)}
-                            value={this.state.endValue}
+                            value={this.state.endDate}
                             placeholder="End"
                             onChange={this.onEndChange.bind(this)}
                             open={this.state.endOpen}

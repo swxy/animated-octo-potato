@@ -6,15 +6,18 @@ export default class MainSection extends Component {
     static propTypes = {
         todos: PropTypes.array.isRequired,
         actions: PropTypes.object.isRequired,
-        toggleTodoDialog: PropTypes.func.isRequired
+        constraint: PropTypes.object.isRequired
     };
 
     render () {
         const { todos, actions } = this.props;
         return (
             <section className="main">
-                <Header toggleTodoDialog={this.props.toggleTodoDialog}/>
-                <TodoList todos={todos} {...actions}/>
+                <Header
+                    todoConstraint={this.props.constraint}
+                    toggleTodoDialog={actions.toggleTodoDialog}
+                    filterTodo={actions.filterTodo}/>
+                <TodoList todos={todos} todoConstraint={this.props.constraint} {...actions} />
             </section>
         )
      }

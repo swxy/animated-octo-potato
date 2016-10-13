@@ -1,6 +1,13 @@
 import React, { Component, PropTypes } from 'react';
 import { Table, Modal } from 'antd';
+import moment from 'moment';
+import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
 
+const TODO_FILTERS = {
+    [SHOW_ALL]: () => true,
+    [SHOW_ACTIVE]: todo => !todo.completed,
+    [SHOW_COMPLETED]: todo => todo.completed
+}
 const confirmModal = Modal.confirm;
 
 export default class TodoList extends Component {
@@ -8,7 +15,8 @@ export default class TodoList extends Component {
     static propTypes = {
         deleteTodo: PropTypes.func.isRequired,
         completeTodo: PropTypes.func.isRequired,
-        toggleTodoDialog: PropTypes.func.isRequired
+        toggleTodoDialog: PropTypes.func.isRequired,
+        todoConstraint: PropTypes.object.isRequired
     };
 
     state = {
@@ -31,8 +39,29 @@ export default class TodoList extends Component {
         this.setState({ selectedRowKeys });
     };
 
+    onFilter (todos) {
+        const {status, startDate, endDate} = this.props.todoConstraint;
+        const filteredTodos = todos.filter((todo) => {
+            if (TODO_FILTERS[status](todo)) {
+                if (startDate && endDate) {
+                    return moment(todo.date).isBetween(startDate, endDate);
+                }
+                if (startDate) {
+                    return moment(todo.date).isAfter(startDate);
+                }
+                if (endDate) {
+                    return moment(todo.date).isBefore(endDate);
+                }
+                return true;
+            }
+            return false;
+        });
+        return filteredTodos;
+    }
+
     render () {
-        const {completeTodo, toggleTodoDialog} = this.props;
+        const {completeTodo, toggleTodoDialog, todos} = this.props;
+        const filteredTodos = this.onFilter(todos);
         const rowSelection = {
             selectedRowKeys: this.state.selectedRowKeys,
             onChange: this.onSelectChange.bind(this),
@@ -73,7 +102,7 @@ export default class TodoList extends Component {
 
         return (
             <div className="main-table">
-                <Table rowSelection={rowSelection} columns={columns} dataSource={this.props.todos}></Table>
+                <Table rowSelection={rowSelection} columns={columns} dataSource={filteredTodos}></Table>
             </div>
         )
     }
