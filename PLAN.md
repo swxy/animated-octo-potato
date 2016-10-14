@@ -13,11 +13,15 @@
 
 - ~~离线存储（存储到浏览器中, 使用indexDb）~~
 
+- 更改Dexie.js 为 PouchDB，因为PouchDB支持mapReduce
+
 - todo加tag
 
 - 导出todo，支持（json， pdf格式导出）
 
 - todo备注（备注类似于一个markdown编辑器）
+
+- 替换todo表格为卡片形式
 
 ## timer
 
