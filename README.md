@@ -1,16 +1,4 @@
 # animated-octo-potato
+做一个GTD（Getting Things Done）应用。
 
-# 计划
-
-## todo
-- 完成todo功能（按照redux给的例子）
-
-- 给todo添加时间
-
-- 离线存储（存储到浏览器中）
-
-- 每日归类 （查询功能）
-
-## timer
-
-1.定时提醒
+![GTD流程](http://d.hiphotos.baidu.com/baike/c0%3Dbaike92%2C5%2C5%2C92%2C30/sign=696a88f42d738bd4d02cba63c0e2ecb3/4a36acaf2edda3cccf074f0902e93901213f923c.jpg)
