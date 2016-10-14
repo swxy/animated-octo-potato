@@ -23,6 +23,13 @@ export const deleteTodoFromDb = id => {
     });
 };
 
+export const updateTodoSyncDb = (id, todo) => {
+    if (!id) {
+        throw Error('required id');
+    }
+    return db.todo.update(id, {...todo});
+};
+
 export const getTodosFromDb = () => {
     return db.todo.toArray();
 };

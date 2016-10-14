@@ -91,7 +91,7 @@ export default class TodoList extends Component {
             key: 'operation',
             render: (text, record) => (
                 <span>
-                    <a href="javascript:void 0" onClick={completeTodo.bind(null, record.id)}>{record.completed ? '恢复' : '完成'}</a>
+                    <a href="javascript:void 0" onClick={completeTodo.bind(null, record)}>{record.completed ? '恢复' : '完成'}</a>
                     <span className="ant-divider" />
                     <a href="javascript:void 0" onClick={() => {toggleTodoDialog(true, record)}}>编辑</a>
                     <span className="ant-divider" />

@@ -36,10 +36,10 @@ export default class TodoDialog extends Component {
 
     handleOk() {
         const text = this.state.text;
-        const date = this.state.date.format('YYYY-MM-DD');
+        const date = this.state.date ? this.state.date.format('YYYY-MM-DD') : null;
         const id = this.props.todo.id;
         if (id !== undefined) {
-            this.props.onEdit(id, text, date);
+            this.props.onEdit(id, {text, date});
         }
         else {
             this.props.onSave(text, date);
