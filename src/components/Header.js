@@ -36,7 +36,7 @@ export default class Header extends Component {
     handleSubmit = e => {
         e.preventDefault();
         const {status, startDate, endDate} = this.state;
-        this.props.filterTodo(status, startDate, endDate);
+        this.props.filterTodo({status, startDate, endDate});
     };
 
     disabledStartDate(startDate) {

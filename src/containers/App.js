@@ -6,14 +6,14 @@ import MainSection from '../components/MainSection';
 import TodoDialog from '../components/TodoDialog';
 import * as TodoActions from '../actions';
 
-import DB, {getTodos} from '../model/db';
+import DB, {getTodos, closeDb} from '../model/db';
 
 class App extends Component {
     static propTypes = {
         todos: PropTypes.array.isRequired,
         actions: PropTypes.object.isRequired,
         dialogData: PropTypes.object.isRequired,
-        constraint: PropTypes.object.isRequired
+        filters: PropTypes.object.isRequired
     };
 
     componentDidMount() {
@@ -21,12 +21,17 @@ class App extends Component {
         actions.getTodos();
     }
 
+    componentWillUnmount() {
+        console.log('component unmout');
+        closeDb();
+    }
+
     render() {
-        const {todos, dialogData, constraint, actions} = this.props;
+        const {todos, dialogData, filters, actions} = this.props;
         return (
             <div className="page-wrapper">
                 <Navigation/>
-                <MainSection todos={todos} constraint={constraint} actions={actions}/>
+                <MainSection todos={todos} filters={filters} actions={actions}/>
                 <TodoDialog
                     onEdit={actions.editTodo}
                     onSave={actions.addTodo}
@@ -42,7 +47,7 @@ class App extends Component {
 const mapStateToProps = state => ({
     todos: state.todos,
     dialogData: state.todoDialog,
-    constraint: state.todoFilter
+    filters: state.todoFilter
 });
 
 const mapDispathToProps = dispatch => ({

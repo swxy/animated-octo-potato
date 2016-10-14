@@ -10,7 +10,7 @@ const initialState = {
 export default function TodoFilter (state=initialState, action) {
     switch (action.type) {
         case FILTER_TODO:
-            return {status: action.status, startDate: action.startDate, endDate: action.endDate};
+            return {...action.filters};
         default:
             return state;
     }

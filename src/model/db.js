@@ -30,8 +30,12 @@ export const updateTodoSyncDb = (id, todo) => {
     return db.todo.update(id, {...todo});
 };
 
-export const getTodosFromDb = () => {
-    return db.todo.toArray();
+export const getTodosFromDb = (doFilter) => {
+    return db.todo.filter(doFilter).toArray();
+};
+
+export const getRawTodosFromDb = () => {
+  return db.todo;
 };
 
 
@@ -40,6 +44,7 @@ export const openDb = () => {
 };
 
 export const closeDb = () => {
+    console.log('db closed');
     return db.close();
 };
 
