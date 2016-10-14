@@ -1,4 +1,4 @@
-import { ADD_TODO, DELETE_TODO, EDIT_TODO, COMPLETE_TODO, COMPLETE_ALL, CLEAR_COMPLETED } from '../constants/ActionTypes';
+import { ADD_TODO, DELETE_TODO, EDIT_TODO, COMPLETE_TODO, COMPLETE_ALL, CLEAR_COMPLETED, GET_TODOS } from '../constants/ActionTypes';
 
 const initialState = [
     {
@@ -11,6 +11,8 @@ const initialState = [
 
 export default function todos (state = initialState, action) {
     switch (action.type) {
+        case GET_TODOS:
+            return [...action.todos];
         case ADD_TODO:
             return [
                 {
