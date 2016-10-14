@@ -7,7 +7,8 @@ module.exports = {
         vendor: [
             'react',
             'react-dom',
-            'antd'
+            'antd',
+            'moment'
         ]
     },
     output: {
