@@ -4,9 +4,8 @@ const db = new PouchDB('PouchDB_TODO');
 
 
 export const addTodoToDb = (todo) => {
-    const id = +new Date();
     return db.put({
-        _id: todo.id + '',
+        _id: +new Date() + '',
         ...todo
     }).then( res => {
         console.log('add success');

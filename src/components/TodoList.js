@@ -41,7 +41,6 @@ export default class TodoList extends Component {
 
         const columns = [{
             title: '序号',
-            key: 'id',
             render: (text, record, index) => (index + 1),
             width: 50
         }, {
