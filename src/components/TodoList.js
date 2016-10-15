@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { Table, Modal } from 'antd';
+import moment from 'moment';
 
 const confirmModal = Modal.confirm;
 
@@ -51,7 +52,10 @@ export default class TodoList extends Component {
         }, {
             title: '日期',
             dataIndex: 'date',
-            key: 'date'
+            key: 'date',
+            render: (text) => (
+                moment(text).format('YYYY-MM-DD')
+            )
         }, {
             title: '状态',
             dataIndex: 'completed',
