@@ -22,7 +22,7 @@ export default class TodoList extends Component {
             title: '确定删除?',
             content: '即将删除 ' + todo.text + ' 这条todo',
             onOk() {
-                delTodo(todo.id);
+                delTodo(todo);
             }
         });
     }
