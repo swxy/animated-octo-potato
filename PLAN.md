@@ -13,7 +13,7 @@
 
 - ~~离线存储（存储到浏览器中, 使用indexDb）~~
 
-- 更改Dexie.js 为 PouchDB，因为PouchDB支持mapReduce
+- ~~更改Dexie.js 为 PouchDB，因为PouchDB支持mapReduce~~
 
 - todo加tag
 
@@ -26,3 +26,6 @@
 ## timer
 
 1.定时提醒
+
+# 后续
+1. 可以试一试RN
