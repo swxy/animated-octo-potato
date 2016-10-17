@@ -24,7 +24,7 @@ export const updateTodoSyncDb = (todo) => {
     return db.put(todo);
 };
 
-export const getTodosFromDb = (doFilter) => {
+export const getTodosFromDb = () => {
     return db.allDocs({include_docs: true, attachments: true});
 };
 
@@ -44,3 +44,6 @@ export const closeDb = () => {
 
 export default db;
 
+// may use plugin
+//https://github.com/nolanlawson/relational-pouch
+//https://github.com/nolanlawson/pouchdb-find

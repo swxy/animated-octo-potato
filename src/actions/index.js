@@ -4,8 +4,14 @@ import { doFilter } from './doFilter';
 
 function queryTodos (dispatch, state) {
     const filter = doFilter(state.todoFilter);
-    return getTodosFromDb(filter).then(todos => {
-        const transformTodo = todos.rows.map(row => {return row.doc});
+    return getTodosFromDb().then(todos => {
+        const transformTodo = [];
+        // 过滤数据
+        for (let todoDoc of todos.rows) {
+            if (filter(todoDoc.doc)) {
+                transformTodo.push(todoDoc.doc);
+            }
+        }
         return dispatch({type: types.GET_TODOS, todos: transformTodo});
     });
 }
