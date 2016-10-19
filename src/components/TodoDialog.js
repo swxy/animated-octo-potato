@@ -47,7 +47,7 @@ export default class TodoDialog extends Component {
         let newTags = [];
         const dataSource = this.props.dataSource;
         for (let tag of total) {
-            if (!(tag in dataSource)) {
+            if (!dataSource.includes(tag)) {
                 newTags.push(tag);
             }
         }
@@ -84,7 +84,8 @@ export default class TodoDialog extends Component {
         const todo = nextProps.todo;
         if (todo.text) {
             this.setState({
-                text: todo.text, date: todo.date ? moment(todo.date) : null,
+                text: todo.text,
+                date: todo.date ? moment(todo.date) : null,
                 tags: todo.tags.map(tag => ({key: tag, label: tag}))
             });
         }
@@ -96,8 +97,8 @@ export default class TodoDialog extends Component {
             wrapperCol: { span: 12 },
         };
         const children = [];
-        this.props.dataSource.forEach((tag) => {
-            children.push(<Option key={tag} value={tag}>{tag}</Option>);
+        this.props.dataSource.forEach((tag, idx) => {
+            children.push(<Option key={tag}>{tag}</Option>);
         });
         return (
             <Modal title="Basic Modal" visible={this.props.visible}
