@@ -83,7 +83,10 @@ export default class TodoDialog extends Component {
     componentWillReceiveProps(nextProps) {
         const todo = nextProps.todo;
         if (todo.text) {
-            this.setState({text: todo.text, date: todo.date ? moment(todo.date) : null, tags: todo.tags.map(tag => ({key: tag, label: tag}))});
+            this.setState({
+                text: todo.text, date: todo.date ? moment(todo.date) : null,
+                tags: todo.tags.map(tag => ({key: tag, label: tag}))
+            });
         }
     }
 
