@@ -49,6 +49,11 @@ export default class TodoList extends Component {
             width: 500,
             key: 'text'
         }, {
+            title: '标签',
+            dataIndex: 'tags',
+            key: 'tags',
+            render: (text, recode) => ((text||[]).join(' | '))
+        },{
             title: '日期',
             dataIndex: 'date',
             key: 'date'

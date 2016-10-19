@@ -15,7 +15,7 @@
 
 - ~~更改Dexie.js 为 PouchDB，因为PouchDB支持mapReduce~~
 
-- todo加tag
+- ~~todo加tag~~
 
 - 导出todo，支持（json， pdf格式导出）
 
