@@ -1,5 +1,5 @@
 import * as types from '../constants/ActionTypes';
-import {addTodoToDb, deleteTodoFromDb, getTodosFromDb, updateTodoSyncDb} from '../model/pouchdb';
+import {addTodoToDb, deleteTodoFromDb, getTodosFromDb, getTagsFromDb, updateTodoSyncDb} from '../model/pouchdb';
 import { doFilter } from './doFilter';
 
 function queryTodos (dispatch, state) {
@@ -15,6 +15,18 @@ function queryTodos (dispatch, state) {
         return dispatch({type: types.GET_TODOS, todos: transformTodo});
     });
 }
+
+export const getTags = () => (dispatch, getState) => {
+    if (getState().tags.length) {
+        return getState().tags;
+    }
+    return getTagsFromDb().then(tags => {
+        console.log('get tags success', tags);
+        return dispatch({type: types.GET_TAGS, tags: tags});
+    });
+};
+
+export const addTags = (tags) => ({type: types.ADD_TAGS, tags});
 
 export const toggleTodoDialog = (isOpen, todo) => ({type: types.TOGGLE_TODO_DIALOG, isOpen, todo});
 

@@ -32,6 +32,28 @@ export const getRawTodosFromDb = () => {
     return db.todo;
 };
 
+export const getTagsFromDb = () => {
+    let todoMap = (doc) => {
+        emit(doc.tags);
+    };
+    let todoReduce = (keys) => {
+        let tags = [];
+        for (let item of keys) {
+            tags = tags.concat(item[0])
+        }
+        return Array.from(new Set(tags));
+    };
+    return db.query({
+        map: todoMap,
+        reduce: todoReduce
+    }, {
+        reduce: true
+    }).then((result) => {
+        return result.rows[0].value || [];
+    }).catch((err) => {
+        console.error(err);
+    })
+};
 
 export const openDb = () => {
     return db.open();

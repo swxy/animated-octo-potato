@@ -13,12 +13,14 @@ class App extends Component {
         todos: PropTypes.array.isRequired,
         actions: PropTypes.object.isRequired,
         dialogData: PropTypes.object.isRequired,
-        filters: PropTypes.object.isRequired
+        filters: PropTypes.object.isRequired,
+        tags: PropTypes.array.isRequired
     };
 
     componentDidMount() {
         const {actions} = this.props;
         actions.getTodos();
+        actions.getTags();
     }
 
     componentWillUnmount() {
@@ -27,16 +29,19 @@ class App extends Component {
     }
 
     render() {
-        const {todos, dialogData, filters, actions} = this.props;
+        const {todos, dialogData, filters, actions, tags} = this.props;
+        console.log('tags', tags);
         return (
             <div className="page-wrapper">
                 <Navigation/>
                 <MainSection todos={todos} filters={filters} actions={actions}/>
                 <TodoDialog
                     onEdit={actions.editTodo}
+                    onAddTag={actions.addTags}
                     onSave={actions.addTodo}
                     visible={dialogData.visible}
                     todo={dialogData.todo}
+                    dataSource={tags}
                     toggleTodoDialog={actions.toggleTodoDialog}/>
             </div>
         )
@@ -47,7 +52,8 @@ class App extends Component {
 const mapStateToProps = state => ({
     todos: state.todos,
     dialogData: state.todoDialog,
-    filters: state.todoFilter
+    filters: state.todoFilter,
+    tags: state.tags
 });
 
 const mapDispathToProps = dispatch => ({

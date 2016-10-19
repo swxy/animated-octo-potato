@@ -1,21 +1,25 @@
 import React, { Component, PropTypes } from 'react';
-import { Modal, Button, Form, Input, DatePicker } from 'antd';
+import { Modal, Select, Form, Input, DatePicker } from 'antd';
 import moment from 'moment';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 export default class TodoDialog extends Component {
     static propTypes = {
         onSave: PropTypes.func.isRequired,
+        onAddTag: PropTypes.func.isRequired,
         toggleTodoDialog: PropTypes.func.isRequired,
         todo: PropTypes.object.isRequired,
         placeholder: PropTypes.string,
-        visible: PropTypes.bool.isRequired
+        visible: PropTypes.bool.isRequired,
+        dataSource: PropTypes.array.isRequired
     };
 
     state = {
         text: this.props.todo.text || '',
-        date: this.props.todo.date ? moment(this.props.todo.date) : null
+        date: this.props.todo.date ? moment(this.props.todo.date) : null,
+        tags: this.props.todo.tags||[]
     };
 
     handleChange = e => {
@@ -26,23 +30,46 @@ export default class TodoDialog extends Component {
         this.setState({date: date});
     };
 
+    handleTagChange = (value) => {
+        this.setState({tags:value});
+    };
+
     hideModal() {
         this.props.toggleTodoDialog(false);
     }
 
     clearState () {
-        this.setState({text: '', date: null});
+        this.setState({text: '', date: null, tags: []});
+    }
+
+    parseTags (tags) {
+        let total = tags;
+        let newTags = [];
+        const dataSource = this.props.dataSource;
+        for (let tag of tags) {
+            if (!(tag in dataSource)) {
+                newTags.push(tag);
+            }
+        }
+        return {total, newTags};
     }
 
     handleOk() {
         const text = this.state.text;
         const date = this.state.date ? this.state.date.format('YYYY-MM-DD') : null;
         const id = this.props.todo._id;
+        const tagObj = this.parseTags(this.state.tags);
+        const tags = tagObj.total;
+        const newTags = tagObj.newTags;
+        console.log(tags, 'selected tags', newTags, 'new tags');
         if (id !== undefined) {
-            this.props.onEdit({...this.props.todo, text, date});
+            this.props.onEdit({...this.props.todo, text, date, tags});
         }
         else {
-            this.props.onSave({text, date, completed: false});
+            this.props.onSave({text, date, tags, completed: false});
+        }
+        if (newTags.length) {
+            this.props.onAddTag(newTags);
         }
         this.hideModal();
         this.clearState();
@@ -57,7 +84,7 @@ export default class TodoDialog extends Component {
     componentWillReceiveProps(nextProps) {
         const todo = nextProps.todo;
         if (todo.text) {
-            this.setState({text: todo.text, date: todo.date ? moment(todo.date) : null});
+            this.setState({text: todo.text, date: todo.date ? moment(todo.date) : null, tags: todo.tags});
         }
     }
 
@@ -66,16 +93,30 @@ export default class TodoDialog extends Component {
             labelCol: { span: 7 },
             wrapperCol: { span: 12 },
         };
+        const children = [];
+        this.props.dataSource.forEach((tag, idx) => {
+            children.push(<Option key={idx + tag} >{tag}</Option>);
+        });
+        console.log('children length', children.length);
         return (
             <Modal title="Basic Modal" visible={this.props.visible}
-                   onOk={this.handleOk.bind(this)} onCancel={this.handleCancel.bind(this)}
-            >
+                   onOk={this.handleOk.bind(this)} onCancel={this.handleCancel.bind(this)}>
                 <Form horizontal>
                     <FormItem
                         id="control-input"
                         {...formItemLayout}
                         label="Todo">
-                        <Input id="control-input" onChange={this.handleChange} placeholder={this.props.placeholder} value={this.state.text}/>
+                        <Input type="textarea" id="control-input" onChange={this.handleChange} placeholder={this.props.placeholder} value={this.state.text}/>
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="Tags">
+                        <Select
+                            tags
+                            value={this.state.tags}
+                            onChange={this.handleTagChange}>
+                            {children}
+                        </Select>
                     </FormItem>
                     <FormItem
                         id="control-date"
