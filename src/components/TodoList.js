@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { Table, Modal } from 'antd';
+import { Table, Modal, Button } from 'antd';
 
 const confirmModal = Modal.confirm;
 
@@ -9,12 +9,20 @@ export default class TodoList extends Component {
         deleteTodo: PropTypes.func.isRequired,
         completeTodo: PropTypes.func.isRequired,
         toggleTodoDialog: PropTypes.func.isRequired,
-        todoConstraint: PropTypes.object.isRequired
+        todoConstraint: PropTypes.object.isRequired,
+        todos: PropTypes.array.isRequired
     };
 
     state = {
-        selectedRowKeys: []
+        selectedRowKeys: [],
+        downloadUri: ''
     };
+
+    handleDownload () {
+        const str = JSON.stringify(this.props.todos);
+        const uri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(str);
+        this.setState({downloadUri: uri});
+    }
 
     deleteTodo(todo) {
         const delTodo = this.props.deleteTodo;
@@ -80,6 +88,11 @@ export default class TodoList extends Component {
 
         return (
             <div className="main-table">
+                <div className="export" style={{marginBottom: 20}}>
+                    <a href={this.state.downloadUri} download="todos.json">
+                        <Button type="dashed" onClick={this.handleDownload.bind(this)}>export json</Button>
+                    </a>
+                </div>
                 <Table rowSelection={rowSelection} columns={columns} dataSource={todos}></Table>
             </div>
         )
