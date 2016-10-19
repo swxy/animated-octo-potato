@@ -30,7 +30,6 @@ class App extends Component {
 
     render() {
         const {todos, dialogData, filters, actions, tags} = this.props;
-        console.log('tags', tags);
         return (
             <div className="page-wrapper">
                 <Navigation/>

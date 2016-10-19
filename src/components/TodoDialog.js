@@ -19,14 +19,14 @@ export default class TodoDialog extends Component {
     state = {
         text: this.props.todo.text || '',
         date: this.props.todo.date ? moment(this.props.todo.date) : null,
-        tags: this.props.todo.tags||[]
+        tags: (this.props.todo.tags||[]).map(tag => ({key: tag, label: tag}))
     };
 
     handleChange = e => {
         this.setState({text: e.target.value});
     };
 
-    handleDateChange = (date, dateString) => {
+    handleDateChange = (date) => {
         this.setState({date: date});
     };
 
@@ -43,10 +43,10 @@ export default class TodoDialog extends Component {
     }
 
     parseTags (tags) {
-        let total = tags;
+        let total = tags.map(tag => (tag.label));
         let newTags = [];
         const dataSource = this.props.dataSource;
-        for (let tag of tags) {
+        for (let tag of total) {
             if (!(tag in dataSource)) {
                 newTags.push(tag);
             }
@@ -61,7 +61,6 @@ export default class TodoDialog extends Component {
         const tagObj = this.parseTags(this.state.tags);
         const tags = tagObj.total;
         const newTags = tagObj.newTags;
-        console.log(tags, 'selected tags', newTags, 'new tags');
         if (id !== undefined) {
             this.props.onEdit({...this.props.todo, text, date, tags});
         }
@@ -84,7 +83,7 @@ export default class TodoDialog extends Component {
     componentWillReceiveProps(nextProps) {
         const todo = nextProps.todo;
         if (todo.text) {
-            this.setState({text: todo.text, date: todo.date ? moment(todo.date) : null, tags: todo.tags});
+            this.setState({text: todo.text, date: todo.date ? moment(todo.date) : null, tags: todo.tags.map(tag => ({key: tag, label: tag}))});
         }
     }
 
@@ -94,10 +93,9 @@ export default class TodoDialog extends Component {
             wrapperCol: { span: 12 },
         };
         const children = [];
-        this.props.dataSource.forEach((tag, idx) => {
-            children.push(<Option key={idx + tag} >{tag}</Option>);
+        this.props.dataSource.forEach((tag) => {
+            children.push(<Option key={tag} value={tag}>{tag}</Option>);
         });
-        console.log('children length', children.length);
         return (
             <Modal title="Basic Modal" visible={this.props.visible}
                    onOk={this.handleOk.bind(this)} onCancel={this.handleCancel.bind(this)}>
@@ -113,6 +111,7 @@ export default class TodoDialog extends Component {
                         label="Tags">
                         <Select
                             tags
+                            labelInValue
                             value={this.state.tags}
                             onChange={this.handleTagChange}>
                             {children}
