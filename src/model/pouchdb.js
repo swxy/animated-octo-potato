@@ -13,7 +13,7 @@ export const addTodoToDb = (todo) => {
     })
 };
 
-export const buldAddTodosToDb = (todos) => {
+export const bulkAddTodosToDb = (todos) => {
     if (Array.isArray(todos)) {
         const id = +new Date();
         todos.map((todo, idx) => {

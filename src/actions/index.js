@@ -1,5 +1,5 @@
 import * as types from '../constants/ActionTypes';
-import {addTodoToDb, buldAddTodosToDb, deleteTodoFromDb, getTodosFromDb, getTagsFromDb, updateTodoSyncDb} from '../model/pouchdb';
+import {addTodoToDb, bulkAddTodosToDb, deleteTodoFromDb, getTodosFromDb, getTagsFromDb, updateTodoSyncDb} from '../model/pouchdb';
 import { doFilter } from './doFilter';
 
 function queryTodos (dispatch, state) {
@@ -37,7 +37,7 @@ export const addTodo = (todo)=> (dispatch, getState) => {
 };
 
 export const bulkAddTodos = (todos) => (dispatch, getState) => {
-    buldAddTodosToDb(todos).then(res => {
+    bulkAddTodosToDb(todos).then(res => {
         queryTodos(dispatch, getState());
     })
 };
