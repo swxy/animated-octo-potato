@@ -19,7 +19,11 @@ export default class TodoList extends Component {
     };
 
     handleDownload () {
-        const str = JSON.stringify(this.props.todos);
+        let todos = this.props.todos.map((todo) => {
+            const {text, date, tags, completed} = todo;
+            return {text, date, tags, completed};
+        });
+        const str = JSON.stringify(todos, null, 4);
         const uri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(str);
         this.setState({downloadUri: uri});
     }
