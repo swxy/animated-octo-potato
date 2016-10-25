@@ -13,6 +13,22 @@ export const addTodoToDb = (todo) => {
     })
 };
 
+export const buldAddTodosToDb = (todos) => {
+    if (Array.isArray(todos)) {
+        const id = +new Date();
+        todos.map((todo, idx) => {
+            todo._id = id + idx + '';
+        });
+        return db.bulkDocs(todos).then(res => {
+            console.log('bulk add todos success');
+            return res;
+        });
+    }
+    else {
+        throw new Error('todos must be array');
+    }
+};
+
 export const deleteTodoFromDb = todo => {
     return db.remove(todo).then(res => {
         console.log('delete success');

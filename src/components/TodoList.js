@@ -28,6 +28,17 @@ export default class TodoList extends Component {
         this.setState({downloadUri: uri});
     }
 
+    handleUpload () {
+        const reader = new FileReader();
+        const that = this;
+        reader.onload = (evt) => {
+            let obj = JSON.parse(evt.target.result);
+            that.props.bulkAddTodos(obj);
+            console.dir(obj);
+        };
+        reader.readAsText(this.fileUpload.files[0]);
+    }
+
     deleteTodo(todo) {
         const delTodo = this.props.deleteTodo;
         confirmModal({
@@ -96,6 +107,15 @@ export default class TodoList extends Component {
                     <a href={this.state.downloadUri} download="todos.json">
                         <Button type="dashed" onClick={this.handleDownload.bind(this)}>export json</Button>
                     </a>
+                    <label htmlFor="uploadTodos" className="ant-btn ant-btn-ghost" style={{marginLeft: '20px'}}>
+                        <input type="file" id="uploadTodos" accept=".json"
+                               style={{display: "none"}}
+                               ref={(ref) => {
+                                   this.fileUpload = ref;
+                               }}
+                               onChange={this.handleUpload.bind(this)}/>
+                        upload json
+                    </label>
                 </div>
                 <Table rowSelection={rowSelection} columns={columns} dataSource={todos}></Table>
             </div>
