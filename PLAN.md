@@ -17,7 +17,7 @@
 
 - ~~todo加tag~~
 
-- 导出todo，支持（json， pdf格式导出）
+- ~~导出todo，支持（json， pdf格式导出）// 完成json的导入导出~~
 
 - todo备注（备注类似于一个markdown编辑器）
 
