@@ -1,4 +1,5 @@
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters';
+import * as MenuItemType from '../constants/NavigationTypes';
 import moment from 'moment';
 
 const TODO_FILTERS = {
@@ -7,21 +8,39 @@ const TODO_FILTERS = {
     [SHOW_COMPLETED]: todo => todo.completed
 };
 
-export function doFilter (todoFilters) {
+/**
+ * 需要根据过滤条件和当前选中的标签页来判断
+ * @param todoFilters
+ * @param navigation
+ * @return {function(*=)}
+ */
+export function doFilter (todoFilters, navigation) {
     const {status, startDate, endDate} = todoFilters;
     return (todo) => {
-        if (TODO_FILTERS[status](todo)) {
-            if (startDate && endDate) {
-                return moment(todo.date).isBetween(startDate, endDate);
+        switch (navigation) {
+            case MenuItemType.TODOS: {
+                if (TODO_FILTERS[status](todo)) {
+                    if (startDate && endDate) {
+                        return moment(todo.date).isBetween(startDate, endDate);
+                    }
+                    if (startDate) {
+                        return moment(todo.date).isAfter(startDate);
+                    }
+                    if (endDate) {
+                        return moment(todo.date).isBefore(endDate);
+                    }
+                    return true;
+                }
+                return false;
             }
-            if (startDate) {
-                return moment(todo.date).isAfter(startDate);
+            case MenuItemType.TODAY: {
+                console.log('filter today', todo.date);
+                if (todo.date) {
+                    console.log('is same: ', moment(todo.date).isSame(new Date(), 'day'));
+                    return moment(todo.date).isSame(new Date(), 'day');
+                }
+                return false;
             }
-            if (endDate) {
-                return moment(todo.date).isBefore(endDate);
-            }
-            return true;
         }
-        return false;
     }
 }

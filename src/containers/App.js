@@ -6,15 +6,14 @@ import MainSection from '../components/MainSection';
 import TodoDialog from '../components/TodoDialog';
 import * as TodoActions from '../actions';
 
-import DB, {getTodos, closeDb} from '../model/db';
-
 class App extends Component {
     static propTypes = {
         todos: PropTypes.array.isRequired,
         actions: PropTypes.object.isRequired,
         dialogData: PropTypes.object.isRequired,
         filters: PropTypes.object.isRequired,
-        tags: PropTypes.array.isRequired
+        tags: PropTypes.array.isRequired,
+        current: PropTypes.string.isRequired
     };
 
     componentDidMount() {
@@ -29,11 +28,11 @@ class App extends Component {
     }
 
     render() {
-        const {todos, dialogData, filters, actions, tags} = this.props;
+        const {todos, dialogData, filters, actions, tags, current} = this.props;
         return (
             <div className="page-wrapper">
-                <Navigation/>
-                <MainSection todos={todos} filters={filters} actions={actions}/>
+                <Navigation current={current} switchMenu={actions.switchMenu}/>
+                <MainSection todos={todos} filters={filters} actions={actions} current={current}/>
                 <TodoDialog
                     onEdit={actions.editTodo}
                     onAddTag={actions.addTags}
@@ -52,7 +51,8 @@ const mapStateToProps = state => ({
     todos: state.todos,
     dialogData: state.todoDialog,
     filters: state.todoFilter,
-    tags: state.tags
+    tags: state.tags,
+    current: state.navigation
 });
 
 const mapDispathToProps = dispatch => ({

@@ -1,17 +1,25 @@
 import React, { Component, PropTypes } from 'react';
 import Header from './Header';
 import TodoList from './TodoList';
+import TodayNeedTodo from './TodayNeedTodo';
+import * as MenuItemType from '../constants/NavigationTypes';
 
 export default class MainSection extends Component {
     static propTypes = {
         todos: PropTypes.array.isRequired,
         actions: PropTypes.object.isRequired,
-        filters: PropTypes.object.isRequired
+        filters: PropTypes.object.isRequired,
+        current: PropTypes.string.isRequired
     };
 
-    render () {
-        const { todos, actions } = this.props;
-        return (
+    getTabContent () {
+        const { todos, actions, current } = this.props;
+        let todayTab = (
+            <section className="main">
+                <TodayNeedTodo todos={todos} {...actions} />
+            </section>
+        );
+        const todoTab = (
             <section className="main">
                 <Header
                     todoConstraint={this.props.filters}
@@ -19,6 +27,16 @@ export default class MainSection extends Component {
                     filterTodo={actions.filterTodo}/>
                 <TodoList todos={todos} todoConstraint={this.props.filters} {...actions} />
             </section>
-        )
+        );
+        switch (current) {
+            case MenuItemType.TODAY:
+                return todayTab;
+            case MenuItemType.TODOS:
+                return todoTab;
+        }
+    }
+
+    render () {
+        return this.getTabContent()
      }
 }

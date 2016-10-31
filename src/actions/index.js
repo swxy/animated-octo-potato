@@ -1,9 +1,11 @@
 import * as types from '../constants/ActionTypes';
 import {addTodoToDb, bulkAddTodosToDb, deleteTodoFromDb, getTodosFromDb, getTagsFromDb, updateTodoSyncDb} from '../model/pouchdb';
 import { doFilter } from './doFilter';
+import { SWITCH_MENU } from '../constants/ActionTypes';
 
 function queryTodos (dispatch, state) {
-    const filter = doFilter(state.todoFilter);
+    console.log(state.navigation);
+    const filter = doFilter(state.todoFilter, state.navigation);
     return getTodosFromDb().then(todos => {
         const transformTodo = [];
         // 过滤数据
@@ -72,5 +74,11 @@ export const getTodos = () => (dispatch, getState) => {
 
 export const filterTodo  = (filters) => (dispatch, getState) => {
     dispatch({type: types.FILTER_TODO, filters});
+    queryTodos(dispatch, getState());
+};
+
+export const switchMenu = (key) => (dispatch, getState) => {
+    dispatch({type: SWITCH_MENU, key});
+    console.log('switch: ' + key);
     queryTodos(dispatch, getState());
 };

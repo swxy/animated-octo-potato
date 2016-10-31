@@ -11,3 +11,5 @@ export const CLEAR_COMPLETED = 'CLEAR_COMPLETED';
 
 
 export const FILTER_TODO = 'FILTER_TODO';
+
+export const SWITCH_MENU = 'SWITCH_MENU';
