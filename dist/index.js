@@ -22,13 +22,13 @@ webpackJsonp([0],[
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _reducers = __webpack_require__(587);
+	var _reducers = __webpack_require__(622);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	__webpack_require__(591);
+	__webpack_require__(628);
 
-	__webpack_require__(593);
+	__webpack_require__(630);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1838,21 +1838,17 @@ webpackJsonp([0],[
 
 	var _Navigation2 = _interopRequireDefault(_Navigation);
 
-	var _MainSection = __webpack_require__(329);
+	var _MainSection = __webpack_require__(330);
 
 	var _MainSection2 = _interopRequireDefault(_MainSection);
 
-	var _TodoDialog = __webpack_require__(576);
+	var _TodoDialog = __webpack_require__(599);
 
 	var _TodoDialog2 = _interopRequireDefault(_TodoDialog);
 
-	var _actions = __webpack_require__(581);
+	var _actions = __webpack_require__(604);
 
 	var TodoActions = _interopRequireWildcard(_actions);
-
-	var _db = __webpack_require__(583);
-
-	var _db2 = _interopRequireDefault(_db);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -1879,12 +1875,13 @@ webpackJsonp([0],[
 	            var actions = this.props.actions;
 
 	            actions.getTodos();
+	            actions.getTags();
 	        }
 	    }, {
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
 	            console.log('component unmout');
-	            (0, _db.closeDb)();
+	            closeDb();
 	        }
 	    }, {
 	        key: 'render',
@@ -1894,17 +1891,21 @@ webpackJsonp([0],[
 	            var dialogData = _props.dialogData;
 	            var filters = _props.filters;
 	            var actions = _props.actions;
+	            var tags = _props.tags;
+	            var current = _props.current;
 
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'page-wrapper' },
-	                _react2.default.createElement(_Navigation2.default, null),
-	                _react2.default.createElement(_MainSection2.default, { todos: todos, filters: filters, actions: actions }),
+	                _react2.default.createElement(_Navigation2.default, { current: current, switchMenu: actions.switchMenu }),
+	                _react2.default.createElement(_MainSection2.default, { todos: todos, filters: filters, actions: actions, current: current }),
 	                _react2.default.createElement(_TodoDialog2.default, {
 	                    onEdit: actions.editTodo,
+	                    onAddTag: actions.addTags,
 	                    onSave: actions.addTodo,
 	                    visible: dialogData.visible,
 	                    todo: dialogData.todo,
+	                    dataSource: tags,
 	                    toggleTodoDialog: actions.toggleTodoDialog })
 	            );
 	        }
@@ -1917,7 +1918,9 @@ webpackJsonp([0],[
 	    todos: _react.PropTypes.array.isRequired,
 	    actions: _react.PropTypes.object.isRequired,
 	    dialogData: _react.PropTypes.object.isRequired,
-	    filters: _react.PropTypes.object.isRequired
+	    filters: _react.PropTypes.object.isRequired,
+	    tags: _react.PropTypes.array.isRequired,
+	    current: _react.PropTypes.string.isRequired
 	};
 
 
@@ -1925,7 +1928,9 @@ webpackJsonp([0],[
 	    return {
 	        todos: state.todos,
 	        dialogData: state.todoDialog,
-	        filters: state.todoFilter
+	        filters: state.todoFilter,
+	        tags: state.tags,
+	        current: state.navigation
 	    };
 	};
 
@@ -1949,21 +1954,27 @@ webpackJsonp([0],[
 
 	var _css = __webpack_require__(198);
 
-	var _icon = __webpack_require__(203);
-
-	var _icon2 = _interopRequireDefault(_icon);
-
-	var _css2 = __webpack_require__(242);
-
-	var _menu = __webpack_require__(245);
+	var _menu = __webpack_require__(205);
 
 	var _menu2 = _interopRequireDefault(_menu);
+
+	var _css2 = __webpack_require__(327);
+
+	var _icon = __webpack_require__(328);
+
+	var _icon2 = _interopRequireDefault(_icon);
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _NavigationTypes = __webpack_require__(329);
+
+	var MenuItemType = _interopRequireWildcard(_NavigationTypes);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1973,16 +1984,13 @@ webpackJsonp([0],[
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SubMenu = _menu2.default.SubMenu;
-	var MenuItemGroup = _menu2.default.ItemGroup;
-
 	var Navigation = function (_Component) {
 	    _inherits(Navigation, _Component);
 
 	    function Navigation() {
 	        var _ref;
 
-	        var _temp2, _this, _ret;
+	        var _temp, _this, _ret;
 
 	        _classCallCheck(this, Navigation);
 
@@ -1990,33 +1998,40 @@ webpackJsonp([0],[
 	            args[_key] = arguments[_key];
 	        }
 
-	        return _ret = (_temp2 = (_this = _possibleConstructorReturn(this, (_ref = Navigation.__proto__ || Object.getPrototypeOf(Navigation)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-	            current: _this.props.current || 'todo'
-	        }, _temp2), _possibleConstructorReturn(_this, _ret);
+	        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Navigation.__proto__ || Object.getPrototypeOf(Navigation)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+	            current: _this.props.current
+	        }, _temp), _possibleConstructorReturn(_this, _ret);
 	    }
 
 	    _createClass(Navigation, [{
 	        key: 'handleMenuClick',
 	        value: function handleMenuClick(e) {
-	            // click
+	            this.setState({
+	                current: e.key
+	            });
+	            this.props.switchMenu(e.key);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var menuItem = [];
+	            for (var key in MenuItemType) {
+	                menuItem.push(_react2.default.createElement(
+	                    _menu2.default.Item,
+	                    { key: MenuItemType[key] },
+	                    _react2.default.createElement(_icon2.default, { type: 'file-text' }),
+	                    key
+	                ));
+	            }
 	            return _react2.default.createElement(
 	                'header',
 	                { className: 'page-header' },
 	                _react2.default.createElement(
 	                    _menu2.default,
-	                    { className: 'page-header-menu', onClick: this.handleMenuClick,
+	                    { className: 'page-header-menu', onClick: this.handleMenuClick.bind(this),
 	                        selectedKeys: [this.state.current],
 	                        mode: 'horizontal' },
-	                    _react2.default.createElement(
-	                        _menu2.default.Item,
-	                        { key: 'todo' },
-	                        _react2.default.createElement(_icon2.default, { type: 'file-text' }),
-	                        'Todos'
-	                    )
+	                    menuItem
 	                )
 	            );
 	        }
@@ -2026,7 +2041,8 @@ webpackJsonp([0],[
 	}(_react.Component);
 
 	Navigation.propTypes = {
-	    current: _react.PropTypes.string
+	    current: _react.PropTypes.string,
+	    switchMenu: _react.PropTypes.func.isRequired
 	};
 	exports.default = Navigation;
 
@@ -2037,6 +2053,8 @@ webpackJsonp([0],[
 	'use strict';
 
 	__webpack_require__(199);
+
+	__webpack_require__(203);
 
 /***/ },
 /* 199 */
@@ -2390,585 +2408,10 @@ webpackJsonp([0],[
 /* 203 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _extends2 = __webpack_require__(204);
-
-	var _extends3 = _interopRequireDefault(_extends2);
-
-	var _react = __webpack_require__(1);
-
-	var React = _interopRequireWildcard(_react);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-	exports["default"] = function (props) {
-	    var type = props.type;
-	    var _props$className = props.className;
-	    var className = _props$className === undefined ? '' : _props$className;
-
-	    return React.createElement('i', (0, _extends3["default"])({}, props, { className: (className + ' anticon anticon-' + type).trim() }));
-	};
-
-	module.exports = exports['default'];
-
-/***/ },
-/* 204 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.__esModule = true;
-
-	var _assign = __webpack_require__(205);
-
-	var _assign2 = _interopRequireDefault(_assign);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _assign2.default || function (target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = arguments[i];
-
-	    for (var key in source) {
-	      if (Object.prototype.hasOwnProperty.call(source, key)) {
-	        target[key] = source[key];
-	      }
-	    }
-	  }
-
-	  return target;
-	};
-
-/***/ },
-/* 205 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(206), __esModule: true };
-
-/***/ },
-/* 206 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(207);
-	module.exports = __webpack_require__(210).Object.assign;
-
-/***/ },
-/* 207 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 19.1.3.1 Object.assign(target, source)
-	var $export = __webpack_require__(208);
-
-	$export($export.S + $export.F, 'Object', {assign: __webpack_require__(223)});
-
-/***/ },
-/* 208 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var global    = __webpack_require__(209)
-	  , core      = __webpack_require__(210)
-	  , ctx       = __webpack_require__(211)
-	  , hide      = __webpack_require__(213)
-	  , PROTOTYPE = 'prototype';
-
-	var $export = function(type, name, source){
-	  var IS_FORCED = type & $export.F
-	    , IS_GLOBAL = type & $export.G
-	    , IS_STATIC = type & $export.S
-	    , IS_PROTO  = type & $export.P
-	    , IS_BIND   = type & $export.B
-	    , IS_WRAP   = type & $export.W
-	    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
-	    , expProto  = exports[PROTOTYPE]
-	    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE]
-	    , key, own, out;
-	  if(IS_GLOBAL)source = name;
-	  for(key in source){
-	    // contains in native
-	    own = !IS_FORCED && target && target[key] !== undefined;
-	    if(own && key in exports)continue;
-	    // export native or passed
-	    out = own ? target[key] : source[key];
-	    // prevent global pollution for namespaces
-	    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
-	    // bind timers to global for call from export context
-	    : IS_BIND && own ? ctx(out, global)
-	    // wrap global constructors for prevent change them in library
-	    : IS_WRAP && target[key] == out ? (function(C){
-	      var F = function(a, b, c){
-	        if(this instanceof C){
-	          switch(arguments.length){
-	            case 0: return new C;
-	            case 1: return new C(a);
-	            case 2: return new C(a, b);
-	          } return new C(a, b, c);
-	        } return C.apply(this, arguments);
-	      };
-	      F[PROTOTYPE] = C[PROTOTYPE];
-	      return F;
-	    // make static versions for prototype methods
-	    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
-	    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
-	    if(IS_PROTO){
-	      (exports.virtual || (exports.virtual = {}))[key] = out;
-	      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
-	      if(type & $export.R && expProto && !expProto[key])hide(expProto, key, out);
-	    }
-	  }
-	};
-	// type bitmap
-	$export.F = 1;   // forced
-	$export.G = 2;   // global
-	$export.S = 4;   // static
-	$export.P = 8;   // proto
-	$export.B = 16;  // bind
-	$export.W = 32;  // wrap
-	$export.U = 64;  // safe
-	$export.R = 128; // real proto method for `library` 
-	module.exports = $export;
-
-/***/ },
-/* 209 */
-/***/ function(module, exports) {
-
-	// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-	var global = module.exports = typeof window != 'undefined' && window.Math == Math
-	  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
-	if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
-
-/***/ },
-/* 210 */
-/***/ function(module, exports) {
-
-	var core = module.exports = {version: '2.4.0'};
-	if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
-
-/***/ },
-/* 211 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// optional / simple context binding
-	var aFunction = __webpack_require__(212);
-	module.exports = function(fn, that, length){
-	  aFunction(fn);
-	  if(that === undefined)return fn;
-	  switch(length){
-	    case 1: return function(a){
-	      return fn.call(that, a);
-	    };
-	    case 2: return function(a, b){
-	      return fn.call(that, a, b);
-	    };
-	    case 3: return function(a, b, c){
-	      return fn.call(that, a, b, c);
-	    };
-	  }
-	  return function(/* ...args */){
-	    return fn.apply(that, arguments);
-	  };
-	};
-
-/***/ },
-/* 212 */
-/***/ function(module, exports) {
-
-	module.exports = function(it){
-	  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
-	  return it;
-	};
-
-/***/ },
-/* 213 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var dP         = __webpack_require__(214)
-	  , createDesc = __webpack_require__(222);
-	module.exports = __webpack_require__(218) ? function(object, key, value){
-	  return dP.f(object, key, createDesc(1, value));
-	} : function(object, key, value){
-	  object[key] = value;
-	  return object;
-	};
-
-/***/ },
-/* 214 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var anObject       = __webpack_require__(215)
-	  , IE8_DOM_DEFINE = __webpack_require__(217)
-	  , toPrimitive    = __webpack_require__(221)
-	  , dP             = Object.defineProperty;
-
-	exports.f = __webpack_require__(218) ? Object.defineProperty : function defineProperty(O, P, Attributes){
-	  anObject(O);
-	  P = toPrimitive(P, true);
-	  anObject(Attributes);
-	  if(IE8_DOM_DEFINE)try {
-	    return dP(O, P, Attributes);
-	  } catch(e){ /* empty */ }
-	  if('get' in Attributes || 'set' in Attributes)throw TypeError('Accessors not supported!');
-	  if('value' in Attributes)O[P] = Attributes.value;
-	  return O;
-	};
-
-/***/ },
-/* 215 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var isObject = __webpack_require__(216);
-	module.exports = function(it){
-	  if(!isObject(it))throw TypeError(it + ' is not an object!');
-	  return it;
-	};
-
-/***/ },
-/* 216 */
-/***/ function(module, exports) {
-
-	module.exports = function(it){
-	  return typeof it === 'object' ? it !== null : typeof it === 'function';
-	};
-
-/***/ },
-/* 217 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = !__webpack_require__(218) && !__webpack_require__(219)(function(){
-	  return Object.defineProperty(__webpack_require__(220)('div'), 'a', {get: function(){ return 7; }}).a != 7;
-	});
-
-/***/ },
-/* 218 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Thank's IE8 for his funny defineProperty
-	module.exports = !__webpack_require__(219)(function(){
-	  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
-	});
-
-/***/ },
-/* 219 */
-/***/ function(module, exports) {
-
-	module.exports = function(exec){
-	  try {
-	    return !!exec();
-	  } catch(e){
-	    return true;
-	  }
-	};
-
-/***/ },
-/* 220 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var isObject = __webpack_require__(216)
-	  , document = __webpack_require__(209).document
-	  // in old IE typeof document.createElement is 'object'
-	  , is = isObject(document) && isObject(document.createElement);
-	module.exports = function(it){
-	  return is ? document.createElement(it) : {};
-	};
-
-/***/ },
-/* 221 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 7.1.1 ToPrimitive(input [, PreferredType])
-	var isObject = __webpack_require__(216);
-	// instead of the ES6 spec version, we didn't implement @@toPrimitive case
-	// and the second argument - flag - preferred type is a string
-	module.exports = function(it, S){
-	  if(!isObject(it))return it;
-	  var fn, val;
-	  if(S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
-	  if(typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it)))return val;
-	  if(!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
-	  throw TypeError("Can't convert object to primitive value");
-	};
-
-/***/ },
-/* 222 */
-/***/ function(module, exports) {
-
-	module.exports = function(bitmap, value){
-	  return {
-	    enumerable  : !(bitmap & 1),
-	    configurable: !(bitmap & 2),
-	    writable    : !(bitmap & 4),
-	    value       : value
-	  };
-	};
-
-/***/ },
-/* 223 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	// 19.1.2.1 Object.assign(target, source, ...)
-	var getKeys  = __webpack_require__(224)
-	  , gOPS     = __webpack_require__(239)
-	  , pIE      = __webpack_require__(240)
-	  , toObject = __webpack_require__(241)
-	  , IObject  = __webpack_require__(228)
-	  , $assign  = Object.assign;
-
-	// should work with symbols and should have deterministic property order (V8 bug)
-	module.exports = !$assign || __webpack_require__(219)(function(){
-	  var A = {}
-	    , B = {}
-	    , S = Symbol()
-	    , K = 'abcdefghijklmnopqrst';
-	  A[S] = 7;
-	  K.split('').forEach(function(k){ B[k] = k; });
-	  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
-	}) ? function assign(target, source){ // eslint-disable-line no-unused-vars
-	  var T     = toObject(target)
-	    , aLen  = arguments.length
-	    , index = 1
-	    , getSymbols = gOPS.f
-	    , isEnum     = pIE.f;
-	  while(aLen > index){
-	    var S      = IObject(arguments[index++])
-	      , keys   = getSymbols ? getKeys(S).concat(getSymbols(S)) : getKeys(S)
-	      , length = keys.length
-	      , j      = 0
-	      , key;
-	    while(length > j)if(isEnum.call(S, key = keys[j++]))T[key] = S[key];
-	  } return T;
-	} : $assign;
-
-/***/ },
-/* 224 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 19.1.2.14 / 15.2.3.14 Object.keys(O)
-	var $keys       = __webpack_require__(225)
-	  , enumBugKeys = __webpack_require__(238);
-
-	module.exports = Object.keys || function keys(O){
-	  return $keys(O, enumBugKeys);
-	};
-
-/***/ },
-/* 225 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var has          = __webpack_require__(226)
-	  , toIObject    = __webpack_require__(227)
-	  , arrayIndexOf = __webpack_require__(231)(false)
-	  , IE_PROTO     = __webpack_require__(235)('IE_PROTO');
-
-	module.exports = function(object, names){
-	  var O      = toIObject(object)
-	    , i      = 0
-	    , result = []
-	    , key;
-	  for(key in O)if(key != IE_PROTO)has(O, key) && result.push(key);
-	  // Don't enum bug & hidden keys
-	  while(names.length > i)if(has(O, key = names[i++])){
-	    ~arrayIndexOf(result, key) || result.push(key);
-	  }
-	  return result;
-	};
-
-/***/ },
-/* 226 */
-/***/ function(module, exports) {
-
-	var hasOwnProperty = {}.hasOwnProperty;
-	module.exports = function(it, key){
-	  return hasOwnProperty.call(it, key);
-	};
-
-/***/ },
-/* 227 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// to indexed object, toObject with fallback for non-array-like ES3 strings
-	var IObject = __webpack_require__(228)
-	  , defined = __webpack_require__(230);
-	module.exports = function(it){
-	  return IObject(defined(it));
-	};
-
-/***/ },
-/* 228 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// fallback for non-array-like ES3 and non-enumerable old V8 strings
-	var cof = __webpack_require__(229);
-	module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
-	  return cof(it) == 'String' ? it.split('') : Object(it);
-	};
-
-/***/ },
-/* 229 */
-/***/ function(module, exports) {
-
-	var toString = {}.toString;
-
-	module.exports = function(it){
-	  return toString.call(it).slice(8, -1);
-	};
-
-/***/ },
-/* 230 */
-/***/ function(module, exports) {
-
-	// 7.2.1 RequireObjectCoercible(argument)
-	module.exports = function(it){
-	  if(it == undefined)throw TypeError("Can't call method on  " + it);
-	  return it;
-	};
-
-/***/ },
-/* 231 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// false -> Array#indexOf
-	// true  -> Array#includes
-	var toIObject = __webpack_require__(227)
-	  , toLength  = __webpack_require__(232)
-	  , toIndex   = __webpack_require__(234);
-	module.exports = function(IS_INCLUDES){
-	  return function($this, el, fromIndex){
-	    var O      = toIObject($this)
-	      , length = toLength(O.length)
-	      , index  = toIndex(fromIndex, length)
-	      , value;
-	    // Array#includes uses SameValueZero equality algorithm
-	    if(IS_INCLUDES && el != el)while(length > index){
-	      value = O[index++];
-	      if(value != value)return true;
-	    // Array#toIndex ignores holes, Array#includes - not
-	    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
-	      if(O[index] === el)return IS_INCLUDES || index || 0;
-	    } return !IS_INCLUDES && -1;
-	  };
-	};
-
-/***/ },
-/* 232 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 7.1.15 ToLength
-	var toInteger = __webpack_require__(233)
-	  , min       = Math.min;
-	module.exports = function(it){
-	  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
-	};
-
-/***/ },
-/* 233 */
-/***/ function(module, exports) {
-
-	// 7.1.4 ToInteger
-	var ceil  = Math.ceil
-	  , floor = Math.floor;
-	module.exports = function(it){
-	  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-	};
-
-/***/ },
-/* 234 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var toInteger = __webpack_require__(233)
-	  , max       = Math.max
-	  , min       = Math.min;
-	module.exports = function(index, length){
-	  index = toInteger(index);
-	  return index < 0 ? max(index + length, 0) : min(index, length);
-	};
-
-/***/ },
-/* 235 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var shared = __webpack_require__(236)('keys')
-	  , uid    = __webpack_require__(237);
-	module.exports = function(key){
-	  return shared[key] || (shared[key] = uid(key));
-	};
-
-/***/ },
-/* 236 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var global = __webpack_require__(209)
-	  , SHARED = '__core-js_shared__'
-	  , store  = global[SHARED] || (global[SHARED] = {});
-	module.exports = function(key){
-	  return store[key] || (store[key] = {});
-	};
-
-/***/ },
-/* 237 */
-/***/ function(module, exports) {
-
-	var id = 0
-	  , px = Math.random();
-	module.exports = function(key){
-	  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-	};
-
-/***/ },
-/* 238 */
-/***/ function(module, exports) {
-
-	// IE 8- don't enum bug keys
-	module.exports = (
-	  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-	).split(',');
-
-/***/ },
-/* 239 */
-/***/ function(module, exports) {
-
-	exports.f = Object.getOwnPropertySymbols;
-
-/***/ },
-/* 240 */
-/***/ function(module, exports) {
-
-	exports.f = {}.propertyIsEnumerable;
-
-/***/ },
-/* 241 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 7.1.13 ToObject(argument)
-	var defined = __webpack_require__(230);
-	module.exports = function(it){
-	  return Object(defined(it));
-	};
-
-/***/ },
-/* 242 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	__webpack_require__(199);
-
-	__webpack_require__(243);
-
-/***/ },
-/* 243 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(244);
+	var content = __webpack_require__(204);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -2977,8 +2420,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(244, function() {
-				var newContent = __webpack_require__(244);
+			module.hot.accept(204, function() {
+				var newContent = __webpack_require__(204);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -2988,7 +2431,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 244 */
+/* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -3002,7 +2445,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 245 */
+/* 205 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3012,19 +2455,19 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -3032,15 +2475,15 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _rcMenu = __webpack_require__(291);
+	var _rcMenu = __webpack_require__(289);
 
 	var _rcMenu2 = _interopRequireDefault(_rcMenu);
 
-	var _openAnimation = __webpack_require__(327);
+	var _openAnimation = __webpack_require__(325);
 
 	var _openAnimation2 = _interopRequireDefault(_openAnimation);
 
-	var _warning = __webpack_require__(328);
+	var _warning = __webpack_require__(326);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -3150,7 +2593,540 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 246 */
+/* 206 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.__esModule = true;
+
+	var _assign = __webpack_require__(207);
+
+	var _assign2 = _interopRequireDefault(_assign);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _assign2.default || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];
+
+	    for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }
+
+	  return target;
+	};
+
+/***/ },
+/* 207 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(208), __esModule: true };
+
+/***/ },
+/* 208 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(209);
+	module.exports = __webpack_require__(212).Object.assign;
+
+/***/ },
+/* 209 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.3.1 Object.assign(target, source)
+	var $export = __webpack_require__(210);
+
+	$export($export.S + $export.F, 'Object', {assign: __webpack_require__(225)});
+
+/***/ },
+/* 210 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var global    = __webpack_require__(211)
+	  , core      = __webpack_require__(212)
+	  , ctx       = __webpack_require__(213)
+	  , hide      = __webpack_require__(215)
+	  , PROTOTYPE = 'prototype';
+
+	var $export = function(type, name, source){
+	  var IS_FORCED = type & $export.F
+	    , IS_GLOBAL = type & $export.G
+	    , IS_STATIC = type & $export.S
+	    , IS_PROTO  = type & $export.P
+	    , IS_BIND   = type & $export.B
+	    , IS_WRAP   = type & $export.W
+	    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
+	    , expProto  = exports[PROTOTYPE]
+	    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE]
+	    , key, own, out;
+	  if(IS_GLOBAL)source = name;
+	  for(key in source){
+	    // contains in native
+	    own = !IS_FORCED && target && target[key] !== undefined;
+	    if(own && key in exports)continue;
+	    // export native or passed
+	    out = own ? target[key] : source[key];
+	    // prevent global pollution for namespaces
+	    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
+	    // bind timers to global for call from export context
+	    : IS_BIND && own ? ctx(out, global)
+	    // wrap global constructors for prevent change them in library
+	    : IS_WRAP && target[key] == out ? (function(C){
+	      var F = function(a, b, c){
+	        if(this instanceof C){
+	          switch(arguments.length){
+	            case 0: return new C;
+	            case 1: return new C(a);
+	            case 2: return new C(a, b);
+	          } return new C(a, b, c);
+	        } return C.apply(this, arguments);
+	      };
+	      F[PROTOTYPE] = C[PROTOTYPE];
+	      return F;
+	    // make static versions for prototype methods
+	    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
+	    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
+	    if(IS_PROTO){
+	      (exports.virtual || (exports.virtual = {}))[key] = out;
+	      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
+	      if(type & $export.R && expProto && !expProto[key])hide(expProto, key, out);
+	    }
+	  }
+	};
+	// type bitmap
+	$export.F = 1;   // forced
+	$export.G = 2;   // global
+	$export.S = 4;   // static
+	$export.P = 8;   // proto
+	$export.B = 16;  // bind
+	$export.W = 32;  // wrap
+	$export.U = 64;  // safe
+	$export.R = 128; // real proto method for `library` 
+	module.exports = $export;
+
+/***/ },
+/* 211 */
+/***/ function(module, exports) {
+
+	// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+	var global = module.exports = typeof window != 'undefined' && window.Math == Math
+	  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
+	if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
+
+/***/ },
+/* 212 */
+/***/ function(module, exports) {
+
+	var core = module.exports = {version: '2.4.0'};
+	if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
+
+/***/ },
+/* 213 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// optional / simple context binding
+	var aFunction = __webpack_require__(214);
+	module.exports = function(fn, that, length){
+	  aFunction(fn);
+	  if(that === undefined)return fn;
+	  switch(length){
+	    case 1: return function(a){
+	      return fn.call(that, a);
+	    };
+	    case 2: return function(a, b){
+	      return fn.call(that, a, b);
+	    };
+	    case 3: return function(a, b, c){
+	      return fn.call(that, a, b, c);
+	    };
+	  }
+	  return function(/* ...args */){
+	    return fn.apply(that, arguments);
+	  };
+	};
+
+/***/ },
+/* 214 */
+/***/ function(module, exports) {
+
+	module.exports = function(it){
+	  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
+	  return it;
+	};
+
+/***/ },
+/* 215 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var dP         = __webpack_require__(216)
+	  , createDesc = __webpack_require__(224);
+	module.exports = __webpack_require__(220) ? function(object, key, value){
+	  return dP.f(object, key, createDesc(1, value));
+	} : function(object, key, value){
+	  object[key] = value;
+	  return object;
+	};
+
+/***/ },
+/* 216 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var anObject       = __webpack_require__(217)
+	  , IE8_DOM_DEFINE = __webpack_require__(219)
+	  , toPrimitive    = __webpack_require__(223)
+	  , dP             = Object.defineProperty;
+
+	exports.f = __webpack_require__(220) ? Object.defineProperty : function defineProperty(O, P, Attributes){
+	  anObject(O);
+	  P = toPrimitive(P, true);
+	  anObject(Attributes);
+	  if(IE8_DOM_DEFINE)try {
+	    return dP(O, P, Attributes);
+	  } catch(e){ /* empty */ }
+	  if('get' in Attributes || 'set' in Attributes)throw TypeError('Accessors not supported!');
+	  if('value' in Attributes)O[P] = Attributes.value;
+	  return O;
+	};
+
+/***/ },
+/* 217 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var isObject = __webpack_require__(218);
+	module.exports = function(it){
+	  if(!isObject(it))throw TypeError(it + ' is not an object!');
+	  return it;
+	};
+
+/***/ },
+/* 218 */
+/***/ function(module, exports) {
+
+	module.exports = function(it){
+	  return typeof it === 'object' ? it !== null : typeof it === 'function';
+	};
+
+/***/ },
+/* 219 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = !__webpack_require__(220) && !__webpack_require__(221)(function(){
+	  return Object.defineProperty(__webpack_require__(222)('div'), 'a', {get: function(){ return 7; }}).a != 7;
+	});
+
+/***/ },
+/* 220 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Thank's IE8 for his funny defineProperty
+	module.exports = !__webpack_require__(221)(function(){
+	  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
+	});
+
+/***/ },
+/* 221 */
+/***/ function(module, exports) {
+
+	module.exports = function(exec){
+	  try {
+	    return !!exec();
+	  } catch(e){
+	    return true;
+	  }
+	};
+
+/***/ },
+/* 222 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var isObject = __webpack_require__(218)
+	  , document = __webpack_require__(211).document
+	  // in old IE typeof document.createElement is 'object'
+	  , is = isObject(document) && isObject(document.createElement);
+	module.exports = function(it){
+	  return is ? document.createElement(it) : {};
+	};
+
+/***/ },
+/* 223 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 7.1.1 ToPrimitive(input [, PreferredType])
+	var isObject = __webpack_require__(218);
+	// instead of the ES6 spec version, we didn't implement @@toPrimitive case
+	// and the second argument - flag - preferred type is a string
+	module.exports = function(it, S){
+	  if(!isObject(it))return it;
+	  var fn, val;
+	  if(S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+	  if(typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it)))return val;
+	  if(!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+	  throw TypeError("Can't convert object to primitive value");
+	};
+
+/***/ },
+/* 224 */
+/***/ function(module, exports) {
+
+	module.exports = function(bitmap, value){
+	  return {
+	    enumerable  : !(bitmap & 1),
+	    configurable: !(bitmap & 2),
+	    writable    : !(bitmap & 4),
+	    value       : value
+	  };
+	};
+
+/***/ },
+/* 225 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	// 19.1.2.1 Object.assign(target, source, ...)
+	var getKeys  = __webpack_require__(226)
+	  , gOPS     = __webpack_require__(241)
+	  , pIE      = __webpack_require__(242)
+	  , toObject = __webpack_require__(243)
+	  , IObject  = __webpack_require__(230)
+	  , $assign  = Object.assign;
+
+	// should work with symbols and should have deterministic property order (V8 bug)
+	module.exports = !$assign || __webpack_require__(221)(function(){
+	  var A = {}
+	    , B = {}
+	    , S = Symbol()
+	    , K = 'abcdefghijklmnopqrst';
+	  A[S] = 7;
+	  K.split('').forEach(function(k){ B[k] = k; });
+	  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
+	}) ? function assign(target, source){ // eslint-disable-line no-unused-vars
+	  var T     = toObject(target)
+	    , aLen  = arguments.length
+	    , index = 1
+	    , getSymbols = gOPS.f
+	    , isEnum     = pIE.f;
+	  while(aLen > index){
+	    var S      = IObject(arguments[index++])
+	      , keys   = getSymbols ? getKeys(S).concat(getSymbols(S)) : getKeys(S)
+	      , length = keys.length
+	      , j      = 0
+	      , key;
+	    while(length > j)if(isEnum.call(S, key = keys[j++]))T[key] = S[key];
+	  } return T;
+	} : $assign;
+
+/***/ },
+/* 226 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+	var $keys       = __webpack_require__(227)
+	  , enumBugKeys = __webpack_require__(240);
+
+	module.exports = Object.keys || function keys(O){
+	  return $keys(O, enumBugKeys);
+	};
+
+/***/ },
+/* 227 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var has          = __webpack_require__(228)
+	  , toIObject    = __webpack_require__(229)
+	  , arrayIndexOf = __webpack_require__(233)(false)
+	  , IE_PROTO     = __webpack_require__(237)('IE_PROTO');
+
+	module.exports = function(object, names){
+	  var O      = toIObject(object)
+	    , i      = 0
+	    , result = []
+	    , key;
+	  for(key in O)if(key != IE_PROTO)has(O, key) && result.push(key);
+	  // Don't enum bug & hidden keys
+	  while(names.length > i)if(has(O, key = names[i++])){
+	    ~arrayIndexOf(result, key) || result.push(key);
+	  }
+	  return result;
+	};
+
+/***/ },
+/* 228 */
+/***/ function(module, exports) {
+
+	var hasOwnProperty = {}.hasOwnProperty;
+	module.exports = function(it, key){
+	  return hasOwnProperty.call(it, key);
+	};
+
+/***/ },
+/* 229 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// to indexed object, toObject with fallback for non-array-like ES3 strings
+	var IObject = __webpack_require__(230)
+	  , defined = __webpack_require__(232);
+	module.exports = function(it){
+	  return IObject(defined(it));
+	};
+
+/***/ },
+/* 230 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// fallback for non-array-like ES3 and non-enumerable old V8 strings
+	var cof = __webpack_require__(231);
+	module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
+	  return cof(it) == 'String' ? it.split('') : Object(it);
+	};
+
+/***/ },
+/* 231 */
+/***/ function(module, exports) {
+
+	var toString = {}.toString;
+
+	module.exports = function(it){
+	  return toString.call(it).slice(8, -1);
+	};
+
+/***/ },
+/* 232 */
+/***/ function(module, exports) {
+
+	// 7.2.1 RequireObjectCoercible(argument)
+	module.exports = function(it){
+	  if(it == undefined)throw TypeError("Can't call method on  " + it);
+	  return it;
+	};
+
+/***/ },
+/* 233 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// false -> Array#indexOf
+	// true  -> Array#includes
+	var toIObject = __webpack_require__(229)
+	  , toLength  = __webpack_require__(234)
+	  , toIndex   = __webpack_require__(236);
+	module.exports = function(IS_INCLUDES){
+	  return function($this, el, fromIndex){
+	    var O      = toIObject($this)
+	      , length = toLength(O.length)
+	      , index  = toIndex(fromIndex, length)
+	      , value;
+	    // Array#includes uses SameValueZero equality algorithm
+	    if(IS_INCLUDES && el != el)while(length > index){
+	      value = O[index++];
+	      if(value != value)return true;
+	    // Array#toIndex ignores holes, Array#includes - not
+	    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
+	      if(O[index] === el)return IS_INCLUDES || index || 0;
+	    } return !IS_INCLUDES && -1;
+	  };
+	};
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 7.1.15 ToLength
+	var toInteger = __webpack_require__(235)
+	  , min       = Math.min;
+	module.exports = function(it){
+	  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
+	};
+
+/***/ },
+/* 235 */
+/***/ function(module, exports) {
+
+	// 7.1.4 ToInteger
+	var ceil  = Math.ceil
+	  , floor = Math.floor;
+	module.exports = function(it){
+	  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
+	};
+
+/***/ },
+/* 236 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var toInteger = __webpack_require__(235)
+	  , max       = Math.max
+	  , min       = Math.min;
+	module.exports = function(index, length){
+	  index = toInteger(index);
+	  return index < 0 ? max(index + length, 0) : min(index, length);
+	};
+
+/***/ },
+/* 237 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var shared = __webpack_require__(238)('keys')
+	  , uid    = __webpack_require__(239);
+	module.exports = function(key){
+	  return shared[key] || (shared[key] = uid(key));
+	};
+
+/***/ },
+/* 238 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var global = __webpack_require__(211)
+	  , SHARED = '__core-js_shared__'
+	  , store  = global[SHARED] || (global[SHARED] = {});
+	module.exports = function(key){
+	  return store[key] || (store[key] = {});
+	};
+
+/***/ },
+/* 239 */
+/***/ function(module, exports) {
+
+	var id = 0
+	  , px = Math.random();
+	module.exports = function(key){
+	  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+	};
+
+/***/ },
+/* 240 */
+/***/ function(module, exports) {
+
+	// IE 8- don't enum bug keys
+	module.exports = (
+	  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
+	).split(',');
+
+/***/ },
+/* 241 */
+/***/ function(module, exports) {
+
+	exports.f = Object.getOwnPropertySymbols;
+
+/***/ },
+/* 242 */
+/***/ function(module, exports) {
+
+	exports.f = {}.propertyIsEnumerable;
+
+/***/ },
+/* 243 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 7.1.13 ToObject(argument)
+	var defined = __webpack_require__(232);
+	module.exports = function(it){
+	  return Object(defined(it));
+	};
+
+/***/ },
+/* 244 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3164,14 +3140,14 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 247 */
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	exports.__esModule = true;
 
-	var _typeof2 = __webpack_require__(248);
+	var _typeof2 = __webpack_require__(246);
 
 	var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -3186,18 +3162,18 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 248 */
+/* 246 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	exports.__esModule = true;
 
-	var _iterator = __webpack_require__(249);
+	var _iterator = __webpack_require__(247);
 
 	var _iterator2 = _interopRequireDefault(_iterator);
 
-	var _symbol = __webpack_require__(269);
+	var _symbol = __webpack_require__(267);
 
 	var _symbol2 = _interopRequireDefault(_symbol);
 
@@ -3212,28 +3188,28 @@ webpackJsonp([0],[
 	};
 
 /***/ },
+/* 247 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(248), __esModule: true };
+
+/***/ },
+/* 248 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(249);
+	__webpack_require__(262);
+	module.exports = __webpack_require__(266).f('iterator');
+
+/***/ },
 /* 249 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = { "default": __webpack_require__(250), __esModule: true };
-
-/***/ },
-/* 250 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(251);
-	__webpack_require__(264);
-	module.exports = __webpack_require__(268).f('iterator');
-
-/***/ },
-/* 251 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
-	var $at  = __webpack_require__(252)(true);
+	var $at  = __webpack_require__(250)(true);
 
 	// 21.1.3.27 String.prototype[@@iterator]()
-	__webpack_require__(253)(String, 'String', function(iterated){
+	__webpack_require__(251)(String, 'String', function(iterated){
 	  this._t = String(iterated); // target
 	  this._i = 0;                // next index
 	// 21.1.5.2.1 %StringIteratorPrototype%.next()
@@ -3248,11 +3224,11 @@ webpackJsonp([0],[
 	});
 
 /***/ },
-/* 252 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var toInteger = __webpack_require__(233)
-	  , defined   = __webpack_require__(230);
+	var toInteger = __webpack_require__(235)
+	  , defined   = __webpack_require__(232);
 	// true  -> String#at
 	// false -> String#codePointAt
 	module.exports = function(TO_STRING){
@@ -3270,20 +3246,20 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 253 */
+/* 251 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var LIBRARY        = __webpack_require__(254)
-	  , $export        = __webpack_require__(208)
-	  , redefine       = __webpack_require__(255)
-	  , hide           = __webpack_require__(213)
-	  , has            = __webpack_require__(226)
-	  , Iterators      = __webpack_require__(256)
-	  , $iterCreate    = __webpack_require__(257)
-	  , setToStringTag = __webpack_require__(261)
-	  , getPrototypeOf = __webpack_require__(263)
-	  , ITERATOR       = __webpack_require__(262)('iterator')
+	var LIBRARY        = __webpack_require__(252)
+	  , $export        = __webpack_require__(210)
+	  , redefine       = __webpack_require__(253)
+	  , hide           = __webpack_require__(215)
+	  , has            = __webpack_require__(228)
+	  , Iterators      = __webpack_require__(254)
+	  , $iterCreate    = __webpack_require__(255)
+	  , setToStringTag = __webpack_require__(259)
+	  , getPrototypeOf = __webpack_require__(261)
+	  , ITERATOR       = __webpack_require__(260)('iterator')
 	  , BUGGY          = !([].keys && 'next' in [].keys()) // Safari has buggy iterators w/o `next`
 	  , FF_ITERATOR    = '@@iterator'
 	  , KEYS           = 'keys'
@@ -3345,35 +3321,35 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 254 */
+/* 252 */
 /***/ function(module, exports) {
 
 	module.exports = true;
 
 /***/ },
-/* 255 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(213);
+	module.exports = __webpack_require__(215);
 
 /***/ },
-/* 256 */
+/* 254 */
 /***/ function(module, exports) {
 
 	module.exports = {};
 
 /***/ },
-/* 257 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var create         = __webpack_require__(258)
-	  , descriptor     = __webpack_require__(222)
-	  , setToStringTag = __webpack_require__(261)
+	var create         = __webpack_require__(256)
+	  , descriptor     = __webpack_require__(224)
+	  , setToStringTag = __webpack_require__(259)
 	  , IteratorPrototype = {};
 
 	// 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-	__webpack_require__(213)(IteratorPrototype, __webpack_require__(262)('iterator'), function(){ return this; });
+	__webpack_require__(215)(IteratorPrototype, __webpack_require__(260)('iterator'), function(){ return this; });
 
 	module.exports = function(Constructor, NAME, next){
 	  Constructor.prototype = create(IteratorPrototype, {next: descriptor(1, next)});
@@ -3381,27 +3357,27 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 258 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-	var anObject    = __webpack_require__(215)
-	  , dPs         = __webpack_require__(259)
-	  , enumBugKeys = __webpack_require__(238)
-	  , IE_PROTO    = __webpack_require__(235)('IE_PROTO')
+	var anObject    = __webpack_require__(217)
+	  , dPs         = __webpack_require__(257)
+	  , enumBugKeys = __webpack_require__(240)
+	  , IE_PROTO    = __webpack_require__(237)('IE_PROTO')
 	  , Empty       = function(){ /* empty */ }
 	  , PROTOTYPE   = 'prototype';
 
 	// Create object with fake `null` prototype: use iframe Object with cleared prototype
 	var createDict = function(){
 	  // Thrash, waste and sodomy: IE GC bug
-	  var iframe = __webpack_require__(220)('iframe')
+	  var iframe = __webpack_require__(222)('iframe')
 	    , i      = enumBugKeys.length
 	    , lt     = '<'
 	    , gt     = '>'
 	    , iframeDocument;
 	  iframe.style.display = 'none';
-	  __webpack_require__(260).appendChild(iframe);
+	  __webpack_require__(258).appendChild(iframe);
 	  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
 	  // createDict = iframe.contentWindow.Object;
 	  // html.removeChild(iframe);
@@ -3428,14 +3404,14 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 259 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var dP       = __webpack_require__(214)
-	  , anObject = __webpack_require__(215)
-	  , getKeys  = __webpack_require__(224);
+	var dP       = __webpack_require__(216)
+	  , anObject = __webpack_require__(217)
+	  , getKeys  = __webpack_require__(226);
 
-	module.exports = __webpack_require__(218) ? Object.defineProperties : function defineProperties(O, Properties){
+	module.exports = __webpack_require__(220) ? Object.defineProperties : function defineProperties(O, Properties){
 	  anObject(O);
 	  var keys   = getKeys(Properties)
 	    , length = keys.length
@@ -3446,30 +3422,30 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 260 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(209).document && document.documentElement;
+	module.exports = __webpack_require__(211).document && document.documentElement;
 
 /***/ },
-/* 261 */
+/* 259 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var def = __webpack_require__(214).f
-	  , has = __webpack_require__(226)
-	  , TAG = __webpack_require__(262)('toStringTag');
+	var def = __webpack_require__(216).f
+	  , has = __webpack_require__(228)
+	  , TAG = __webpack_require__(260)('toStringTag');
 
 	module.exports = function(it, tag, stat){
 	  if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
 	};
 
 /***/ },
-/* 262 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var store      = __webpack_require__(236)('wks')
-	  , uid        = __webpack_require__(237)
-	  , Symbol     = __webpack_require__(209).Symbol
+	var store      = __webpack_require__(238)('wks')
+	  , uid        = __webpack_require__(239)
+	  , Symbol     = __webpack_require__(211).Symbol
 	  , USE_SYMBOL = typeof Symbol == 'function';
 
 	var $exports = module.exports = function(name){
@@ -3480,13 +3456,13 @@ webpackJsonp([0],[
 	$exports.store = store;
 
 /***/ },
-/* 263 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-	var has         = __webpack_require__(226)
-	  , toObject    = __webpack_require__(241)
-	  , IE_PROTO    = __webpack_require__(235)('IE_PROTO')
+	var has         = __webpack_require__(228)
+	  , toObject    = __webpack_require__(243)
+	  , IE_PROTO    = __webpack_require__(237)('IE_PROTO')
 	  , ObjectProto = Object.prototype;
 
 	module.exports = Object.getPrototypeOf || function(O){
@@ -3498,14 +3474,14 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 264 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(265);
-	var global        = __webpack_require__(209)
-	  , hide          = __webpack_require__(213)
-	  , Iterators     = __webpack_require__(256)
-	  , TO_STRING_TAG = __webpack_require__(262)('toStringTag');
+	__webpack_require__(263);
+	var global        = __webpack_require__(211)
+	  , hide          = __webpack_require__(215)
+	  , Iterators     = __webpack_require__(254)
+	  , TO_STRING_TAG = __webpack_require__(260)('toStringTag');
 
 	for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList', 'CSSRuleList'], i = 0; i < 5; i++){
 	  var NAME       = collections[i]
@@ -3516,20 +3492,20 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 265 */
+/* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var addToUnscopables = __webpack_require__(266)
-	  , step             = __webpack_require__(267)
-	  , Iterators        = __webpack_require__(256)
-	  , toIObject        = __webpack_require__(227);
+	var addToUnscopables = __webpack_require__(264)
+	  , step             = __webpack_require__(265)
+	  , Iterators        = __webpack_require__(254)
+	  , toIObject        = __webpack_require__(229);
 
 	// 22.1.3.4 Array.prototype.entries()
 	// 22.1.3.13 Array.prototype.keys()
 	// 22.1.3.29 Array.prototype.values()
 	// 22.1.3.30 Array.prototype[@@iterator]()
-	module.exports = __webpack_require__(253)(Array, 'Array', function(iterated, kind){
+	module.exports = __webpack_require__(251)(Array, 'Array', function(iterated, kind){
 	  this._t = toIObject(iterated); // target
 	  this._i = 0;                   // next index
 	  this._k = kind;                // kind
@@ -3555,13 +3531,13 @@ webpackJsonp([0],[
 	addToUnscopables('entries');
 
 /***/ },
-/* 266 */
+/* 264 */
 /***/ function(module, exports) {
 
 	module.exports = function(){ /* empty */ };
 
 /***/ },
-/* 267 */
+/* 265 */
 /***/ function(module, exports) {
 
 	module.exports = function(done, value){
@@ -3569,58 +3545,58 @@ webpackJsonp([0],[
 	};
 
 /***/ },
+/* 266 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports.f = __webpack_require__(260);
+
+/***/ },
+/* 267 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(268), __esModule: true };
+
+/***/ },
 /* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports.f = __webpack_require__(262);
+	__webpack_require__(269);
+	__webpack_require__(278);
+	__webpack_require__(279);
+	__webpack_require__(280);
+	module.exports = __webpack_require__(212).Symbol;
 
 /***/ },
 /* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = { "default": __webpack_require__(270), __esModule: true };
-
-/***/ },
-/* 270 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(271);
-	__webpack_require__(280);
-	__webpack_require__(281);
-	__webpack_require__(282);
-	module.exports = __webpack_require__(210).Symbol;
-
-/***/ },
-/* 271 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
 	// ECMAScript 6 symbols shim
-	var global         = __webpack_require__(209)
-	  , has            = __webpack_require__(226)
-	  , DESCRIPTORS    = __webpack_require__(218)
-	  , $export        = __webpack_require__(208)
-	  , redefine       = __webpack_require__(255)
-	  , META           = __webpack_require__(272).KEY
-	  , $fails         = __webpack_require__(219)
-	  , shared         = __webpack_require__(236)
-	  , setToStringTag = __webpack_require__(261)
-	  , uid            = __webpack_require__(237)
-	  , wks            = __webpack_require__(262)
-	  , wksExt         = __webpack_require__(268)
-	  , wksDefine      = __webpack_require__(273)
-	  , keyOf          = __webpack_require__(274)
-	  , enumKeys       = __webpack_require__(275)
-	  , isArray        = __webpack_require__(276)
-	  , anObject       = __webpack_require__(215)
-	  , toIObject      = __webpack_require__(227)
-	  , toPrimitive    = __webpack_require__(221)
-	  , createDesc     = __webpack_require__(222)
-	  , _create        = __webpack_require__(258)
-	  , gOPNExt        = __webpack_require__(277)
-	  , $GOPD          = __webpack_require__(279)
-	  , $DP            = __webpack_require__(214)
-	  , $keys          = __webpack_require__(224)
+	var global         = __webpack_require__(211)
+	  , has            = __webpack_require__(228)
+	  , DESCRIPTORS    = __webpack_require__(220)
+	  , $export        = __webpack_require__(210)
+	  , redefine       = __webpack_require__(253)
+	  , META           = __webpack_require__(270).KEY
+	  , $fails         = __webpack_require__(221)
+	  , shared         = __webpack_require__(238)
+	  , setToStringTag = __webpack_require__(259)
+	  , uid            = __webpack_require__(239)
+	  , wks            = __webpack_require__(260)
+	  , wksExt         = __webpack_require__(266)
+	  , wksDefine      = __webpack_require__(271)
+	  , keyOf          = __webpack_require__(272)
+	  , enumKeys       = __webpack_require__(273)
+	  , isArray        = __webpack_require__(274)
+	  , anObject       = __webpack_require__(217)
+	  , toIObject      = __webpack_require__(229)
+	  , toPrimitive    = __webpack_require__(223)
+	  , createDesc     = __webpack_require__(224)
+	  , _create        = __webpack_require__(256)
+	  , gOPNExt        = __webpack_require__(275)
+	  , $GOPD          = __webpack_require__(277)
+	  , $DP            = __webpack_require__(216)
+	  , $keys          = __webpack_require__(226)
 	  , gOPD           = $GOPD.f
 	  , dP             = $DP.f
 	  , gOPN           = gOPNExt.f
@@ -3743,11 +3719,11 @@ webpackJsonp([0],[
 
 	  $GOPD.f = $getOwnPropertyDescriptor;
 	  $DP.f   = $defineProperty;
-	  __webpack_require__(278).f = gOPNExt.f = $getOwnPropertyNames;
-	  __webpack_require__(240).f  = $propertyIsEnumerable;
-	  __webpack_require__(239).f = $getOwnPropertySymbols;
+	  __webpack_require__(276).f = gOPNExt.f = $getOwnPropertyNames;
+	  __webpack_require__(242).f  = $propertyIsEnumerable;
+	  __webpack_require__(241).f = $getOwnPropertySymbols;
 
-	  if(DESCRIPTORS && !__webpack_require__(254)){
+	  if(DESCRIPTORS && !__webpack_require__(252)){
 	    redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
 	  }
 
@@ -3822,7 +3798,7 @@ webpackJsonp([0],[
 	});
 
 	// 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
-	$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(213)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
+	$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(215)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
 	// 19.4.3.5 Symbol.prototype[@@toStringTag]
 	setToStringTag($Symbol, 'Symbol');
 	// 20.2.1.9 Math[@@toStringTag]
@@ -3831,18 +3807,18 @@ webpackJsonp([0],[
 	setToStringTag(global.JSON, 'JSON', true);
 
 /***/ },
-/* 272 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var META     = __webpack_require__(237)('meta')
-	  , isObject = __webpack_require__(216)
-	  , has      = __webpack_require__(226)
-	  , setDesc  = __webpack_require__(214).f
+	var META     = __webpack_require__(239)('meta')
+	  , isObject = __webpack_require__(218)
+	  , has      = __webpack_require__(228)
+	  , setDesc  = __webpack_require__(216).f
 	  , id       = 0;
 	var isExtensible = Object.isExtensible || function(){
 	  return true;
 	};
-	var FREEZE = !__webpack_require__(219)(function(){
+	var FREEZE = !__webpack_require__(221)(function(){
 	  return isExtensible(Object.preventExtensions({}));
 	});
 	var setMeta = function(it){
@@ -3889,25 +3865,25 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 273 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var global         = __webpack_require__(209)
-	  , core           = __webpack_require__(210)
-	  , LIBRARY        = __webpack_require__(254)
-	  , wksExt         = __webpack_require__(268)
-	  , defineProperty = __webpack_require__(214).f;
+	var global         = __webpack_require__(211)
+	  , core           = __webpack_require__(212)
+	  , LIBRARY        = __webpack_require__(252)
+	  , wksExt         = __webpack_require__(266)
+	  , defineProperty = __webpack_require__(216).f;
 	module.exports = function(name){
 	  var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
 	  if(name.charAt(0) != '_' && !(name in $Symbol))defineProperty($Symbol, name, {value: wksExt.f(name)});
 	};
 
 /***/ },
-/* 274 */
+/* 272 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getKeys   = __webpack_require__(224)
-	  , toIObject = __webpack_require__(227);
+	var getKeys   = __webpack_require__(226)
+	  , toIObject = __webpack_require__(229);
 	module.exports = function(object, el){
 	  var O      = toIObject(object)
 	    , keys   = getKeys(O)
@@ -3918,13 +3894,13 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 275 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// all enumerable object keys, includes symbols
-	var getKeys = __webpack_require__(224)
-	  , gOPS    = __webpack_require__(239)
-	  , pIE     = __webpack_require__(240);
+	var getKeys = __webpack_require__(226)
+	  , gOPS    = __webpack_require__(241)
+	  , pIE     = __webpack_require__(242);
 	module.exports = function(it){
 	  var result     = getKeys(it)
 	    , getSymbols = gOPS.f;
@@ -3938,22 +3914,22 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 276 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// 7.2.2 IsArray(argument)
-	var cof = __webpack_require__(229);
+	var cof = __webpack_require__(231);
 	module.exports = Array.isArray || function isArray(arg){
 	  return cof(arg) == 'Array';
 	};
 
 /***/ },
-/* 277 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
-	var toIObject = __webpack_require__(227)
-	  , gOPN      = __webpack_require__(278).f
+	var toIObject = __webpack_require__(229)
+	  , gOPN      = __webpack_require__(276).f
 	  , toString  = {}.toString;
 
 	var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
@@ -3973,30 +3949,30 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 278 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
-	var $keys      = __webpack_require__(225)
-	  , hiddenKeys = __webpack_require__(238).concat('length', 'prototype');
+	var $keys      = __webpack_require__(227)
+	  , hiddenKeys = __webpack_require__(240).concat('length', 'prototype');
 
 	exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O){
 	  return $keys(O, hiddenKeys);
 	};
 
 /***/ },
-/* 279 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var pIE            = __webpack_require__(240)
-	  , createDesc     = __webpack_require__(222)
-	  , toIObject      = __webpack_require__(227)
-	  , toPrimitive    = __webpack_require__(221)
-	  , has            = __webpack_require__(226)
-	  , IE8_DOM_DEFINE = __webpack_require__(217)
+	var pIE            = __webpack_require__(242)
+	  , createDesc     = __webpack_require__(224)
+	  , toIObject      = __webpack_require__(229)
+	  , toPrimitive    = __webpack_require__(223)
+	  , has            = __webpack_require__(228)
+	  , IE8_DOM_DEFINE = __webpack_require__(219)
 	  , gOPD           = Object.getOwnPropertyDescriptor;
 
-	exports.f = __webpack_require__(218) ? gOPD : function getOwnPropertyDescriptor(O, P){
+	exports.f = __webpack_require__(220) ? gOPD : function getOwnPropertyDescriptor(O, P){
 	  O = toIObject(O);
 	  P = toPrimitive(P, true);
 	  if(IE8_DOM_DEFINE)try {
@@ -4006,40 +3982,40 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 280 */
+/* 278 */
 /***/ function(module, exports) {
 
 	
 
 /***/ },
+/* 279 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(271)('asyncIterator');
+
+/***/ },
+/* 280 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(271)('observable');
+
+/***/ },
 /* 281 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(273)('asyncIterator');
-
-/***/ },
-/* 282 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(273)('observable');
-
-/***/ },
-/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	exports.__esModule = true;
 
-	var _setPrototypeOf = __webpack_require__(284);
+	var _setPrototypeOf = __webpack_require__(282);
 
 	var _setPrototypeOf2 = _interopRequireDefault(_setPrototypeOf);
 
-	var _create = __webpack_require__(288);
+	var _create = __webpack_require__(286);
 
 	var _create2 = _interopRequireDefault(_create);
 
-	var _typeof2 = __webpack_require__(248);
+	var _typeof2 = __webpack_require__(246);
 
 	var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -4062,34 +4038,34 @@ webpackJsonp([0],[
 	};
 
 /***/ },
+/* 282 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(283), __esModule: true };
+
+/***/ },
+/* 283 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(284);
+	module.exports = __webpack_require__(212).Object.setPrototypeOf;
+
+/***/ },
 /* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = { "default": __webpack_require__(285), __esModule: true };
+	// 19.1.3.19 Object.setPrototypeOf(O, proto)
+	var $export = __webpack_require__(210);
+	$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(285).set});
 
 /***/ },
 /* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(286);
-	module.exports = __webpack_require__(210).Object.setPrototypeOf;
-
-/***/ },
-/* 286 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 19.1.3.19 Object.setPrototypeOf(O, proto)
-	var $export = __webpack_require__(208);
-	$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(287).set});
-
-/***/ },
-/* 287 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// Works with __proto__ only. Old v8 can't work with null proto objects.
 	/* eslint-disable no-proto */
-	var isObject = __webpack_require__(216)
-	  , anObject = __webpack_require__(215);
+	var isObject = __webpack_require__(218)
+	  , anObject = __webpack_require__(217);
 	var check = function(O, proto){
 	  anObject(O);
 	  if(!isObject(proto) && proto !== null)throw TypeError(proto + ": can't set as prototype!");
@@ -4098,7 +4074,7 @@ webpackJsonp([0],[
 	  set: Object.setPrototypeOf || ('__proto__' in {} ? // eslint-disable-line
 	    function(test, buggy, set){
 	      try {
-	        set = __webpack_require__(211)(Function.call, __webpack_require__(279).f(Object.prototype, '__proto__').set, 2);
+	        set = __webpack_require__(213)(Function.call, __webpack_require__(277).f(Object.prototype, '__proto__').set, 2);
 	        set(test, []);
 	        buggy = !(test instanceof Array);
 	      } catch(e){ buggy = true; }
@@ -4113,31 +4089,31 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 288 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = { "default": __webpack_require__(289), __esModule: true };
+	module.exports = { "default": __webpack_require__(287), __esModule: true };
 
 /***/ },
-/* 289 */
+/* 287 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(290);
-	var $Object = __webpack_require__(210).Object;
+	__webpack_require__(288);
+	var $Object = __webpack_require__(212).Object;
 	module.exports = function create(P, D){
 	  return $Object.create(P, D);
 	};
 
 /***/ },
-/* 290 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var $export = __webpack_require__(208)
+	var $export = __webpack_require__(210)
 	// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-	$export($export.S, 'Object', {create: __webpack_require__(258)});
+	$export($export.S, 'Object', {create: __webpack_require__(256)});
 
 /***/ },
-/* 291 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4147,23 +4123,23 @@ webpackJsonp([0],[
 	});
 	exports.Divider = exports.ItemGroup = exports.MenuItemGroup = exports.MenuItem = exports.Item = exports.SubMenu = undefined;
 
-	var _Menu = __webpack_require__(292);
+	var _Menu = __webpack_require__(290);
 
 	var _Menu2 = _interopRequireDefault(_Menu);
 
-	var _SubMenu = __webpack_require__(306);
+	var _SubMenu = __webpack_require__(304);
 
 	var _SubMenu2 = _interopRequireDefault(_SubMenu);
 
-	var _MenuItem = __webpack_require__(324);
+	var _MenuItem = __webpack_require__(322);
 
 	var _MenuItem2 = _interopRequireDefault(_MenuItem);
 
-	var _MenuItemGroup = __webpack_require__(325);
+	var _MenuItemGroup = __webpack_require__(323);
 
 	var _MenuItemGroup2 = _interopRequireDefault(_MenuItemGroup);
 
-	var _Divider = __webpack_require__(326);
+	var _Divider = __webpack_require__(324);
 
 	var _Divider2 = _interopRequireDefault(_Divider);
 
@@ -4178,7 +4154,7 @@ webpackJsonp([0],[
 	exports["default"] = _Menu2["default"];
 
 /***/ },
-/* 292 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4187,7 +4163,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -4195,11 +4171,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _MenuMixin = __webpack_require__(293);
+	var _MenuMixin = __webpack_require__(291);
 
 	var _MenuMixin2 = _interopRequireDefault(_MenuMixin);
 
-	var _util = __webpack_require__(304);
+	var _util = __webpack_require__(302);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -4434,7 +4410,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 293 */
+/* 291 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4443,11 +4419,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -4459,25 +4435,25 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _KeyCode = __webpack_require__(298);
+	var _KeyCode = __webpack_require__(296);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _createChainedFunction = __webpack_require__(299);
+	var _createChainedFunction = __webpack_require__(297);
 
 	var _createChainedFunction2 = _interopRequireDefault(_createChainedFunction);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _domScrollIntoView = __webpack_require__(301);
+	var _domScrollIntoView = __webpack_require__(299);
 
 	var _domScrollIntoView2 = _interopRequireDefault(_domScrollIntoView);
 
-	var _util = __webpack_require__(304);
+	var _util = __webpack_require__(302);
 
-	var _DOMWrap = __webpack_require__(305);
+	var _DOMWrap = __webpack_require__(303);
 
 	var _DOMWrap2 = _interopRequireDefault(_DOMWrap);
 
@@ -4789,14 +4765,14 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 294 */
+/* 292 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	exports.__esModule = true;
 
-	var _defineProperty = __webpack_require__(295);
+	var _defineProperty = __webpack_require__(293);
 
 	var _defineProperty2 = _interopRequireDefault(_defineProperty);
 
@@ -4818,31 +4794,31 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 295 */
+/* 293 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = { "default": __webpack_require__(296), __esModule: true };
+	module.exports = { "default": __webpack_require__(294), __esModule: true };
 
 /***/ },
-/* 296 */
+/* 294 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(297);
-	var $Object = __webpack_require__(210).Object;
+	__webpack_require__(295);
+	var $Object = __webpack_require__(212).Object;
 	module.exports = function defineProperty(it, key, desc){
 	  return $Object.defineProperty(it, key, desc);
 	};
 
 /***/ },
-/* 297 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var $export = __webpack_require__(208);
+	var $export = __webpack_require__(210);
 	// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
-	$export($export.S + $export.F * !__webpack_require__(218), 'Object', {defineProperty: __webpack_require__(214).f});
+	$export($export.S + $export.F * !__webpack_require__(220), 'Object', {defineProperty: __webpack_require__(216).f});
 
 /***/ },
-/* 298 */
+/* 296 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -5367,7 +5343,7 @@ webpackJsonp([0],[
 	module.exports = KeyCode;
 
 /***/ },
-/* 299 */
+/* 297 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5394,7 +5370,7 @@ webpackJsonp([0],[
 	module.exports = createChainedFunction;
 
 /***/ },
-/* 300 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -5448,20 +5424,20 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 301 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(302);
+	module.exports = __webpack_require__(300);
 
 /***/ },
-/* 302 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var util = __webpack_require__(303);
+	var util = __webpack_require__(301);
 
 	function scrollIntoView(elem, container, config) {
 	  config = config || {};
@@ -5590,7 +5566,7 @@ webpackJsonp([0],[
 	module.exports = scrollIntoView;
 
 /***/ },
-/* 303 */
+/* 301 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -6034,7 +6010,7 @@ webpackJsonp([0],[
 	}, domUtils);
 
 /***/ },
-/* 304 */
+/* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6100,7 +6076,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 305 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6109,7 +6085,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -6151,7 +6127,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 306 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6160,15 +6136,15 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _SubPopupMenu = __webpack_require__(307);
+	var _SubPopupMenu = __webpack_require__(305);
 
 	var _SubPopupMenu2 = _interopRequireDefault(_SubPopupMenu);
 
@@ -6176,19 +6152,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _KeyCode = __webpack_require__(298);
+	var _KeyCode = __webpack_require__(296);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _guid = __webpack_require__(317);
+	var _guid = __webpack_require__(315);
 
 	var _guid2 = _interopRequireDefault(_guid);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _util = __webpack_require__(304);
+	var _util = __webpack_require__(302);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6222,7 +6198,7 @@ webpackJsonp([0],[
 	    onTitleClick: _react.PropTypes.func
 	  },
 
-	  mixins: [__webpack_require__(318)],
+	  mixins: [__webpack_require__(316)],
 
 	  getDefaultProps: function getDefaultProps() {
 	    return {
@@ -6610,7 +6586,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 307 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6619,11 +6595,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _typeof2 = __webpack_require__(248);
+	var _typeof2 = __webpack_require__(246);
 
 	var _typeof3 = _interopRequireDefault(_typeof2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -6631,11 +6607,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _MenuMixin = __webpack_require__(293);
+	var _MenuMixin = __webpack_require__(291);
 
 	var _MenuMixin2 = _interopRequireDefault(_MenuMixin);
 
-	var _rcAnimate = __webpack_require__(308);
+	var _rcAnimate = __webpack_require__(306);
 
 	var _rcAnimate2 = _interopRequireDefault(_rcAnimate);
 
@@ -6734,16 +6710,16 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 308 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	// export this package's api
-	module.exports = __webpack_require__(309);
+	module.exports = __webpack_require__(307);
 
 /***/ },
-/* 309 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6756,13 +6732,13 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _ChildrenUtils = __webpack_require__(310);
+	var _ChildrenUtils = __webpack_require__(308);
 
-	var _AnimateChild = __webpack_require__(311);
+	var _AnimateChild = __webpack_require__(309);
 
 	var _AnimateChild2 = _interopRequireDefault(_AnimateChild);
 
-	var _util = __webpack_require__(316);
+	var _util = __webpack_require__(314);
 
 	var _util2 = _interopRequireDefault(_util);
 
@@ -7075,7 +7051,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 310 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7197,7 +7173,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 311 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7216,11 +7192,11 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _cssAnimation = __webpack_require__(312);
+	var _cssAnimation = __webpack_require__(310);
 
 	var _cssAnimation2 = _interopRequireDefault(_cssAnimation);
 
-	var _util = __webpack_require__(316);
+	var _util = __webpack_require__(314);
 
 	var _util2 = _interopRequireDefault(_util);
 
@@ -7308,7 +7284,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 312 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7319,11 +7295,11 @@ webpackJsonp([0],[
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _Event = __webpack_require__(313);
+	var _Event = __webpack_require__(311);
 
 	var _Event2 = _interopRequireDefault(_Event);
 
-	var _componentClasses = __webpack_require__(314);
+	var _componentClasses = __webpack_require__(312);
 
 	var _componentClasses2 = _interopRequireDefault(_componentClasses);
 
@@ -7503,7 +7479,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 313 */
+/* 311 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -7596,7 +7572,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 314 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -7604,9 +7580,9 @@ webpackJsonp([0],[
 	 */
 
 	try {
-	  var index = __webpack_require__(315);
+	  var index = __webpack_require__(313);
 	} catch (err) {
-	  var index = __webpack_require__(315);
+	  var index = __webpack_require__(313);
 	}
 
 	/**
@@ -7793,7 +7769,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 315 */
+/* 313 */
 /***/ function(module, exports) {
 
 	module.exports = function(arr, obj){
@@ -7805,7 +7781,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 316 */
+/* 314 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7837,7 +7813,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 317 */
+/* 315 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7848,7 +7824,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 318 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7857,15 +7833,15 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _KeyCode = __webpack_require__(298);
+	var _KeyCode = __webpack_require__(296);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _addEventListener = __webpack_require__(319);
+	var _addEventListener = __webpack_require__(317);
 
 	var _addEventListener2 = _interopRequireDefault(_addEventListener);
 
-	var _contains = __webpack_require__(323);
+	var _contains = __webpack_require__(321);
 
 	var _contains2 = _interopRequireDefault(_contains);
 
@@ -7935,7 +7911,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 319 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7945,7 +7921,7 @@ webpackJsonp([0],[
 	});
 	exports["default"] = addEventListenerWrap;
 
-	var _addDomEventListener = __webpack_require__(320);
+	var _addDomEventListener = __webpack_require__(318);
 
 	var _addDomEventListener2 = _interopRequireDefault(_addDomEventListener);
 
@@ -7965,7 +7941,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 320 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7977,7 +7953,7 @@ webpackJsonp([0],[
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _EventObject = __webpack_require__(321);
+	var _EventObject = __webpack_require__(319);
 
 	var _EventObject2 = _interopRequireDefault(_EventObject);
 
@@ -8007,7 +7983,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 321 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8024,7 +8000,7 @@ webpackJsonp([0],[
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _EventBaseObject = __webpack_require__(322);
+	var _EventBaseObject = __webpack_require__(320);
 
 	var _EventBaseObject2 = _interopRequireDefault(_EventBaseObject);
 
@@ -8290,7 +8266,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 322 */
+/* 320 */
 /***/ function(module, exports) {
 
 	/**
@@ -8358,7 +8334,7 @@ webpackJsonp([0],[
 	module.exports = exports["default"];
 
 /***/ },
-/* 323 */
+/* 321 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8376,7 +8352,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 324 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8385,7 +8361,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -8393,15 +8369,15 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _KeyCode = __webpack_require__(298);
+	var _KeyCode = __webpack_require__(296);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _util = __webpack_require__(304);
+	var _util = __webpack_require__(302);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8590,7 +8566,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 325 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8658,7 +8634,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 326 */
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8701,7 +8677,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 327 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8710,7 +8686,7 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _cssAnimation = __webpack_require__(312);
+	var _cssAnimation = __webpack_require__(310);
 
 	var _cssAnimation2 = _interopRequireDefault(_cssAnimation);
 
@@ -8751,7 +8727,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 328 */
+/* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8818,7 +8794,59 @@ webpackJsonp([0],[
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
+/* 327 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(199);
+
+/***/ },
+/* 328 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _extends2 = __webpack_require__(206);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _react = __webpack_require__(1);
+
+	var React = _interopRequireWildcard(_react);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	exports["default"] = function (props) {
+	    var type = props.type;
+	    var _props$className = props.className;
+	    var className = _props$className === undefined ? '' : _props$className;
+
+	    return React.createElement('i', (0, _extends3["default"])({}, props, { className: (className + ' anticon anticon-' + type).trim() }));
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
 /* 329 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var TODOS = exports.TODOS = 'todos';
+	var TODAY = exports.TODAY = 'today';
+
+/***/ },
+/* 330 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8835,13 +8863,23 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Header = __webpack_require__(330);
+	var _Header = __webpack_require__(331);
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _TodoList = __webpack_require__(489);
+	var _TodoList = __webpack_require__(490);
 
 	var _TodoList2 = _interopRequireDefault(_TodoList);
+
+	var _TodayNeedTodo = __webpack_require__(577);
+
+	var _TodayNeedTodo2 = _interopRequireDefault(_TodayNeedTodo);
+
+	var _NavigationTypes = __webpack_require__(329);
+
+	var MenuItemType = _interopRequireWildcard(_NavigationTypes);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8861,13 +8899,19 @@ webpackJsonp([0],[
 	    }
 
 	    _createClass(MainSection, [{
-	        key: 'render',
-	        value: function render() {
+	        key: 'getTabContent',
+	        value: function getTabContent() {
 	            var _props = this.props;
 	            var todos = _props.todos;
 	            var actions = _props.actions;
+	            var current = _props.current;
 
-	            return _react2.default.createElement(
+	            var todayTab = _react2.default.createElement(
+	                'section',
+	                { className: 'main' },
+	                _react2.default.createElement(_TodayNeedTodo2.default, _extends({ todos: todos }, actions))
+	            );
+	            var todoTab = _react2.default.createElement(
 	                'section',
 	                { className: 'main' },
 	                _react2.default.createElement(_Header2.default, {
@@ -8876,6 +8920,17 @@ webpackJsonp([0],[
 	                    filterTodo: actions.filterTodo }),
 	                _react2.default.createElement(_TodoList2.default, _extends({ todos: todos, todoConstraint: this.props.filters }, actions))
 	            );
+	            switch (current) {
+	                case MenuItemType.TODAY:
+	                    return todayTab;
+	                case MenuItemType.TODOS:
+	                    return todoTab;
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return this.getTabContent();
 	        }
 	    }]);
 
@@ -8885,12 +8940,13 @@ webpackJsonp([0],[
 	MainSection.propTypes = {
 	    todos: _react.PropTypes.array.isRequired,
 	    actions: _react.PropTypes.object.isRequired,
-	    filters: _react.PropTypes.object.isRequired
+	    filters: _react.PropTypes.object.isRequired,
+	    current: _react.PropTypes.string.isRequired
 	};
 	exports.default = MainSection;
 
 /***/ },
-/* 330 */
+/* 331 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8899,27 +8955,27 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _css = __webpack_require__(331);
+	var _css = __webpack_require__(332);
 
-	var _button = __webpack_require__(334);
+	var _button = __webpack_require__(335);
 
 	var _button2 = _interopRequireDefault(_button);
 
-	var _css2 = __webpack_require__(347);
+	var _css2 = __webpack_require__(348);
 
-	var _datePicker = __webpack_require__(356);
+	var _datePicker = __webpack_require__(357);
 
 	var _datePicker2 = _interopRequireDefault(_datePicker);
 
-	var _css3 = __webpack_require__(422);
+	var _css3 = __webpack_require__(423);
 
-	var _select = __webpack_require__(425);
+	var _select = __webpack_require__(426);
 
 	var _select2 = _interopRequireDefault(_select);
 
-	var _css4 = __webpack_require__(436);
+	var _css4 = __webpack_require__(437);
 
-	var _form = __webpack_require__(442);
+	var _form = __webpack_require__(443);
 
 	var _form2 = _interopRequireDefault(_form);
 
@@ -8931,9 +8987,9 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TodoFilters = __webpack_require__(488);
+	var _TodoFilters = __webpack_require__(489);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
@@ -9107,23 +9163,23 @@ webpackJsonp([0],[
 	exports.default = Header;
 
 /***/ },
-/* 331 */
+/* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(332);
+	__webpack_require__(333);
 
 /***/ },
-/* 332 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(333);
+	var content = __webpack_require__(334);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -9132,8 +9188,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(333, function() {
-				var newContent = __webpack_require__(333);
+			module.hot.accept(334, function() {
+				var newContent = __webpack_require__(334);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -9143,7 +9199,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 333 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -9157,7 +9213,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 334 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9166,11 +9222,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _button = __webpack_require__(335);
+	var _button = __webpack_require__(336);
 
 	var _button2 = _interopRequireDefault(_button);
 
-	var _buttonGroup = __webpack_require__(346);
+	var _buttonGroup = __webpack_require__(347);
 
 	var _buttonGroup2 = _interopRequireDefault(_buttonGroup);
 
@@ -9181,7 +9237,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 335 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9191,27 +9247,27 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -9219,17 +9275,17 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
 	var _reactDom = __webpack_require__(34);
 
-	var _icon = __webpack_require__(203);
+	var _icon = __webpack_require__(328);
 
 	var _icon2 = _interopRequireDefault(_icon);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
@@ -9367,18 +9423,18 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 336 */
+/* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	exports.__esModule = true;
 
-	var _isIterable2 = __webpack_require__(337);
+	var _isIterable2 = __webpack_require__(338);
 
 	var _isIterable3 = _interopRequireDefault(_isIterable2);
 
-	var _getIterator2 = __webpack_require__(341);
+	var _getIterator2 = __webpack_require__(342);
 
 	var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -9423,27 +9479,27 @@ webpackJsonp([0],[
 	}();
 
 /***/ },
-/* 337 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(338), __esModule: true };
-
-/***/ },
 /* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(264);
-	__webpack_require__(251);
-	module.exports = __webpack_require__(339);
+	module.exports = { "default": __webpack_require__(339), __esModule: true };
 
 /***/ },
 /* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var classof   = __webpack_require__(340)
-	  , ITERATOR  = __webpack_require__(262)('iterator')
-	  , Iterators = __webpack_require__(256);
-	module.exports = __webpack_require__(210).isIterable = function(it){
+	__webpack_require__(262);
+	__webpack_require__(249);
+	module.exports = __webpack_require__(340);
+
+/***/ },
+/* 340 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var classof   = __webpack_require__(341)
+	  , ITERATOR  = __webpack_require__(260)('iterator')
+	  , Iterators = __webpack_require__(254);
+	module.exports = __webpack_require__(212).isIterable = function(it){
 	  var O = Object(it);
 	  return O[ITERATOR] !== undefined
 	    || '@@iterator' in O
@@ -9451,12 +9507,12 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 340 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// getting tag from 19.1.3.6 Object.prototype.toString()
-	var cof = __webpack_require__(229)
-	  , TAG = __webpack_require__(262)('toStringTag')
+	var cof = __webpack_require__(231)
+	  , TAG = __webpack_require__(260)('toStringTag')
 	  // ES3 wrong here
 	  , ARG = cof(function(){ return arguments; }()) == 'Arguments';
 
@@ -9479,46 +9535,46 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 341 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(342), __esModule: true };
-
-/***/ },
 /* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(264);
-	__webpack_require__(251);
-	module.exports = __webpack_require__(343);
+	module.exports = { "default": __webpack_require__(343), __esModule: true };
 
 /***/ },
 /* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var anObject = __webpack_require__(215)
-	  , get      = __webpack_require__(344);
-	module.exports = __webpack_require__(210).getIterator = function(it){
+	__webpack_require__(262);
+	__webpack_require__(249);
+	module.exports = __webpack_require__(344);
+
+/***/ },
+/* 344 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var anObject = __webpack_require__(217)
+	  , get      = __webpack_require__(345);
+	module.exports = __webpack_require__(212).getIterator = function(it){
 	  var iterFn = get(it);
 	  if(typeof iterFn != 'function')throw TypeError(it + ' is not iterable!');
 	  return anObject(iterFn.call(it));
 	};
 
 /***/ },
-/* 344 */
+/* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var classof   = __webpack_require__(340)
-	  , ITERATOR  = __webpack_require__(262)('iterator')
-	  , Iterators = __webpack_require__(256);
-	module.exports = __webpack_require__(210).getIteratorMethod = function(it){
+	var classof   = __webpack_require__(341)
+	  , ITERATOR  = __webpack_require__(260)('iterator')
+	  , Iterators = __webpack_require__(254);
+	module.exports = __webpack_require__(212).getIteratorMethod = function(it){
 	  if(it != undefined)return it[ITERATOR]
 	    || it['@@iterator']
 	    || Iterators[classof(it)];
 	};
 
 /***/ },
-/* 345 */
+/* 346 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -9542,7 +9598,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 346 */
+/* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9551,15 +9607,15 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
@@ -9569,11 +9625,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
@@ -9605,27 +9661,27 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 347 */
+/* 348 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(348);
+	__webpack_require__(349);
 
-	__webpack_require__(350);
+	__webpack_require__(351);
 
-	__webpack_require__(353);
+	__webpack_require__(354);
 
 /***/ },
-/* 348 */
+/* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(349);
+	var content = __webpack_require__(350);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -9634,8 +9690,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(349, function() {
-				var newContent = __webpack_require__(349);
+			module.hot.accept(350, function() {
+				var newContent = __webpack_require__(350);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -9645,7 +9701,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 349 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -9659,23 +9715,23 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 350 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(351);
+	__webpack_require__(352);
 
 /***/ },
-/* 351 */
+/* 352 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(352);
+	var content = __webpack_require__(353);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -9684,8 +9740,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(352, function() {
-				var newContent = __webpack_require__(352);
+			module.hot.accept(353, function() {
+				var newContent = __webpack_require__(353);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -9695,7 +9751,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 352 */
+/* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -9709,25 +9765,25 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 353 */
+/* 354 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(354);
+	__webpack_require__(355);
 
-	__webpack_require__(350);
+	__webpack_require__(351);
 
 /***/ },
-/* 354 */
+/* 355 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(355);
+	var content = __webpack_require__(356);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -9736,8 +9792,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(355, function() {
-				var newContent = __webpack_require__(355);
+			module.hot.accept(356, function() {
+				var newContent = __webpack_require__(356);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -9747,7 +9803,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 355 */
+/* 356 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -9761,7 +9817,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 356 */
+/* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9774,27 +9830,27 @@ webpackJsonp([0],[
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _rcCalendar = __webpack_require__(357);
+	var _rcCalendar = __webpack_require__(358);
 
 	var _rcCalendar2 = _interopRequireDefault(_rcCalendar);
 
-	var _MonthCalendar = __webpack_require__(380);
+	var _MonthCalendar = __webpack_require__(381);
 
 	var _MonthCalendar2 = _interopRequireDefault(_MonthCalendar);
 
-	var _createPicker = __webpack_require__(381);
+	var _createPicker = __webpack_require__(382);
 
 	var _createPicker2 = _interopRequireDefault(_createPicker);
 
-	var _wrapPicker = __webpack_require__(408);
+	var _wrapPicker = __webpack_require__(409);
 
 	var _wrapPicker2 = _interopRequireDefault(_wrapPicker);
 
-	var _RangePicker = __webpack_require__(418);
+	var _RangePicker = __webpack_require__(419);
 
 	var _RangePicker2 = _interopRequireDefault(_RangePicker);
 
-	var _Calendar = __webpack_require__(421);
+	var _Calendar = __webpack_require__(422);
 
 	var _Calendar2 = _interopRequireDefault(_Calendar);
 
@@ -9811,25 +9867,6 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 357 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _Calendar = __webpack_require__(358);
-
-	var _Calendar2 = _interopRequireDefault(_Calendar);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-	exports["default"] = _Calendar2["default"];
-	module.exports = exports['default'];
-
-/***/ },
 /* 358 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -9839,7 +9876,26 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _Calendar = __webpack_require__(359);
+
+	var _Calendar2 = _interopRequireDefault(_Calendar);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	exports["default"] = _Calendar2["default"];
+	module.exports = exports['default'];
+
+/***/ },
+/* 359 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -9851,35 +9907,35 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _KeyCode = __webpack_require__(359);
+	var _KeyCode = __webpack_require__(360);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _DateTable = __webpack_require__(360);
+	var _DateTable = __webpack_require__(361);
 
 	var _DateTable2 = _interopRequireDefault(_DateTable);
 
-	var _CalendarHeader = __webpack_require__(366);
+	var _CalendarHeader = __webpack_require__(367);
 
 	var _CalendarHeader2 = _interopRequireDefault(_CalendarHeader);
 
-	var _CalendarFooter = __webpack_require__(372);
+	var _CalendarFooter = __webpack_require__(373);
 
 	var _CalendarFooter2 = _interopRequireDefault(_CalendarFooter);
 
-	var _CalendarMixin = __webpack_require__(376);
+	var _CalendarMixin = __webpack_require__(377);
 
 	var _CalendarMixin2 = _interopRequireDefault(_CalendarMixin);
 
-	var _CommonMixin = __webpack_require__(377);
+	var _CommonMixin = __webpack_require__(378);
 
 	var _CommonMixin2 = _interopRequireDefault(_CommonMixin);
 
-	var _DateInput = __webpack_require__(379);
+	var _DateInput = __webpack_require__(380);
 
 	var _DateInput2 = _interopRequireDefault(_DateInput);
 
-	var _index = __webpack_require__(365);
+	var _index = __webpack_require__(366);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -10171,7 +10227,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 359 */
+/* 360 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -10696,7 +10752,7 @@ webpackJsonp([0],[
 	module.exports = KeyCode;
 
 /***/ },
-/* 360 */
+/* 361 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10705,15 +10761,15 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -10721,11 +10777,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _DateTHead = __webpack_require__(361);
+	var _DateTHead = __webpack_require__(362);
 
 	var _DateTHead2 = _interopRequireDefault(_DateTHead);
 
-	var _DateTBody = __webpack_require__(364);
+	var _DateTBody = __webpack_require__(365);
 
 	var _DateTBody2 = _interopRequireDefault(_DateTBody);
 
@@ -10757,7 +10813,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 361 */
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10766,15 +10822,15 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -10782,11 +10838,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _DateConstants = __webpack_require__(362);
+	var _DateConstants = __webpack_require__(363);
 
 	var _DateConstants2 = _interopRequireDefault(_DateConstants);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
@@ -10866,7 +10922,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 362 */
+/* 363 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -10881,8 +10937,8 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 363 */,
-/* 364 */
+/* 364 */,
+/* 365 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10895,11 +10951,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _DateConstants = __webpack_require__(362);
+	var _DateConstants = __webpack_require__(363);
 
 	var _DateConstants2 = _interopRequireDefault(_DateConstants);
 
-	var _util = __webpack_require__(365);
+	var _util = __webpack_require__(366);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11131,7 +11187,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 365 */
+/* 366 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11140,7 +11196,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -11153,7 +11209,7 @@ webpackJsonp([0],[
 	exports.isTimeValid = isTimeValid;
 	exports.isAllowedDate = isAllowedDate;
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
@@ -11240,7 +11296,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 366 */
+/* 367 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11253,15 +11309,15 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _MonthPanel = __webpack_require__(367);
+	var _MonthPanel = __webpack_require__(368);
 
 	var _MonthPanel2 = _interopRequireDefault(_MonthPanel);
 
-	var _YearPanel = __webpack_require__(368);
+	var _YearPanel = __webpack_require__(369);
 
 	var _YearPanel2 = _interopRequireDefault(_YearPanel);
 
-	var _mapSelf = __webpack_require__(371);
+	var _mapSelf = __webpack_require__(372);
 
 	var _mapSelf2 = _interopRequireDefault(_mapSelf);
 
@@ -11441,7 +11497,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 367 */
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11454,11 +11510,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _YearPanel = __webpack_require__(368);
+	var _YearPanel = __webpack_require__(369);
 
 	var _YearPanel2 = _interopRequireDefault(_YearPanel);
 
-	var _MonthTable = __webpack_require__(370);
+	var _MonthTable = __webpack_require__(371);
 
 	var _MonthTable2 = _interopRequireDefault(_MonthTable);
 
@@ -11607,7 +11663,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 368 */
+/* 369 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11616,19 +11672,19 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -11636,11 +11692,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _DecadePanel = __webpack_require__(369);
+	var _DecadePanel = __webpack_require__(370);
 
 	var _DecadePanel2 = _interopRequireDefault(_DecadePanel);
 
@@ -11867,7 +11923,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 369 */
+/* 370 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -11876,19 +11932,19 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -11896,7 +11952,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -12071,7 +12127,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 370 */
+/* 371 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12080,19 +12136,19 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -12100,11 +12156,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _index = __webpack_require__(365);
+	var _index = __webpack_require__(366);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -12260,7 +12316,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 371 */
+/* 372 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12277,7 +12333,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 372 */
+/* 373 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12286,11 +12342,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -12302,23 +12358,23 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _mapSelf = __webpack_require__(371);
+	var _mapSelf = __webpack_require__(372);
 
 	var _mapSelf2 = _interopRequireDefault(_mapSelf);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _TodayButton = __webpack_require__(373);
+	var _TodayButton = __webpack_require__(374);
 
 	var _TodayButton2 = _interopRequireDefault(_TodayButton);
 
-	var _OkButton = __webpack_require__(374);
+	var _OkButton = __webpack_require__(375);
 
 	var _OkButton2 = _interopRequireDefault(_OkButton);
 
-	var _TimePickerButton = __webpack_require__(375);
+	var _TimePickerButton = __webpack_require__(376);
 
 	var _TimePickerButton2 = _interopRequireDefault(_TimePickerButton);
 
@@ -12396,7 +12452,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 373 */
+/* 374 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12410,7 +12466,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _util = __webpack_require__(365);
+	var _util = __webpack_require__(366);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -12452,7 +12508,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 374 */
+/* 375 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12491,7 +12547,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 375 */
+/* 376 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12500,7 +12556,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
@@ -12510,7 +12566,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames2 = __webpack_require__(300);
+	var _classnames2 = __webpack_require__(298);
 
 	var _classnames3 = _interopRequireDefault(_classnames2);
 
@@ -12544,7 +12600,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 376 */
+/* 377 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12553,7 +12609,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
@@ -12561,15 +12617,15 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _index = __webpack_require__(365);
+	var _index = __webpack_require__(366);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -12683,7 +12739,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 377 */
+/* 378 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12694,7 +12750,7 @@ webpackJsonp([0],[
 
 	var _react = __webpack_require__(1);
 
-	var _en_US = __webpack_require__(378);
+	var _en_US = __webpack_require__(379);
 
 	var _en_US2 = _interopRequireDefault(_en_US);
 
@@ -12759,7 +12815,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 378 */
+/* 379 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -12798,7 +12854,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 379 */
+/* 380 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12815,7 +12871,7 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
@@ -12949,7 +13005,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 380 */
+/* 381 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -12962,19 +13018,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _MonthPanel = __webpack_require__(367);
+	var _MonthPanel = __webpack_require__(368);
 
 	var _MonthPanel2 = _interopRequireDefault(_MonthPanel);
 
-	var _CalendarMixin = __webpack_require__(376);
+	var _CalendarMixin = __webpack_require__(377);
 
 	var _CalendarMixin2 = _interopRequireDefault(_CalendarMixin);
 
-	var _CommonMixin = __webpack_require__(377);
+	var _CommonMixin = __webpack_require__(378);
 
 	var _CommonMixin2 = _interopRequireDefault(_CommonMixin);
 
-	var _KeyCode = __webpack_require__(359);
+	var _KeyCode = __webpack_require__(360);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
@@ -13049,7 +13105,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 381 */
+/* 382 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -13058,11 +13114,11 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
@@ -13072,19 +13128,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _MonthCalendar = __webpack_require__(380);
+	var _MonthCalendar = __webpack_require__(381);
 
 	var _MonthCalendar2 = _interopRequireDefault(_MonthCalendar);
 
-	var _Picker = __webpack_require__(382);
+	var _Picker = __webpack_require__(383);
 
 	var _Picker2 = _interopRequireDefault(_Picker);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -13092,7 +13148,7 @@ webpackJsonp([0],[
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _icon = __webpack_require__(203);
+	var _icon = __webpack_require__(328);
 
 	var _icon2 = _interopRequireDefault(_icon);
 
@@ -13192,7 +13248,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 382 */
+/* 383 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -13209,19 +13265,19 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _createChainedFunction = __webpack_require__(383);
+	var _createChainedFunction = __webpack_require__(384);
 
 	var _createChainedFunction2 = _interopRequireDefault(_createChainedFunction);
 
-	var _KeyCode = __webpack_require__(359);
+	var _KeyCode = __webpack_require__(360);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _placements = __webpack_require__(384);
+	var _placements = __webpack_require__(385);
 
 	var _placements2 = _interopRequireDefault(_placements);
 
-	var _rcTrigger = __webpack_require__(385);
+	var _rcTrigger = __webpack_require__(386);
 
 	var _rcTrigger2 = _interopRequireDefault(_rcTrigger);
 
@@ -13423,7 +13479,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 383 */
+/* 384 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -13450,7 +13506,7 @@ webpackJsonp([0],[
 	module.exports = createChainedFunction;
 
 /***/ },
-/* 384 */
+/* 385 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -13496,15 +13552,15 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 385 */
+/* 386 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(386);
+	module.exports = __webpack_require__(387);
 
 /***/ },
-/* 386 */
+/* 387 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -13513,7 +13569,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -13525,21 +13581,21 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _contains = __webpack_require__(387);
+	var _contains = __webpack_require__(388);
 
 	var _contains2 = _interopRequireDefault(_contains);
 
-	var _addEventListener = __webpack_require__(388);
+	var _addEventListener = __webpack_require__(389);
 
 	var _addEventListener2 = _interopRequireDefault(_addEventListener);
 
-	var _Popup = __webpack_require__(389);
+	var _Popup = __webpack_require__(390);
 
 	var _Popup2 = _interopRequireDefault(_Popup);
 
-	var _utils = __webpack_require__(406);
+	var _utils = __webpack_require__(407);
 
-	var _getContainerRenderMixin = __webpack_require__(407);
+	var _getContainerRenderMixin = __webpack_require__(408);
 
 	var _getContainerRenderMixin2 = _interopRequireDefault(_getContainerRenderMixin);
 
@@ -13983,7 +14039,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 387 */
+/* 388 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -14001,7 +14057,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 388 */
+/* 389 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -14011,7 +14067,7 @@ webpackJsonp([0],[
 	});
 	exports["default"] = addEventListenerWrap;
 
-	var _addDomEventListener = __webpack_require__(320);
+	var _addDomEventListener = __webpack_require__(318);
 
 	var _addDomEventListener2 = _interopRequireDefault(_addDomEventListener);
 
@@ -14031,7 +14087,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 389 */
+/* 390 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -14040,7 +14096,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -14052,19 +14108,19 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _rcAlign = __webpack_require__(390);
+	var _rcAlign = __webpack_require__(391);
 
 	var _rcAlign2 = _interopRequireDefault(_rcAlign);
 
-	var _rcAnimate = __webpack_require__(308);
+	var _rcAnimate = __webpack_require__(306);
 
 	var _rcAnimate2 = _interopRequireDefault(_rcAnimate);
 
-	var _PopupInner = __webpack_require__(403);
+	var _PopupInner = __webpack_require__(404);
 
 	var _PopupInner2 = _interopRequireDefault(_PopupInner);
 
-	var _LazyRenderBox = __webpack_require__(404);
+	var _LazyRenderBox = __webpack_require__(405);
 
 	var _LazyRenderBox2 = _interopRequireDefault(_LazyRenderBox);
 
@@ -14262,7 +14318,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 390 */
+/* 391 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -14271,7 +14327,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _Align = __webpack_require__(391);
+	var _Align = __webpack_require__(392);
 
 	var _Align2 = _interopRequireDefault(_Align);
 
@@ -14282,7 +14338,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 391 */
+/* 392 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -14299,15 +14355,15 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _domAlign = __webpack_require__(392);
+	var _domAlign = __webpack_require__(393);
 
 	var _domAlign2 = _interopRequireDefault(_domAlign);
 
-	var _addEventListener = __webpack_require__(401);
+	var _addEventListener = __webpack_require__(402);
 
 	var _addEventListener2 = _interopRequireDefault(_addEventListener);
 
-	var _isWindow = __webpack_require__(402);
+	var _isWindow = __webpack_require__(403);
 
 	var _isWindow2 = _interopRequireDefault(_isWindow);
 
@@ -14441,7 +14497,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 392 */
+/* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -14450,27 +14506,27 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _utils = __webpack_require__(393);
+	var _utils = __webpack_require__(394);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _getOffsetParent = __webpack_require__(395);
+	var _getOffsetParent = __webpack_require__(396);
 
 	var _getOffsetParent2 = _interopRequireDefault(_getOffsetParent);
 
-	var _getVisibleRectForElement = __webpack_require__(396);
+	var _getVisibleRectForElement = __webpack_require__(397);
 
 	var _getVisibleRectForElement2 = _interopRequireDefault(_getVisibleRectForElement);
 
-	var _adjustForViewport = __webpack_require__(397);
+	var _adjustForViewport = __webpack_require__(398);
 
 	var _adjustForViewport2 = _interopRequireDefault(_adjustForViewport);
 
-	var _getRegion = __webpack_require__(398);
+	var _getRegion = __webpack_require__(399);
 
 	var _getRegion2 = _interopRequireDefault(_getRegion);
 
-	var _getElFuturePos = __webpack_require__(399);
+	var _getElFuturePos = __webpack_require__(400);
 
 	var _getElFuturePos2 = _interopRequireDefault(_getElFuturePos);
 
@@ -14664,7 +14720,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 393 */
+/* 394 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -14675,7 +14731,7 @@ webpackJsonp([0],[
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _propertyUtils = __webpack_require__(394);
+	var _propertyUtils = __webpack_require__(395);
 
 	var RE_NUM = /[\-+]?(?:\d*\.|)\d+(?:[eE][\-+]?\d+|)/.source;
 
@@ -15227,7 +15283,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 394 */
+/* 395 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -15342,7 +15398,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 395 */
+/* 396 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15351,7 +15407,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _utils = __webpack_require__(393);
+	var _utils = __webpack_require__(394);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -15400,7 +15456,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 396 */
+/* 397 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15409,11 +15465,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _utils = __webpack_require__(393);
+	var _utils = __webpack_require__(394);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _getOffsetParent = __webpack_require__(395);
+	var _getOffsetParent = __webpack_require__(396);
 
 	var _getOffsetParent2 = _interopRequireDefault(_getOffsetParent);
 
@@ -15481,7 +15537,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 397 */
+/* 398 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15490,7 +15546,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _utils = __webpack_require__(393);
+	var _utils = __webpack_require__(394);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -15541,7 +15597,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 398 */
+/* 399 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15550,7 +15606,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _utils = __webpack_require__(393);
+	var _utils = __webpack_require__(394);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -15582,7 +15638,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 399 */
+/* 400 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15591,7 +15647,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _getAlignOffset = __webpack_require__(400);
+	var _getAlignOffset = __webpack_require__(401);
 
 	var _getAlignOffset2 = _interopRequireDefault(_getAlignOffset);
 
@@ -15623,7 +15679,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 400 */
+/* 401 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -15668,7 +15724,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 401 */
+/* 402 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15678,7 +15734,7 @@ webpackJsonp([0],[
 	});
 	exports["default"] = addEventListenerWrap;
 
-	var _addDomEventListener = __webpack_require__(320);
+	var _addDomEventListener = __webpack_require__(318);
 
 	var _addDomEventListener2 = _interopRequireDefault(_addDomEventListener);
 
@@ -15698,7 +15754,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 402 */
+/* 403 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -15715,7 +15771,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 403 */
+/* 404 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15728,7 +15784,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _LazyRenderBox = __webpack_require__(404);
+	var _LazyRenderBox = __webpack_require__(405);
 
 	var _LazyRenderBox2 = _interopRequireDefault(_LazyRenderBox);
 
@@ -15772,7 +15828,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 404 */
+/* 405 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15781,7 +15837,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _objectWithoutProperties2 = __webpack_require__(405);
+	var _objectWithoutProperties2 = __webpack_require__(406);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -15825,7 +15881,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 405 */
+/* 406 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -15845,7 +15901,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 406 */
+/* 407 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15854,7 +15910,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -15885,7 +15941,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 407 */
+/* 408 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15984,7 +16040,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 408 */
+/* 409 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15993,11 +16049,11 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
@@ -16007,19 +16063,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Panel = __webpack_require__(409);
+	var _Panel = __webpack_require__(410);
 
 	var _Panel2 = _interopRequireDefault(_Panel);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _warning = __webpack_require__(328);
+	var _warning = __webpack_require__(326);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _getLocale = __webpack_require__(413);
+	var _getLocale = __webpack_require__(414);
 
 	var _getLocale2 = _interopRequireDefault(_getLocale);
 
@@ -16070,7 +16126,7 @@ webpackJsonp([0],[
 	            var pickerClass = (0, _classnames2["default"])((0, _defineProperty3["default"])({}, prefixCls + '-picker', true));
 	            var pickerInputClass = (0, _classnames2["default"])((_classNames2 = {}, (0, _defineProperty3["default"])(_classNames2, prefixCls + '-range-picker', true), (0, _defineProperty3["default"])(_classNames2, inputPrefixCls, true), (0, _defineProperty3["default"])(_classNames2, inputPrefixCls + '-lg', props.size === 'large'), (0, _defineProperty3["default"])(_classNames2, inputPrefixCls + '-sm', props.size === 'small'), _classNames2));
 	            var locale = (0, _getLocale2["default"])(this.props, this.context, 'DatePicker', function () {
-	                return __webpack_require__(414);
+	                return __webpack_require__(415);
 	            });
 	            var timeFormat = props.showTime && props.showTime.format || 'HH:mm:ss';
 	            var rcTimePickerProps = {
@@ -16088,7 +16144,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 409 */
+/* 410 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16097,7 +16153,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
@@ -16105,19 +16161,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Header = __webpack_require__(410);
+	var _Header = __webpack_require__(411);
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _Combobox = __webpack_require__(411);
+	var _Combobox = __webpack_require__(412);
 
 	var _Combobox2 = _interopRequireDefault(_Combobox);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -16268,7 +16324,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 410 */
+/* 411 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16281,7 +16337,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
@@ -16464,7 +16520,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 411 */
+/* 412 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16477,7 +16533,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Select = __webpack_require__(412);
+	var _Select = __webpack_require__(413);
 
 	var _Select2 = _interopRequireDefault(_Select);
 
@@ -16627,7 +16683,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 412 */
+/* 413 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16636,7 +16692,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
@@ -16648,7 +16704,7 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _classnames2 = __webpack_require__(300);
+	var _classnames2 = __webpack_require__(298);
 
 	var _classnames3 = _interopRequireDefault(_classnames2);
 
@@ -16769,7 +16825,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 413 */
+/* 414 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16800,7 +16856,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 414 */
+/* 415 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16809,11 +16865,11 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _zh_CN = __webpack_require__(415);
+	var _zh_CN = __webpack_require__(416);
 
 	var _zh_CN2 = _interopRequireDefault(_zh_CN);
 
-	var _zh_CN3 = __webpack_require__(416);
+	var _zh_CN3 = __webpack_require__(417);
 
 	var _zh_CN4 = _interopRequireDefault(_zh_CN3);
 
@@ -16821,11 +16877,11 @@ webpackJsonp([0],[
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	__webpack_require__(417);
+	__webpack_require__(418);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -16844,7 +16900,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 415 */
+/* 416 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -16882,7 +16938,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 416 */
+/* 417 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -16897,7 +16953,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 417 */
+/* 418 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -16906,7 +16962,7 @@ webpackJsonp([0],[
 	//! author : Zeno Zeng : https://github.com/zenozeng
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(363)) :
+	    true ? factory(__webpack_require__(364)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -17028,7 +17084,7 @@ webpackJsonp([0],[
 	}));
 
 /***/ },
-/* 418 */
+/* 419 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17038,23 +17094,23 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -17062,23 +17118,23 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _RangeCalendar = __webpack_require__(419);
+	var _RangeCalendar = __webpack_require__(420);
 
 	var _RangeCalendar2 = _interopRequireDefault(_RangeCalendar);
 
-	var _Picker = __webpack_require__(382);
+	var _Picker = __webpack_require__(383);
 
 	var _Picker2 = _interopRequireDefault(_Picker);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _icon = __webpack_require__(203);
+	var _icon = __webpack_require__(328);
 
 	var _icon2 = _interopRequireDefault(_icon);
 
@@ -17191,7 +17247,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 419 */
+/* 420 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17200,19 +17256,19 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _typeof2 = __webpack_require__(248);
+	var _typeof2 = __webpack_require__(246);
 
 	var _typeof3 = _interopRequireDefault(_typeof2);
 
@@ -17220,33 +17276,33 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _classnames2 = __webpack_require__(300);
+	var _classnames2 = __webpack_require__(298);
 
 	var _classnames3 = _interopRequireDefault(_classnames2);
 
-	var _CalendarPart = __webpack_require__(420);
+	var _CalendarPart = __webpack_require__(421);
 
 	var _CalendarPart2 = _interopRequireDefault(_CalendarPart);
 
-	var _util = __webpack_require__(365);
+	var _util = __webpack_require__(366);
 
-	var _TodayButton = __webpack_require__(373);
+	var _TodayButton = __webpack_require__(374);
 
 	var _TodayButton2 = _interopRequireDefault(_TodayButton);
 
-	var _OkButton = __webpack_require__(374);
+	var _OkButton = __webpack_require__(375);
 
 	var _OkButton2 = _interopRequireDefault(_OkButton);
 
-	var _TimePickerButton = __webpack_require__(375);
+	var _TimePickerButton = __webpack_require__(376);
 
 	var _TimePickerButton2 = _interopRequireDefault(_TimePickerButton);
 
-	var _CommonMixin = __webpack_require__(377);
+	var _CommonMixin = __webpack_require__(378);
 
 	var _CommonMixin2 = _interopRequireDefault(_CommonMixin);
 
@@ -17704,7 +17760,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 420 */
+/* 421 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17713,7 +17769,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -17721,19 +17777,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _CalendarHeader = __webpack_require__(366);
+	var _CalendarHeader = __webpack_require__(367);
 
 	var _CalendarHeader2 = _interopRequireDefault(_CalendarHeader);
 
-	var _DateTable = __webpack_require__(360);
+	var _DateTable = __webpack_require__(361);
 
 	var _DateTable2 = _interopRequireDefault(_DateTable);
 
-	var _DateInput = __webpack_require__(379);
+	var _DateInput = __webpack_require__(380);
 
 	var _DateInput2 = _interopRequireDefault(_DateInput);
 
-	var _index = __webpack_require__(365);
+	var _index = __webpack_require__(366);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -17846,7 +17902,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 421 */
+/* 422 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17856,15 +17912,15 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -17872,11 +17928,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _zh_CN = __webpack_require__(415);
+	var _zh_CN = __webpack_require__(416);
 
 	var _zh_CN2 = _interopRequireDefault(_zh_CN);
 
-	var _rcCalendar = __webpack_require__(357);
+	var _rcCalendar = __webpack_require__(358);
 
 	var _rcCalendar2 = _interopRequireDefault(_rcCalendar);
 
@@ -17906,25 +17962,25 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 422 */
+/* 423 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(423);
+	__webpack_require__(424);
 
-	__webpack_require__(350);
+	__webpack_require__(351);
 
 /***/ },
-/* 423 */
+/* 424 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(424);
+	var content = __webpack_require__(425);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -17933,8 +17989,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(424, function() {
-				var newContent = __webpack_require__(424);
+			module.hot.accept(425, function() {
+				var newContent = __webpack_require__(425);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -17944,7 +18000,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 424 */
+/* 425 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -17958,7 +18014,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 425 */
+/* 426 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17968,23 +18024,23 @@ webpackJsonp([0],[
 	});
 	exports["default"] = exports.OptGroup = exports.Option = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -17992,11 +18048,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _rcSelect = __webpack_require__(426);
+	var _rcSelect = __webpack_require__(427);
 
 	var _rcSelect2 = _interopRequireDefault(_rcSelect);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -18065,7 +18121,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 426 */
+/* 427 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18075,15 +18131,15 @@ webpackJsonp([0],[
 	});
 	exports.OptGroup = exports.Option = undefined;
 
-	var _Select = __webpack_require__(427);
+	var _Select = __webpack_require__(428);
 
 	var _Select2 = _interopRequireDefault(_Select);
 
-	var _Option = __webpack_require__(435);
+	var _Option = __webpack_require__(436);
 
 	var _Option2 = _interopRequireDefault(_Option);
 
-	var _OptGroup = __webpack_require__(429);
+	var _OptGroup = __webpack_require__(430);
 
 	var _OptGroup2 = _interopRequireDefault(_OptGroup);
 
@@ -18096,7 +18152,7 @@ webpackJsonp([0],[
 	exports["default"] = _Select2["default"];
 
 /***/ },
-/* 427 */
+/* 428 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18105,11 +18161,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -18121,33 +18177,33 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _KeyCode = __webpack_require__(428);
+	var _KeyCode = __webpack_require__(429);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _OptGroup = __webpack_require__(429);
+	var _OptGroup = __webpack_require__(430);
 
 	var _OptGroup2 = _interopRequireDefault(_OptGroup);
 
-	var _rcAnimate = __webpack_require__(308);
+	var _rcAnimate = __webpack_require__(306);
 
 	var _rcAnimate2 = _interopRequireDefault(_rcAnimate);
 
-	var _componentClasses = __webpack_require__(314);
+	var _componentClasses = __webpack_require__(312);
 
 	var _componentClasses2 = _interopRequireDefault(_componentClasses);
 
-	var _util = __webpack_require__(430);
+	var _util = __webpack_require__(431);
 
-	var _SelectTrigger = __webpack_require__(431);
+	var _SelectTrigger = __webpack_require__(432);
 
 	var _SelectTrigger2 = _interopRequireDefault(_SelectTrigger);
 
-	var _FilterMixin = __webpack_require__(433);
+	var _FilterMixin = __webpack_require__(434);
 
 	var _FilterMixin2 = _interopRequireDefault(_FilterMixin);
 
@@ -18986,7 +19042,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 428 */
+/* 429 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -19511,7 +19567,7 @@ webpackJsonp([0],[
 	module.exports = KeyCode;
 
 /***/ },
-/* 429 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19520,15 +19576,15 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -19553,7 +19609,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 430 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19574,7 +19630,7 @@ webpackJsonp([0],[
 	exports.getSelectKeys = getSelectKeys;
 	exports.findFirstMenuItem = findFirstMenuItem;
 
-	var _rcMenu = __webpack_require__(291);
+	var _rcMenu = __webpack_require__(289);
 
 	var _react = __webpack_require__(1);
 
@@ -19685,7 +19741,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 431 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19694,19 +19750,19 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _objectWithoutProperties2 = __webpack_require__(405);
+	var _objectWithoutProperties2 = __webpack_require__(406);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _rcTrigger = __webpack_require__(385);
+	var _rcTrigger = __webpack_require__(386);
 
 	var _rcTrigger2 = _interopRequireDefault(_rcTrigger);
 
@@ -19714,11 +19770,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _DropdownMenu = __webpack_require__(432);
+	var _DropdownMenu = __webpack_require__(433);
 
 	var _DropdownMenu2 = _interopRequireDefault(_DropdownMenu);
 
@@ -19726,7 +19782,7 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _util = __webpack_require__(430);
+	var _util = __webpack_require__(431);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -19873,7 +19929,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 432 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -19882,11 +19938,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _typeof2 = __webpack_require__(248);
+	var _typeof2 = __webpack_require__(246);
 
 	var _typeof3 = _interopRequireDefault(_typeof2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -19896,13 +19952,13 @@ webpackJsonp([0],[
 
 	var _reactDom = __webpack_require__(34);
 
-	var _util = __webpack_require__(430);
+	var _util = __webpack_require__(431);
 
-	var _rcMenu = __webpack_require__(291);
+	var _rcMenu = __webpack_require__(289);
 
 	var _rcMenu2 = _interopRequireDefault(_rcMenu);
 
-	var _domScrollIntoView = __webpack_require__(301);
+	var _domScrollIntoView = __webpack_require__(299);
 
 	var _domScrollIntoView2 = _interopRequireDefault(_domScrollIntoView);
 
@@ -20057,7 +20113,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 433 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20066,7 +20122,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -20074,19 +20130,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _util = __webpack_require__(430);
+	var _util = __webpack_require__(431);
 
-	var _rcMenu = __webpack_require__(291);
+	var _rcMenu = __webpack_require__(289);
 
-	var _warning = __webpack_require__(434);
+	var _warning = __webpack_require__(435);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _OptGroup = __webpack_require__(429);
+	var _OptGroup = __webpack_require__(430);
 
 	var _OptGroup2 = _interopRequireDefault(_OptGroup);
 
-	var _Option = __webpack_require__(435);
+	var _Option = __webpack_require__(436);
 
 	var _Option2 = _interopRequireDefault(_Option);
 
@@ -20208,7 +20264,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 434 */
+/* 435 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20275,7 +20331,7 @@ webpackJsonp([0],[
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 435 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20284,15 +20340,15 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -20320,25 +20376,25 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 436 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(437);
+	__webpack_require__(438);
 
-	__webpack_require__(439);
+	__webpack_require__(440);
 
 /***/ },
-/* 437 */
+/* 438 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(438);
+	var content = __webpack_require__(439);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -20347,8 +20403,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(438, function() {
-				var newContent = __webpack_require__(438);
+			module.hot.accept(439, function() {
+				var newContent = __webpack_require__(439);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -20358,7 +20414,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 438 */
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -20372,23 +20428,23 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 439 */
+/* 440 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(440);
+	__webpack_require__(441);
 
 /***/ },
-/* 440 */
+/* 441 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(441);
+	var content = __webpack_require__(442);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -20397,8 +20453,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(441, function() {
-				var newContent = __webpack_require__(441);
+			module.hot.accept(442, function() {
+				var newContent = __webpack_require__(442);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -20408,7 +20464,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 441 */
+/* 442 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -20422,7 +20478,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 442 */
+/* 443 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20431,7 +20487,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _Form = __webpack_require__(443);
+	var _Form = __webpack_require__(444);
 
 	var _Form2 = _interopRequireDefault(_Form);
 
@@ -20441,7 +20497,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 443 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20451,23 +20507,23 @@ webpackJsonp([0],[
 	});
 	exports["default"] = exports.FormComponent = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -20475,19 +20531,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _reactAddonsPureRenderMixin = __webpack_require__(444);
+	var _reactAddonsPureRenderMixin = __webpack_require__(445);
 
 	var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
-	var _omit = __webpack_require__(447);
+	var _omit = __webpack_require__(448);
 
 	var _omit2 = _interopRequireDefault(_omit);
 
-	var _warning = __webpack_require__(328);
+	var _warning = __webpack_require__(326);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -20495,15 +20551,15 @@ webpackJsonp([0],[
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _FormItem = __webpack_require__(448);
+	var _FormItem = __webpack_require__(449);
 
 	var _FormItem2 = _interopRequireDefault(_FormItem);
 
-	var _createDOMForm = __webpack_require__(455);
+	var _createDOMForm = __webpack_require__(456);
 
 	var _createDOMForm2 = _interopRequireDefault(_createDOMForm);
 
-	var _constants = __webpack_require__(454);
+	var _constants = __webpack_require__(455);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -20610,13 +20666,13 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 444 */
+/* 445 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(445);
+	module.exports = __webpack_require__(446);
 
 /***/ },
-/* 445 */
+/* 446 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20632,7 +20688,7 @@ webpackJsonp([0],[
 
 	'use strict';
 
-	var shallowCompare = __webpack_require__(446);
+	var shallowCompare = __webpack_require__(447);
 
 	/**
 	 * If your React component's render function is "pure", e.g. it will render the
@@ -20669,7 +20725,7 @@ webpackJsonp([0],[
 	module.exports = ReactComponentWithPureRenderMixin;
 
 /***/ },
-/* 446 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20699,7 +20755,7 @@ webpackJsonp([0],[
 	module.exports = shallowCompare;
 
 /***/ },
-/* 447 */
+/* 448 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20717,7 +20773,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 448 */
+/* 449 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20727,23 +20783,23 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -20751,23 +20807,23 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _reactAddonsPureRenderMixin = __webpack_require__(444);
+	var _reactAddonsPureRenderMixin = __webpack_require__(445);
 
 	var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
-	var _row = __webpack_require__(449);
+	var _row = __webpack_require__(450);
 
 	var _row2 = _interopRequireDefault(_row);
 
-	var _col = __webpack_require__(453);
+	var _col = __webpack_require__(454);
 
 	var _col2 = _interopRequireDefault(_col);
 
-	var _constants = __webpack_require__(454);
+	var _constants = __webpack_require__(455);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -20986,7 +21042,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 449 */
+/* 450 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20995,13 +21051,13 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _layout = __webpack_require__(450);
+	var _layout = __webpack_require__(451);
 
 	exports["default"] = _layout.Row;
 	module.exports = exports['default'];
 
 /***/ },
-/* 450 */
+/* 451 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21011,11 +21067,11 @@ webpackJsonp([0],[
 	});
 	exports.Col = exports.Row = undefined;
 
-	var _row = __webpack_require__(451);
+	var _row = __webpack_require__(452);
 
 	var _row2 = _interopRequireDefault(_row);
 
-	var _col = __webpack_require__(452);
+	var _col = __webpack_require__(453);
 
 	var _col2 = _interopRequireDefault(_col);
 
@@ -21025,7 +21081,7 @@ webpackJsonp([0],[
 	exports.Col = _col2["default"];
 
 /***/ },
-/* 451 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21035,27 +21091,27 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -21063,7 +21119,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -21071,7 +21127,7 @@ webpackJsonp([0],[
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
@@ -21150,7 +21206,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 452 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21159,19 +21215,19 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _typeof2 = __webpack_require__(248);
+	var _typeof2 = __webpack_require__(246);
 
 	var _typeof3 = _interopRequireDefault(_typeof2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
@@ -21179,7 +21235,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -21187,7 +21243,7 @@ webpackJsonp([0],[
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
@@ -21251,7 +21307,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 453 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21260,13 +21316,13 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _layout = __webpack_require__(450);
+	var _layout = __webpack_require__(451);
 
 	exports["default"] = _layout.Col;
 	module.exports = exports['default'];
 
 /***/ },
-/* 454 */
+/* 455 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -21277,7 +21333,7 @@ webpackJsonp([0],[
 	var FIELD_META_PROP = exports.FIELD_META_PROP = 'data-__meta';
 
 /***/ },
-/* 455 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21286,23 +21342,23 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _createBaseForm = __webpack_require__(456);
+	var _createBaseForm = __webpack_require__(457);
 
 	var _createBaseForm2 = _interopRequireDefault(_createBaseForm);
 
-	var _createForm = __webpack_require__(487);
+	var _createForm = __webpack_require__(488);
 
-	var _utils = __webpack_require__(461);
+	var _utils = __webpack_require__(462);
 
 	var _reactDom = __webpack_require__(34);
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _domScrollIntoView = __webpack_require__(301);
+	var _domScrollIntoView = __webpack_require__(299);
 
 	var _domScrollIntoView2 = _interopRequireDefault(_domScrollIntoView);
 
@@ -21404,7 +21460,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 456 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -21413,15 +21469,15 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _keys = __webpack_require__(457);
+	var _keys = __webpack_require__(458);
 
 	var _keys2 = _interopRequireDefault(_keys);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -21429,9 +21485,9 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _utils = __webpack_require__(461);
+	var _utils = __webpack_require__(462);
 
-	var _asyncValidator = __webpack_require__(462);
+	var _asyncValidator = __webpack_require__(463);
 
 	var _asyncValidator2 = _interopRequireDefault(_asyncValidator);
 
@@ -22075,40 +22131,40 @@ webpackJsonp([0],[
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 457 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(458), __esModule: true };
-
-/***/ },
 /* 458 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(459);
-	module.exports = __webpack_require__(210).Object.keys;
+	module.exports = { "default": __webpack_require__(459), __esModule: true };
 
 /***/ },
 /* 459 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// 19.1.2.14 Object.keys(O)
-	var toObject = __webpack_require__(241)
-	  , $keys    = __webpack_require__(224);
+	__webpack_require__(460);
+	module.exports = __webpack_require__(212).Object.keys;
 
-	__webpack_require__(460)('keys', function(){
+/***/ },
+/* 460 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.2.14 Object.keys(O)
+	var toObject = __webpack_require__(243)
+	  , $keys    = __webpack_require__(226);
+
+	__webpack_require__(461)('keys', function(){
 	  return function keys(it){
 	    return $keys(toObject(it));
 	  };
 	});
 
 /***/ },
-/* 460 */
+/* 461 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// most Object methods by ES6 should accept primitives
-	var $export = __webpack_require__(208)
-	  , core    = __webpack_require__(210)
-	  , fails   = __webpack_require__(219);
+	var $export = __webpack_require__(210)
+	  , core    = __webpack_require__(212)
+	  , fails   = __webpack_require__(221);
 	module.exports = function(KEY, exec){
 	  var fn  = (core.Object || {})[KEY] || Object[KEY]
 	    , exp = {};
@@ -22117,7 +22173,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 461 */
+/* 462 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -22126,11 +22182,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _keys = __webpack_require__(457);
+	var _keys = __webpack_require__(458);
 
 	var _keys2 = _interopRequireDefault(_keys);
 
@@ -22303,7 +22359,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 462 */
+/* 463 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -22316,15 +22372,15 @@ webpackJsonp([0],[
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
-	var _validator = __webpack_require__(464);
+	var _validator = __webpack_require__(465);
 
 	var _validator2 = _interopRequireDefault(_validator);
 
-	var _messages2 = __webpack_require__(486);
+	var _messages2 = __webpack_require__(487);
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -22576,7 +22632,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 463 */
+/* 464 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -22789,32 +22845,32 @@ webpackJsonp([0],[
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 464 */
+/* 465 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = {
-	  string: __webpack_require__(465),
-	  method: __webpack_require__(473),
-	  number: __webpack_require__(474),
-	  "boolean": __webpack_require__(475),
-	  regexp: __webpack_require__(476),
-	  integer: __webpack_require__(477),
-	  "float": __webpack_require__(478),
-	  array: __webpack_require__(479),
-	  object: __webpack_require__(480),
-	  "enum": __webpack_require__(481),
-	  pattern: __webpack_require__(482),
-	  email: __webpack_require__(483),
-	  url: __webpack_require__(483),
-	  date: __webpack_require__(484),
-	  hex: __webpack_require__(483),
-	  required: __webpack_require__(485)
+	  string: __webpack_require__(466),
+	  method: __webpack_require__(474),
+	  number: __webpack_require__(475),
+	  "boolean": __webpack_require__(476),
+	  regexp: __webpack_require__(477),
+	  integer: __webpack_require__(478),
+	  "float": __webpack_require__(479),
+	  array: __webpack_require__(480),
+	  object: __webpack_require__(481),
+	  "enum": __webpack_require__(482),
+	  pattern: __webpack_require__(483),
+	  email: __webpack_require__(484),
+	  url: __webpack_require__(484),
+	  date: __webpack_require__(485),
+	  hex: __webpack_require__(484),
+	  required: __webpack_require__(486)
 	};
 
 /***/ },
-/* 465 */
+/* 466 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -22823,11 +22879,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -22865,25 +22921,6 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 466 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports["default"] = {
-	  required: __webpack_require__(467),
-	  whitespace: __webpack_require__(468),
-	  type: __webpack_require__(469),
-	  range: __webpack_require__(470),
-	  "enum": __webpack_require__(471),
-	  pattern: __webpack_require__(472)
-	};
-	module.exports = exports['default'];
-
-/***/ },
 /* 467 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -22892,8 +22929,27 @@ webpackJsonp([0],[
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports["default"] = {
+	  required: __webpack_require__(468),
+	  whitespace: __webpack_require__(469),
+	  type: __webpack_require__(470),
+	  range: __webpack_require__(471),
+	  "enum": __webpack_require__(472),
+	  pattern: __webpack_require__(473)
+	};
+	module.exports = exports['default'];
 
-	var _util = __webpack_require__(463);
+/***/ },
+/* 468 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _util = __webpack_require__(464);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -22920,7 +22976,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 468 */
+/* 469 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -22929,7 +22985,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -22956,7 +23012,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 469 */
+/* 470 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -22967,11 +23023,11 @@ webpackJsonp([0],[
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	var util = _interopRequireWildcard(_util);
 
-	var _required = __webpack_require__(467);
+	var _required = __webpack_require__(468);
 
 	var _required2 = _interopRequireDefault(_required);
 
@@ -23065,7 +23121,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 470 */
+/* 471 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23074,7 +23130,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -23133,7 +23189,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 471 */
+/* 472 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23142,7 +23198,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -23172,7 +23228,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 472 */
+/* 473 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23181,7 +23237,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -23210,7 +23266,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 473 */
+/* 474 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23219,11 +23275,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23256,7 +23312,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 474 */
+/* 475 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23265,11 +23321,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23303,7 +23359,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 475 */
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23312,9 +23368,9 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
@@ -23349,7 +23405,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 476 */
+/* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23358,11 +23414,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23395,7 +23451,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 477 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23404,11 +23460,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23442,7 +23498,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 478 */
+/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23451,11 +23507,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23489,7 +23545,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 479 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23498,11 +23554,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23536,7 +23592,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 480 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23545,11 +23601,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23582,7 +23638,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 481 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23591,11 +23647,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23630,7 +23686,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 482 */
+/* 483 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23639,11 +23695,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23679,7 +23735,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 483 */
+/* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23688,11 +23744,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23716,7 +23772,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 484 */
+/* 485 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23725,11 +23781,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(463);
+	var _util = __webpack_require__(464);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -23757,7 +23813,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 485 */
+/* 486 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23768,7 +23824,7 @@ webpackJsonp([0],[
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _rule = __webpack_require__(466);
+	var _rule = __webpack_require__(467);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
@@ -23785,7 +23841,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 486 */
+/* 487 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -23852,7 +23908,7 @@ webpackJsonp([0],[
 	var messages = exports.messages = newMessages();
 
 /***/ },
-/* 487 */
+/* 488 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23862,7 +23918,7 @@ webpackJsonp([0],[
 	});
 	exports.mixin = undefined;
 
-	var _createBaseForm = __webpack_require__(456);
+	var _createBaseForm = __webpack_require__(457);
 
 	var _createBaseForm2 = _interopRequireDefault(_createBaseForm);
 
@@ -23897,7 +23953,7 @@ webpackJsonp([0],[
 	exports["default"] = createForm;
 
 /***/ },
-/* 488 */
+/* 489 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -23911,7 +23967,7 @@ webpackJsonp([0],[
 	var SHOW_EXPIRE = exports.SHOW_EXPIRE = 'show_expire';
 
 /***/ },
-/* 489 */
+/* 490 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23920,15 +23976,21 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _css = __webpack_require__(490);
+	var _css = __webpack_require__(491);
 
-	var _table = __webpack_require__(508);
+	var _table = __webpack_require__(509);
 
 	var _table2 = _interopRequireDefault(_table);
 
-	var _css2 = __webpack_require__(562);
+	var _css2 = __webpack_require__(332);
 
-	var _modal = __webpack_require__(565);
+	var _button = __webpack_require__(335);
+
+	var _button2 = _interopRequireDefault(_button);
+
+	var _css3 = __webpack_require__(563);
+
+	var _modal = __webpack_require__(566);
 
 	var _modal2 = _interopRequireDefault(_modal);
 
@@ -23963,11 +24025,39 @@ webpackJsonp([0],[
 	        }
 
 	        return _ret = (_temp2 = (_this = _possibleConstructorReturn(this, (_ref = TodoList.__proto__ || Object.getPrototypeOf(TodoList)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-	            selectedRowKeys: []
+	            selectedRowKeys: [],
+	            downloadUri: ''
 	        }, _temp2), _possibleConstructorReturn(_this, _ret);
 	    }
 
 	    _createClass(TodoList, [{
+	        key: 'handleDownload',
+	        value: function handleDownload() {
+	            var todos = this.props.todos.map(function (todo) {
+	                var text = todo.text;
+	                var date = todo.date;
+	                var tags = todo.tags;
+	                var completed = todo.completed;
+
+	                return { text: text, date: date, tags: tags, completed: completed };
+	            });
+	            var str = JSON.stringify(todos, null, 4);
+	            var uri = 'data:application/json;charset=utf-8,' + encodeURIComponent(str);
+	            this.setState({ downloadUri: uri });
+	        }
+	    }, {
+	        key: 'handleUpload',
+	        value: function handleUpload() {
+	            var reader = new FileReader();
+	            var that = this;
+	            reader.onload = function (evt) {
+	                var obj = JSON.parse(evt.target.result);
+	                that.props.bulkAddTodos(obj);
+	                console.dir(obj);
+	            };
+	            reader.readAsText(this.fileUpload.files[0]);
+	        }
+	    }, {
 	        key: 'deleteTodo',
 	        value: function deleteTodo(todo) {
 	            var delTodo = this.props.deleteTodo;
@@ -23975,7 +24065,7 @@ webpackJsonp([0],[
 	                title: '确定删除?',
 	                content: '即将删除 ' + todo.text + ' 这条todo',
 	                onOk: function onOk() {
-	                    delTodo(todo.id);
+	                    delTodo(todo);
 	                }
 	            });
 	        }
@@ -24002,7 +24092,6 @@ webpackJsonp([0],[
 
 	            var columns = [{
 	                title: '序号',
-	                key: 'id',
 	                render: function render(text, record, index) {
 	                    return index + 1;
 	                },
@@ -24012,6 +24101,13 @@ webpackJsonp([0],[
 	                dataIndex: 'text',
 	                width: 500,
 	                key: 'text'
+	            }, {
+	                title: '标签',
+	                dataIndex: 'tags',
+	                key: 'tags',
+	                render: function render(text, recode) {
+	                    return (text || []).join(' | ');
+	                }
 	            }, {
 	                title: '日期',
 	                dataIndex: 'date',
@@ -24056,6 +24152,30 @@ webpackJsonp([0],[
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'main-table' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'export', style: { marginBottom: 20 } },
+	                    _react2.default.createElement(
+	                        'a',
+	                        { href: this.state.downloadUri, download: 'todos.json' },
+	                        _react2.default.createElement(
+	                            _button2.default,
+	                            { type: 'dashed', onClick: this.handleDownload.bind(this) },
+	                            'export json'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'label',
+	                        { htmlFor: 'uploadTodos', className: 'ant-btn ant-btn-ghost', style: { marginLeft: '20px' } },
+	                        _react2.default.createElement('input', { type: 'file', id: 'uploadTodos', accept: '.json',
+	                            style: { display: "none" },
+	                            ref: function ref(_ref2) {
+	                                _this2.fileUpload = _ref2;
+	                            },
+	                            onChange: this.handleUpload.bind(this) }),
+	                        'upload json'
+	                    )
+	                ),
 	                _react2.default.createElement(_table2.default, { rowSelection: rowSelection, columns: columns, dataSource: todos })
 	            );
 	        }
@@ -24068,38 +24188,39 @@ webpackJsonp([0],[
 	    deleteTodo: _react.PropTypes.func.isRequired,
 	    completeTodo: _react.PropTypes.func.isRequired,
 	    toggleTodoDialog: _react.PropTypes.func.isRequired,
-	    todoConstraint: _react.PropTypes.object.isRequired
+	    todoConstraint: _react.PropTypes.object.isRequired,
+	    todos: _react.PropTypes.array.isRequired
 	};
 	exports.default = TodoList;
 
 /***/ },
-/* 490 */
+/* 491 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(491);
+	__webpack_require__(492);
 
-	__webpack_require__(493);
+	__webpack_require__(494);
 
-	__webpack_require__(496);
+	__webpack_require__(497);
 
-	__webpack_require__(499);
+	__webpack_require__(500);
 
-	__webpack_require__(502);
+	__webpack_require__(503);
 
-	__webpack_require__(505);
+	__webpack_require__(506);
 
 /***/ },
-/* 491 */
+/* 492 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(492);
+	var content = __webpack_require__(493);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -24108,8 +24229,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(492, function() {
-				var newContent = __webpack_require__(492);
+			module.hot.accept(493, function() {
+				var newContent = __webpack_require__(493);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -24119,7 +24240,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 492 */
+/* 493 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -24133,23 +24254,23 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 493 */
+/* 494 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(494);
+	__webpack_require__(495);
 
 /***/ },
-/* 494 */
+/* 495 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(495);
+	var content = __webpack_require__(496);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -24158,8 +24279,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(495, function() {
-				var newContent = __webpack_require__(495);
+			module.hot.accept(496, function() {
+				var newContent = __webpack_require__(496);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -24169,7 +24290,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 495 */
+/* 496 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -24183,23 +24304,23 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 496 */
+/* 497 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(497);
+	__webpack_require__(498);
 
 /***/ },
-/* 497 */
+/* 498 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(498);
+	var content = __webpack_require__(499);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -24208,8 +24329,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(498, function() {
-				var newContent = __webpack_require__(498);
+			module.hot.accept(499, function() {
+				var newContent = __webpack_require__(499);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -24219,7 +24340,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 498 */
+/* 499 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -24233,25 +24354,25 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 499 */
+/* 500 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(500);
+	__webpack_require__(501);
 
-	__webpack_require__(331);
+	__webpack_require__(332);
 
 /***/ },
-/* 500 */
+/* 501 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(501);
+	var content = __webpack_require__(502);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -24260,8 +24381,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(501, function() {
-				var newContent = __webpack_require__(501);
+			module.hot.accept(502, function() {
+				var newContent = __webpack_require__(502);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -24271,7 +24392,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 501 */
+/* 502 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -24285,23 +24406,23 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 502 */
+/* 503 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(503);
+	__webpack_require__(504);
 
 /***/ },
-/* 503 */
+/* 504 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(504);
+	var content = __webpack_require__(505);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -24310,8 +24431,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(504, function() {
-				var newContent = __webpack_require__(504);
+			module.hot.accept(505, function() {
+				var newContent = __webpack_require__(505);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -24321,7 +24442,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 504 */
+/* 505 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -24335,27 +24456,27 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 505 */
+/* 506 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(506);
+	__webpack_require__(507);
 
-	__webpack_require__(422);
+	__webpack_require__(423);
 
-	__webpack_require__(350);
+	__webpack_require__(351);
 
 /***/ },
-/* 506 */
+/* 507 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(507);
+	var content = __webpack_require__(508);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -24364,8 +24485,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(507, function() {
-				var newContent = __webpack_require__(507);
+			module.hot.accept(508, function() {
+				var newContent = __webpack_require__(508);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -24375,7 +24496,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 507 */
+/* 508 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -24389,7 +24510,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 508 */
+/* 509 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24398,7 +24519,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _Table = __webpack_require__(509);
+	var _Table = __webpack_require__(510);
 
 	var _Table2 = _interopRequireDefault(_Table);
 
@@ -24408,7 +24529,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 509 */
+/* 510 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24418,27 +24539,27 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -24446,49 +24567,49 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _rcTable = __webpack_require__(510);
+	var _rcTable = __webpack_require__(511);
 
 	var _rcTable2 = _interopRequireDefault(_rcTable);
 
-	var _checkbox = __webpack_require__(524);
+	var _checkbox = __webpack_require__(525);
 
 	var _checkbox2 = _interopRequireDefault(_checkbox);
 
-	var _radio = __webpack_require__(536);
+	var _radio = __webpack_require__(537);
 
 	var _radio2 = _interopRequireDefault(_radio);
 
-	var _filterDropdown = __webpack_require__(542);
+	var _filterDropdown = __webpack_require__(543);
 
 	var _filterDropdown2 = _interopRequireDefault(_filterDropdown);
 
-	var _pagination = __webpack_require__(549);
+	var _pagination = __webpack_require__(550);
 
 	var _pagination2 = _interopRequireDefault(_pagination);
 
-	var _icon = __webpack_require__(203);
+	var _icon = __webpack_require__(328);
 
 	var _icon2 = _interopRequireDefault(_icon);
 
-	var _spin = __webpack_require__(559);
+	var _spin = __webpack_require__(560);
 
 	var _spin2 = _interopRequireDefault(_spin);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _util = __webpack_require__(561);
+	var _util = __webpack_require__(562);
 
 	var _objectAssign = __webpack_require__(4);
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
-	var _warning = __webpack_require__(328);
+	var _warning = __webpack_require__(326);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -25320,15 +25441,15 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 510 */
+/* 511 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(511);
+	module.exports = __webpack_require__(512);
 
 /***/ },
-/* 511 */
+/* 512 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25343,21 +25464,21 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TableRow = __webpack_require__(512);
+	var _TableRow = __webpack_require__(513);
 
 	var _TableRow2 = _interopRequireDefault(_TableRow);
 
-	var _TableHeader = __webpack_require__(521);
+	var _TableHeader = __webpack_require__(522);
 
 	var _TableHeader2 = _interopRequireDefault(_TableHeader);
 
-	var _utils = __webpack_require__(522);
+	var _utils = __webpack_require__(523);
 
-	var _shallowequal = __webpack_require__(513);
+	var _shallowequal = __webpack_require__(514);
 
 	var _shallowequal2 = _interopRequireDefault(_shallowequal);
 
-	var _addEventListener = __webpack_require__(523);
+	var _addEventListener = __webpack_require__(524);
 
 	var _addEventListener2 = _interopRequireDefault(_addEventListener);
 
@@ -26178,7 +26299,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 512 */
+/* 513 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26193,15 +26314,15 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _shallowequal = __webpack_require__(513);
+	var _shallowequal = __webpack_require__(514);
 
 	var _shallowequal2 = _interopRequireDefault(_shallowequal);
 
-	var _TableCell = __webpack_require__(518);
+	var _TableCell = __webpack_require__(519);
 
 	var _TableCell2 = _interopRequireDefault(_TableCell);
 
-	var _ExpandIcon = __webpack_require__(520);
+	var _ExpandIcon = __webpack_require__(521);
 
 	var _ExpandIcon2 = _interopRequireDefault(_ExpandIcon);
 
@@ -26362,12 +26483,12 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 513 */
+/* 514 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var fetchKeys = __webpack_require__(514);
+	var fetchKeys = __webpack_require__(515);
 
 	module.exports = function shallowEqual(objA, objB, compare, compareContext) {
 
@@ -26415,7 +26536,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 514 */
+/* 515 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -26426,9 +26547,9 @@ webpackJsonp([0],[
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var getNative = __webpack_require__(515),
-	    isArguments = __webpack_require__(516),
-	    isArray = __webpack_require__(517);
+	var getNative = __webpack_require__(516),
+	    isArguments = __webpack_require__(517),
+	    isArray = __webpack_require__(518);
 
 	/** Used to detect unsigned integer values. */
 	var reIsUint = /^\d+$/;
@@ -26657,7 +26778,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 515 */
+/* 516 */
 /***/ function(module, exports) {
 
 	/**
@@ -26800,7 +26921,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 516 */
+/* 517 */
 /***/ function(module, exports) {
 
 	/**
@@ -27035,7 +27156,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 517 */
+/* 518 */
 /***/ function(module, exports) {
 
 	/**
@@ -27221,7 +27342,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 518 */
+/* 519 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27234,11 +27355,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _objectPath = __webpack_require__(519);
+	var _objectPath = __webpack_require__(520);
 
 	var _objectPath2 = _interopRequireDefault(_objectPath);
 
-	var _shallowequal = __webpack_require__(513);
+	var _shallowequal = __webpack_require__(514);
 
 	var _shallowequal2 = _interopRequireDefault(_shallowequal);
 
@@ -27323,7 +27444,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 519 */
+/* 520 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory){
@@ -27620,7 +27741,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 520 */
+/* 521 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27633,7 +27754,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _shallowequal = __webpack_require__(513);
+	var _shallowequal = __webpack_require__(514);
 
 	var _shallowequal2 = _interopRequireDefault(_shallowequal);
 
@@ -27681,7 +27802,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 521 */
+/* 522 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27696,7 +27817,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _shallowequal = __webpack_require__(513);
+	var _shallowequal = __webpack_require__(514);
 
 	var _shallowequal2 = _interopRequireDefault(_shallowequal);
 
@@ -27737,7 +27858,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 522 */
+/* 523 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -27803,7 +27924,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 523 */
+/* 524 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27813,7 +27934,7 @@ webpackJsonp([0],[
 	});
 	exports["default"] = addEventListenerWrap;
 
-	var _addDomEventListener = __webpack_require__(320);
+	var _addDomEventListener = __webpack_require__(318);
 
 	var _addDomEventListener2 = _interopRequireDefault(_addDomEventListener);
 
@@ -27833,7 +27954,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 524 */
+/* 525 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27843,31 +27964,31 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _rcCheckbox = __webpack_require__(525);
+	var _rcCheckbox = __webpack_require__(526);
 
 	var _rcCheckbox2 = _interopRequireDefault(_rcCheckbox);
 
@@ -27875,19 +27996,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Group = __webpack_require__(527);
+	var _Group = __webpack_require__(528);
 
 	var _Group2 = _interopRequireDefault(_Group);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _reactAddonsPureRenderMixin = __webpack_require__(444);
+	var _reactAddonsPureRenderMixin = __webpack_require__(445);
 
 	var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
@@ -27951,15 +28072,15 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 525 */
+/* 526 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(526);
+	module.exports = __webpack_require__(527);
 
 /***/ },
-/* 526 */
+/* 527 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27974,11 +28095,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactAddonsPureRenderMixin = __webpack_require__(444);
+	var _reactAddonsPureRenderMixin = __webpack_require__(445);
 
 	var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -28129,7 +28250,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 527 */
+/* 528 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28139,19 +28260,19 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _toConsumableArray2 = __webpack_require__(528);
+	var _toConsumableArray2 = __webpack_require__(529);
 
 	var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -28159,11 +28280,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _index = __webpack_require__(524);
+	var _index = __webpack_require__(525);
 
 	var _index2 = _interopRequireDefault(_index);
 
-	var _reactAddonsPureRenderMixin = __webpack_require__(444);
+	var _reactAddonsPureRenderMixin = __webpack_require__(445);
 
 	var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
@@ -28268,14 +28389,14 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 528 */
+/* 529 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	exports.__esModule = true;
 
-	var _from = __webpack_require__(529);
+	var _from = __webpack_require__(530);
 
 	var _from2 = _interopRequireDefault(_from);
 
@@ -28294,34 +28415,34 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 529 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(530), __esModule: true };
-
-/***/ },
 /* 530 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(251);
-	__webpack_require__(531);
-	module.exports = __webpack_require__(210).Array.from;
+	module.exports = { "default": __webpack_require__(531), __esModule: true };
 
 /***/ },
 /* 531 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	var ctx            = __webpack_require__(211)
-	  , $export        = __webpack_require__(208)
-	  , toObject       = __webpack_require__(241)
-	  , call           = __webpack_require__(532)
-	  , isArrayIter    = __webpack_require__(533)
-	  , toLength       = __webpack_require__(232)
-	  , createProperty = __webpack_require__(534)
-	  , getIterFn      = __webpack_require__(344);
+	__webpack_require__(249);
+	__webpack_require__(532);
+	module.exports = __webpack_require__(212).Array.from;
 
-	$export($export.S + $export.F * !__webpack_require__(535)(function(iter){ Array.from(iter); }), 'Array', {
+/***/ },
+/* 532 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var ctx            = __webpack_require__(213)
+	  , $export        = __webpack_require__(210)
+	  , toObject       = __webpack_require__(243)
+	  , call           = __webpack_require__(533)
+	  , isArrayIter    = __webpack_require__(534)
+	  , toLength       = __webpack_require__(234)
+	  , createProperty = __webpack_require__(535)
+	  , getIterFn      = __webpack_require__(345);
+
+	$export($export.S + $export.F * !__webpack_require__(536)(function(iter){ Array.from(iter); }), 'Array', {
 	  // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
 	  from: function from(arrayLike/*, mapfn = undefined, thisArg = undefined*/){
 	    var O       = toObject(arrayLike)
@@ -28351,11 +28472,11 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 532 */
+/* 533 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// call something on iterator step with safe closing on error
-	var anObject = __webpack_require__(215);
+	var anObject = __webpack_require__(217);
 	module.exports = function(iterator, fn, value, entries){
 	  try {
 	    return entries ? fn(anObject(value)[0], value[1]) : fn(value);
@@ -28368,12 +28489,12 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 533 */
+/* 534 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// check on default Array iterator
-	var Iterators  = __webpack_require__(256)
-	  , ITERATOR   = __webpack_require__(262)('iterator')
+	var Iterators  = __webpack_require__(254)
+	  , ITERATOR   = __webpack_require__(260)('iterator')
 	  , ArrayProto = Array.prototype;
 
 	module.exports = function(it){
@@ -28381,12 +28502,12 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 534 */
+/* 535 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var $defineProperty = __webpack_require__(214)
-	  , createDesc      = __webpack_require__(222);
+	var $defineProperty = __webpack_require__(216)
+	  , createDesc      = __webpack_require__(224);
 
 	module.exports = function(object, index, value){
 	  if(index in object)$defineProperty.f(object, index, createDesc(0, value));
@@ -28394,10 +28515,10 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 535 */
+/* 536 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ITERATOR     = __webpack_require__(262)('iterator')
+	var ITERATOR     = __webpack_require__(260)('iterator')
 	  , SAFE_CLOSING = false;
 
 	try {
@@ -28420,7 +28541,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 536 */
+/* 537 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28430,15 +28551,15 @@ webpackJsonp([0],[
 	});
 	exports.Group = exports.Button = undefined;
 
-	var _radio = __webpack_require__(537);
+	var _radio = __webpack_require__(538);
 
 	var _radio2 = _interopRequireDefault(_radio);
 
-	var _group = __webpack_require__(540);
+	var _group = __webpack_require__(541);
 
 	var _group2 = _interopRequireDefault(_group);
 
-	var _radioButton = __webpack_require__(541);
+	var _radioButton = __webpack_require__(542);
 
 	var _radioButton2 = _interopRequireDefault(_radioButton);
 
@@ -28451,7 +28572,7 @@ webpackJsonp([0],[
 	exports["default"] = _radio2["default"];
 
 /***/ },
-/* 537 */
+/* 538 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28461,27 +28582,27 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _rcRadio = __webpack_require__(538);
+	var _rcRadio = __webpack_require__(539);
 
 	var _rcRadio2 = _interopRequireDefault(_rcRadio);
 
@@ -28489,11 +28610,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _reactAddonsPureRenderMixin = __webpack_require__(444);
+	var _reactAddonsPureRenderMixin = __webpack_require__(445);
 
 	var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
@@ -28551,15 +28672,15 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 538 */
+/* 539 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(539);
+	module.exports = __webpack_require__(540);
 
 /***/ },
-/* 539 */
+/* 540 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28567,7 +28688,7 @@ webpackJsonp([0],[
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(1);
-	var Checkbox = __webpack_require__(525);
+	var Checkbox = __webpack_require__(526);
 
 	var Radio = React.createClass({
 	  displayName: 'Radio',
@@ -28587,7 +28708,7 @@ webpackJsonp([0],[
 	module.exports = Radio;
 
 /***/ },
-/* 540 */
+/* 541 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28597,19 +28718,19 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -28617,19 +28738,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _radio = __webpack_require__(537);
+	var _radio = __webpack_require__(538);
 
 	var _radio2 = _interopRequireDefault(_radio);
 
-	var _radioButton = __webpack_require__(541);
+	var _radioButton = __webpack_require__(542);
 
 	var _radioButton2 = _interopRequireDefault(_radioButton);
 
-	var _reactAddonsPureRenderMixin = __webpack_require__(444);
+	var _reactAddonsPureRenderMixin = __webpack_require__(445);
 
 	var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
@@ -28745,7 +28866,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 541 */
+/* 542 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28755,15 +28876,15 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -28771,7 +28892,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _radio = __webpack_require__(537);
+	var _radio = __webpack_require__(538);
 
 	var _radio2 = _interopRequireDefault(_radio);
 
@@ -28800,7 +28921,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 542 */
+/* 543 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28810,19 +28931,19 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _typeof2 = __webpack_require__(248);
+	var _typeof2 = __webpack_require__(246);
 
 	var _typeof3 = _interopRequireDefault(_typeof2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -28830,23 +28951,23 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _rcMenu = __webpack_require__(291);
+	var _rcMenu = __webpack_require__(289);
 
 	var _rcMenu2 = _interopRequireDefault(_rcMenu);
 
-	var _dropdown = __webpack_require__(543);
+	var _dropdown = __webpack_require__(544);
 
 	var _dropdown2 = _interopRequireDefault(_dropdown);
 
-	var _icon = __webpack_require__(203);
+	var _icon = __webpack_require__(328);
 
 	var _icon2 = _interopRequireDefault(_icon);
 
-	var _checkbox = __webpack_require__(524);
+	var _checkbox = __webpack_require__(525);
 
 	var _checkbox2 = _interopRequireDefault(_checkbox);
 
-	var _radio = __webpack_require__(536);
+	var _radio = __webpack_require__(537);
 
 	var _radio2 = _interopRequireDefault(_radio);
 
@@ -29027,7 +29148,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 543 */
+/* 544 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29036,11 +29157,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _dropdown = __webpack_require__(544);
+	var _dropdown = __webpack_require__(545);
 
 	var _dropdown2 = _interopRequireDefault(_dropdown);
 
-	var _dropdownButton = __webpack_require__(548);
+	var _dropdownButton = __webpack_require__(549);
 
 	var _dropdownButton2 = _interopRequireDefault(_dropdownButton);
 
@@ -29051,7 +29172,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 544 */
+/* 545 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29061,15 +29182,15 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -29077,7 +29198,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _rcDropdown = __webpack_require__(545);
+	var _rcDropdown = __webpack_require__(546);
 
 	var _rcDropdown2 = _interopRequireDefault(_rcDropdown);
 
@@ -29109,7 +29230,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 545 */
+/* 546 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29118,7 +29239,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _Dropdown = __webpack_require__(546);
+	var _Dropdown = __webpack_require__(547);
 
 	var _Dropdown2 = _interopRequireDefault(_Dropdown);
 
@@ -29128,7 +29249,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 546 */
+/* 547 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29147,11 +29268,11 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _rcTrigger = __webpack_require__(385);
+	var _rcTrigger = __webpack_require__(386);
 
 	var _rcTrigger2 = _interopRequireDefault(_rcTrigger);
 
-	var _placements = __webpack_require__(547);
+	var _placements = __webpack_require__(548);
 
 	var _placements2 = _interopRequireDefault(_placements);
 
@@ -29312,7 +29433,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 547 */
+/* 548 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29369,7 +29490,7 @@ webpackJsonp([0],[
 	exports["default"] = placements;
 
 /***/ },
-/* 548 */
+/* 549 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29379,27 +29500,27 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -29407,23 +29528,23 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _button = __webpack_require__(334);
+	var _button = __webpack_require__(335);
 
 	var _button2 = _interopRequireDefault(_button);
 
-	var _icon = __webpack_require__(203);
+	var _icon = __webpack_require__(328);
 
 	var _icon2 = _interopRequireDefault(_icon);
 
-	var _dropdown = __webpack_require__(544);
+	var _dropdown = __webpack_require__(545);
 
 	var _dropdown2 = _interopRequireDefault(_dropdown);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
@@ -29500,7 +29621,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 549 */
+/* 550 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29509,7 +29630,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _Pagination = __webpack_require__(550);
+	var _Pagination = __webpack_require__(551);
 
 	var _Pagination2 = _interopRequireDefault(_Pagination);
 
@@ -29519,7 +29640,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 550 */
+/* 551 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29529,19 +29650,19 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -29549,19 +29670,19 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _rcPagination = __webpack_require__(551);
+	var _rcPagination = __webpack_require__(552);
 
 	var _rcPagination2 = _interopRequireDefault(_rcPagination);
 
-	var _select = __webpack_require__(425);
+	var _select = __webpack_require__(426);
 
 	var _select2 = _interopRequireDefault(_select);
 
-	var _MiniSelect = __webpack_require__(557);
+	var _MiniSelect = __webpack_require__(558);
 
 	var _MiniSelect2 = _interopRequireDefault(_MiniSelect);
 
-	var _zh_CN = __webpack_require__(558);
+	var _zh_CN = __webpack_require__(559);
 
 	var _zh_CN2 = _interopRequireDefault(_zh_CN);
 
@@ -29608,16 +29729,16 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 551 */
+/* 552 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// export this package's api
 	'use strict';
 
-	module.exports = __webpack_require__(552);
+	module.exports = __webpack_require__(553);
 
 /***/ },
-/* 552 */
+/* 553 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29631,10 +29752,10 @@ webpackJsonp([0],[
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var React = __webpack_require__(1);
-	var Pager = __webpack_require__(553);
-	var Options = __webpack_require__(554);
-	var KEYCODE = __webpack_require__(555);
-	var LOCALE = __webpack_require__(556);
+	var Pager = __webpack_require__(554);
+	var Options = __webpack_require__(555);
+	var KEYCODE = __webpack_require__(556);
+	var LOCALE = __webpack_require__(557);
 
 	function noop() {}
 
@@ -30003,7 +30124,7 @@ webpackJsonp([0],[
 	module.exports = Pagination;
 
 /***/ },
-/* 553 */
+/* 554 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30063,7 +30184,7 @@ webpackJsonp([0],[
 	module.exports = Pager;
 
 /***/ },
-/* 554 */
+/* 555 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30077,7 +30198,7 @@ webpackJsonp([0],[
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var React = __webpack_require__(1);
-	var KEYCODE = __webpack_require__(555);
+	var KEYCODE = __webpack_require__(556);
 
 	var Options = (function (_React$Component) {
 	  _inherits(Options, _React$Component);
@@ -30222,7 +30343,7 @@ webpackJsonp([0],[
 	module.exports = Options;
 
 /***/ },
-/* 555 */
+/* 556 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -30243,7 +30364,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 556 */
+/* 557 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30266,7 +30387,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 557 */
+/* 558 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30276,19 +30397,19 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -30296,7 +30417,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _select = __webpack_require__(425);
+	var _select = __webpack_require__(426);
 
 	var _select2 = _interopRequireDefault(_select);
 
@@ -30323,7 +30444,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 558 */
+/* 559 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30332,7 +30453,7 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _zh_CN = __webpack_require__(556);
+	var _zh_CN = __webpack_require__(557);
 
 	var _zh_CN2 = _interopRequireDefault(_zh_CN);
 
@@ -30342,7 +30463,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 559 */
+/* 560 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30352,27 +30473,27 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _slicedToArray2 = __webpack_require__(336);
+	var _slicedToArray2 = __webpack_require__(337);
 
 	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -30382,19 +30503,19 @@ webpackJsonp([0],[
 
 	var _reactDom = __webpack_require__(34);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _isCssAnimationSupported = __webpack_require__(560);
+	var _isCssAnimationSupported = __webpack_require__(561);
 
 	var _isCssAnimationSupported2 = _interopRequireDefault(_isCssAnimationSupported);
 
-	var _splitObject3 = __webpack_require__(345);
+	var _splitObject3 = __webpack_require__(346);
 
 	var _splitObject4 = _interopRequireDefault(_splitObject3);
 
-	var _omit = __webpack_require__(447);
+	var _omit = __webpack_require__(448);
 
 	var _omit2 = _interopRequireDefault(_omit);
 
@@ -30511,7 +30632,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 560 */
+/* 561 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30544,7 +30665,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 561 */
+/* 562 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30592,25 +30713,25 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 562 */
+/* 563 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	__webpack_require__(199);
 
-	__webpack_require__(563);
+	__webpack_require__(564);
 
-	__webpack_require__(331);
+	__webpack_require__(332);
 
 /***/ },
-/* 563 */
+/* 564 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(564);
+	var content = __webpack_require__(565);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -30619,8 +30740,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(564, function() {
-				var newContent = __webpack_require__(564);
+			module.hot.accept(565, function() {
+				var newContent = __webpack_require__(565);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30630,7 +30751,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 564 */
+/* 565 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -30644,7 +30765,7 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 565 */
+/* 566 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30653,11 +30774,11 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _Modal = __webpack_require__(566);
+	var _Modal = __webpack_require__(567);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
-	var _confirm = __webpack_require__(574);
+	var _confirm = __webpack_require__(575);
 
 	var _confirm2 = _interopRequireDefault(_confirm);
 
@@ -30710,7 +30831,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 566 */
+/* 567 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30720,19 +30841,19 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -30740,15 +30861,15 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _rcDialog = __webpack_require__(567);
+	var _rcDialog = __webpack_require__(568);
 
 	var _rcDialog2 = _interopRequireDefault(_rcDialog);
 
-	var _addEventListener = __webpack_require__(573);
+	var _addEventListener = __webpack_require__(574);
 
 	var _addEventListener2 = _interopRequireDefault(_addEventListener);
 
-	var _button = __webpack_require__(334);
+	var _button = __webpack_require__(335);
 
 	var _button2 = _interopRequireDefault(_button);
 
@@ -30858,7 +30979,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 567 */
+/* 568 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30867,7 +30988,7 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
@@ -30875,11 +30996,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Dialog = __webpack_require__(568);
+	var _Dialog = __webpack_require__(569);
 
 	var _Dialog2 = _interopRequireDefault(_Dialog);
 
-	var _getContainerRenderMixin = __webpack_require__(572);
+	var _getContainerRenderMixin = __webpack_require__(573);
 
 	var _getContainerRenderMixin2 = _interopRequireDefault(_getContainerRenderMixin);
 
@@ -30931,7 +31052,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 568 */
+/* 569 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30948,19 +31069,19 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _KeyCode = __webpack_require__(569);
+	var _KeyCode = __webpack_require__(570);
 
 	var _KeyCode2 = _interopRequireDefault(_KeyCode);
 
-	var _rcAnimate = __webpack_require__(308);
+	var _rcAnimate = __webpack_require__(306);
 
 	var _rcAnimate2 = _interopRequireDefault(_rcAnimate);
 
-	var _LazyRenderBox = __webpack_require__(570);
+	var _LazyRenderBox = __webpack_require__(571);
 
 	var _LazyRenderBox2 = _interopRequireDefault(_LazyRenderBox);
 
-	var _getScrollBarSize = __webpack_require__(571);
+	var _getScrollBarSize = __webpack_require__(572);
 
 	var _getScrollBarSize2 = _interopRequireDefault(_getScrollBarSize);
 
@@ -31286,7 +31407,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 569 */
+/* 570 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -31811,7 +31932,7 @@ webpackJsonp([0],[
 	module.exports = KeyCode;
 
 /***/ },
-/* 570 */
+/* 571 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31851,7 +31972,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 571 */
+/* 572 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -31898,7 +32019,7 @@ webpackJsonp([0],[
 	module.exports = getScrollBarSize;
 
 /***/ },
-/* 572 */
+/* 573 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31997,7 +32118,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 573 */
+/* 574 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32007,7 +32128,7 @@ webpackJsonp([0],[
 	});
 	exports["default"] = addEventListenerWrap;
 
-	var _addDomEventListener = __webpack_require__(320);
+	var _addDomEventListener = __webpack_require__(318);
 
 	var _addDomEventListener2 = _interopRequireDefault(_addDomEventListener);
 
@@ -32027,7 +32148,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 574 */
+/* 575 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32036,19 +32157,19 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -32062,23 +32183,23 @@ webpackJsonp([0],[
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _Modal = __webpack_require__(566);
+	var _Modal = __webpack_require__(567);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
-	var _icon = __webpack_require__(203);
+	var _icon = __webpack_require__(328);
 
 	var _icon2 = _interopRequireDefault(_icon);
 
-	var _button = __webpack_require__(334);
+	var _button = __webpack_require__(335);
 
 	var _button2 = _interopRequireDefault(_button);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _locale = __webpack_require__(575);
+	var _locale = __webpack_require__(576);
 
 	var _objectAssign = __webpack_require__(4);
 
@@ -32243,7 +32364,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 575 */
+/* 576 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32278,7 +32399,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 576 */
+/* 577 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32287,27 +32408,1352 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _css = __webpack_require__(562);
+	var _css = __webpack_require__(578);
 
-	var _modal = __webpack_require__(565);
+	var _row = __webpack_require__(450);
+
+	var _row2 = _interopRequireDefault(_row);
+
+	var _css2 = __webpack_require__(579);
+
+	var _col = __webpack_require__(454);
+
+	var _col2 = _interopRequireDefault(_col);
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _TodoCard = __webpack_require__(580);
+
+	var _TodoCard2 = _interopRequireDefault(_TodoCard);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var TodayNeedTodo = function (_Component) {
+	    _inherits(TodayNeedTodo, _Component);
+
+	    function TodayNeedTodo() {
+	        _classCallCheck(this, TodayNeedTodo);
+
+	        return _possibleConstructorReturn(this, (TodayNeedTodo.__proto__ || Object.getPrototypeOf(TodayNeedTodo)).apply(this, arguments));
+	    }
+
+	    _createClass(TodayNeedTodo, [{
+	        key: 'render',
+	        value: function render() {
+	            var _props = this.props;
+	            var completeTodo = _props.completeTodo;
+	            var toggleTodoDialog = _props.toggleTodoDialog;
+	            var deleteTodo = _props.deleteTodo;
+	            var todos = _props.todos;
+
+	            var todoCards = todos.map(function (todo, idx) {
+	                return _react2.default.createElement(
+	                    _col2.default,
+	                    { span: 5, offset: 1, key: 'todo-card' + idx, style: { marginBottom: '15px' } },
+	                    _react2.default.createElement(_TodoCard2.default, {
+	                        todo: todo,
+	                        completeTodo: completeTodo,
+	                        toggleTodoDialog: toggleTodoDialog,
+	                        deleteTodo: deleteTodo })
+	                );
+	            });
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement(
+	                    _row2.default,
+	                    { type: 'flex', justify: 'start' },
+	                    todoCards
+	                )
+	            );
+	        }
+	    }]);
+
+	    return TodayNeedTodo;
+	}(_react.Component);
+
+	TodayNeedTodo.propTypes = {
+	    deleteTodo: _react.PropTypes.func.isRequired,
+	    completeTodo: _react.PropTypes.func.isRequired,
+	    toggleTodoDialog: _react.PropTypes.func.isRequired,
+	    todos: _react.PropTypes.array.isRequired
+	};
+	exports.default = TodayNeedTodo;
+
+/***/ },
+/* 578 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(199);
+
+	__webpack_require__(441);
+
+/***/ },
+/* 579 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(199);
+
+	__webpack_require__(441);
+
+/***/ },
+/* 580 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _css = __webpack_require__(581);
+
+	var _card = __webpack_require__(584);
+
+	var _card2 = _interopRequireDefault(_card);
+
+	var _css2 = __webpack_require__(585);
+
+	var _tag = __webpack_require__(588);
+
+	var _tag2 = _interopRequireDefault(_tag);
+
+	var _css3 = __webpack_require__(589);
+
+	var _popconfirm = __webpack_require__(593);
+
+	var _popconfirm2 = _interopRequireDefault(_popconfirm);
+
+	var _css4 = __webpack_require__(327);
+
+	var _icon = __webpack_require__(328);
+
+	var _icon2 = _interopRequireDefault(_icon);
+
+	var _css5 = __webpack_require__(563);
+
+	var _modal = __webpack_require__(566);
 
 	var _modal2 = _interopRequireDefault(_modal);
 
-	var _css2 = __webpack_require__(347);
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _datePicker = __webpack_require__(356);
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var confirmModal = _modal2.default.confirm;
+
+	var TodoCard = function (_Component) {
+	    _inherits(TodoCard, _Component);
+
+	    function TodoCard() {
+	        _classCallCheck(this, TodoCard);
+
+	        return _possibleConstructorReturn(this, (TodoCard.__proto__ || Object.getPrototypeOf(TodoCard)).apply(this, arguments));
+	    }
+
+	    _createClass(TodoCard, [{
+	        key: 'render',
+	        value: function render() {
+	            var _props = this.props;
+	            var completeTodo = _props.completeTodo;
+	            var toggleTodoDialog = _props.toggleTodoDialog;
+	            var todo = _props.todo;
+	            var deleteTodo = _props.deleteTodo;
+
+	            var delComponent = _react2.default.createElement(
+	                _popconfirm2.default,
+	                { title: "确定删除" + todo.text + "?", onConfirm: deleteTodo.bind(null, todo), okText: '\u786E\u5B9A', cancelText: '\u53D6\u6D88', placement: 'bottom' },
+	                _react2.default.createElement(_icon2.default, { type: 'close' })
+	            );
+	            var colors = ['blue', 'green', 'yellow', 'red'];
+	            var tags = (todo.tags || []).map(function (tag, idx) {
+	                return _react2.default.createElement(
+	                    _tag2.default,
+	                    { key: 'todo-tag' + idx, closable: false, color: colors[idx % 4], size: 'small' },
+	                    _react2.default.createElement(_icon2.default, { type: 'tag-o' }),
+	                    tag
+	                );
+	            });
+
+	            return _react2.default.createElement(
+	                _card2.default,
+	                { title: todo.text, extra: delComponent,
+	                    style: { borderColor: todo.completed ? '#87d068' : '#f50' },
+	                    onDoubleClick: completeTodo.bind(null, todo) },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: '' },
+	                    tags
+	                )
+	            );
+	        }
+	    }]);
+
+	    return TodoCard;
+	}(_react.Component);
+
+	TodoCard.propTypes = {
+	    deleteTodo: _react.PropTypes.func.isRequired,
+	    completeTodo: _react.PropTypes.func.isRequired,
+	    toggleTodoDialog: _react.PropTypes.func.isRequired,
+	    todo: _react.PropTypes.object.isRequired
+	};
+	exports.default = TodoCard;
+
+/***/ },
+/* 581 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(199);
+
+	__webpack_require__(582);
+
+/***/ },
+/* 582 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(583);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(202)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(true) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept(583, function() {
+				var newContent = __webpack_require__(583);
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 583 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(201)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".ant-card {\n  background: #fff;\n  border-radius: 4px;\n  font-size: 12px;\n  position: relative;\n  overflow: hidden;\n  -webkit-transition: all .3s;\n  transition: all .3s;\n}\n.ant-card:hover {\n  box-shadow: 0 1px 6px rgba(100, 100, 100, 0.2);\n  border-color: #eee;\n}\n.ant-card-bordered {\n  border: 1px solid #d9d9d9;\n  border-color: #e9e9e9;\n}\n.ant-card-head {\n  height: 48px;\n  line-height: 48px;\n  border-bottom: 1px solid #e9e9e9;\n  padding: 0 24px;\n}\n.ant-card-head-title {\n  font-size: 14px;\n  display: inline-block;\n  text-overflow: ellipsis;\n  width: 100%;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.ant-card-extra {\n  position: absolute;\n  right: 24px;\n  top: 14px;\n}\n.ant-card-body {\n  padding: 24px;\n}\n.ant-card-loading .ant-card-body {\n  letter-spacing: -2px;\n  color: #eee;\n  font-size: 0.75rem;\n}\n.ant-card-loading .ant-card-body p {\n  word-break: break-all;\n  line-height: 10px;\n  margin: 5px 0 0;\n  height: 10px;\n  border-radius: 6px;\n  overflow: hidden;\n  display: inline-block;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  color: #f3f5f8;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 584 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _extends2 = __webpack_require__(206);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _defineProperty2 = __webpack_require__(292);
+
+	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+	var _slicedToArray2 = __webpack_require__(337);
+
+	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(298);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _splitObject3 = __webpack_require__(346);
+
+	var _splitObject4 = _interopRequireDefault(_splitObject3);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	exports["default"] = function (props) {
+	    var _classNames;
+
+	    var _splitObject = (0, _splitObject4["default"])(props, ['prefixCls', 'className', 'children', 'extra', 'bodyStyle', 'title', 'loading', 'bordered']);
+
+	    var _splitObject2 = (0, _slicedToArray3["default"])(_splitObject, 2);
+
+	    var _splitObject2$ = _splitObject2[0];
+	    var _splitObject2$$prefix = _splitObject2$.prefixCls;
+	    var prefixCls = _splitObject2$$prefix === undefined ? 'ant-card' : _splitObject2$$prefix;
+	    var className = _splitObject2$.className;
+	    var extra = _splitObject2$.extra;
+	    var bodyStyle = _splitObject2$.bodyStyle;
+	    var title = _splitObject2$.title;
+	    var loading = _splitObject2$.loading;
+	    var _splitObject2$$border = _splitObject2$.bordered;
+	    var bordered = _splitObject2$$border === undefined ? true : _splitObject2$$border;
+	    var others = _splitObject2[1];
+
+	    var children = props.children;
+	    var classString = (0, _classnames2["default"])((_classNames = {}, (0, _defineProperty3["default"])(_classNames, prefixCls, true), (0, _defineProperty3["default"])(_classNames, className, !!className), (0, _defineProperty3["default"])(_classNames, prefixCls + '-loading', loading), (0, _defineProperty3["default"])(_classNames, prefixCls + '-bordered', bordered), _classNames));
+	    if (loading) {
+	        children = _react2["default"].createElement(
+	            'div',
+	            null,
+	            _react2["default"].createElement(
+	                'p',
+	                null,
+	                '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588'
+	            ),
+	            _react2["default"].createElement(
+	                'p',
+	                null,
+	                '\u2588\u2588\u2588\u2588\u2588\u2588\u3000\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588'
+	            ),
+	            _react2["default"].createElement(
+	                'p',
+	                null,
+	                '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u3000\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588'
+	            ),
+	            _react2["default"].createElement(
+	                'p',
+	                null,
+	                '\u2588\u2588\u2588\u2588\u2588\u3000\u2588\u2588\u2588\u2588\u2588\u2588\u3000\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588'
+	            ),
+	            _react2["default"].createElement(
+	                'p',
+	                null,
+	                '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u3000\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u3000\u2588\u2588\u2588'
+	            )
+	        );
+	    }
+	    var head = title ? _react2["default"].createElement(
+	        'div',
+	        { className: prefixCls + '-head' },
+	        _react2["default"].createElement(
+	            'h3',
+	            { className: prefixCls + '-head-title' },
+	            title
+	        )
+	    ) : null;
+	    return _react2["default"].createElement(
+	        'div',
+	        (0, _extends3["default"])({}, others, { className: classString }),
+	        head,
+	        extra ? _react2["default"].createElement(
+	            'div',
+	            { className: prefixCls + '-extra' },
+	            extra
+	        ) : null,
+	        _react2["default"].createElement(
+	            'div',
+	            { className: prefixCls + '-body', style: bodyStyle },
+	            children
+	        )
+	    );
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 585 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(199);
+
+	__webpack_require__(586);
+
+/***/ },
+/* 586 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(587);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(202)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(true) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept(587, function() {
+				var newContent = __webpack_require__(587);
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 587 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(201)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".ant-tag {\n  display: inline-block;\n  line-height: 20px;\n  height: 22px;\n  padding: 0 8px;\n  border-radius: 6px;\n  border: 1px solid #e9e9e9;\n  background: #f7f7f7;\n  font-size: 12px;\n  -webkit-transition: all 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);\n  transition: all 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);\n  vertical-align: middle;\n  opacity: 1;\n  overflow: hidden;\n  margin: 2px 4px 2px 0;\n  cursor: pointer;\n}\n.ant-tag:hover {\n  opacity: 0.85;\n}\n.ant-tag,\n.ant-tag a,\n.ant-tag a:hover {\n  color: #666;\n}\n.ant-tag-text a:first-child:last-child {\n  display: inline-block;\n  margin: 0 -8px;\n  padding: 0 8px;\n}\n.ant-tag .anticon-cross {\n  display: inline-block;\n  font-size: 12px;\n  font-size: 10px \\9;\n  -webkit-transform: scale(0.83333333) rotate(0deg);\n      -ms-transform: scale(0.83333333) rotate(0deg);\n          transform: scale(0.83333333) rotate(0deg);\n  /* IE6-IE8 */\n  -ms-filter: \"progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand', M11=1, M12=0, M21=0, M22=1)\";\n  zoom: 1;\n  cursor: pointer;\n  font-weight: bold;\n  margin-left: 3px;\n  color: #666;\n  -webkit-transition: all 0.3s ease;\n  transition: all 0.3s ease;\n  opacity: 0.66;\n}\n:root .ant-tag .anticon-cross {\n  -webkit-filter: none;\n          filter: none;\n}\n:root .ant-tag .anticon-cross {\n  font-size: 12px;\n}\n.ant-tag .anticon-cross:hover {\n  opacity: 1;\n}\n.ant-tag-has-color {\n  border-color: transparent;\n}\n.ant-tag-blue,\n.ant-tag-green,\n.ant-tag-yellow,\n.ant-tag-red,\n.ant-tag-blue a,\n.ant-tag-green a,\n.ant-tag-yellow a,\n.ant-tag-red a,\n.ant-tag-blue a:hover,\n.ant-tag-green a:hover,\n.ant-tag-yellow a:hover,\n.ant-tag-red a:hover,\n.ant-tag-blue .anticon-cross,\n.ant-tag-green .anticon-cross,\n.ant-tag-yellow .anticon-cross,\n.ant-tag-red .anticon-cross,\n.ant-tag-blue .anticon-cross:hover,\n.ant-tag-green .anticon-cross:hover,\n.ant-tag-yellow .anticon-cross:hover,\n.ant-tag-red .anticon-cross:hover {\n  color: #fff;\n}\n.ant-tag-blue {\n  background: #2db7f5;\n}\n.ant-tag-green {\n  background: #87d068;\n}\n.ant-tag-yellow {\n  background: #fa0;\n}\n.ant-tag-red {\n  background: #f50;\n}\n.ant-tag-close {\n  width: 0 !important;\n  padding: 0;\n  margin: 0;\n}\n.ant-tag-zoom-enter,\n.ant-tag-zoom-appear {\n  -webkit-animation: antFadeIn 0.2s cubic-bezier(0.78, 0.14, 0.15, 0.86);\n          animation: antFadeIn 0.2s cubic-bezier(0.78, 0.14, 0.15, 0.86);\n  -webkit-animation-fill-mode: both;\n          animation-fill-mode: both;\n}\n.ant-tag-zoom-leave {\n  -webkit-animation: antZoomOut 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);\n          animation: antZoomOut 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);\n  -webkit-animation-fill-mode: both;\n          animation-fill-mode: both;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 588 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = undefined;
+
+	var _extends2 = __webpack_require__(206);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _defineProperty2 = __webpack_require__(292);
+
+	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+	var _slicedToArray2 = __webpack_require__(337);
+
+	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
+	var _classCallCheck2 = __webpack_require__(244);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(245);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(281);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(34);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _rcAnimate = __webpack_require__(306);
+
+	var _rcAnimate2 = _interopRequireDefault(_rcAnimate);
+
+	var _icon = __webpack_require__(328);
+
+	var _icon2 = _interopRequireDefault(_icon);
+
+	var _classnames = __webpack_require__(298);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _splitObject3 = __webpack_require__(346);
+
+	var _splitObject4 = _interopRequireDefault(_splitObject3);
+
+	var _omit = __webpack_require__(448);
+
+	var _omit2 = _interopRequireDefault(_omit);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var Tag = function (_React$Component) {
+	    (0, _inherits3["default"])(Tag, _React$Component);
+
+	    function Tag(props) {
+	        (0, _classCallCheck3["default"])(this, Tag);
+
+	        var _this = (0, _possibleConstructorReturn3["default"])(this, _React$Component.call(this, props));
+
+	        _this.close = function (e) {
+	            _this.props.onClose(e);
+	            if (e.defaultPrevented) {
+	                return;
+	            }
+	            var dom = _reactDom2["default"].findDOMNode(_this);
+	            dom.style.width = dom.getBoundingClientRect().width + 'px';
+	            // It's Magic Code, don't know why
+	            dom.style.width = dom.getBoundingClientRect().width + 'px';
+	            _this.setState({
+	                closing: true
+	            });
+	        };
+	        _this.animationEnd = function (key, existed) {
+	            if (!existed && !_this.state.closed) {
+	                _this.setState({
+	                    closed: true,
+	                    closing: false
+	                });
+	                _this.props.afterClose();
+	            }
+	        };
+	        _this.state = {
+	            closing: false,
+	            closed: false
+	        };
+	        return _this;
+	    }
+
+	    Tag.prototype.render = function render() {
+	        var _classNames;
+
+	        var _splitObject = (0, _splitObject4["default"])(this.props, ['prefixCls', 'closable', 'color', 'className', 'children']);
+
+	        var _splitObject2 = (0, _slicedToArray3["default"])(_splitObject, 2);
+
+	        var _splitObject2$ = _splitObject2[0];
+	        var prefixCls = _splitObject2$.prefixCls;
+	        var closable = _splitObject2$.closable;
+	        var color = _splitObject2$.color;
+	        var className = _splitObject2$.className;
+	        var children = _splitObject2$.children;
+	        var otherProps = _splitObject2[1];
+
+	        var closeIcon = closable ? _react2["default"].createElement(_icon2["default"], { type: 'cross', onClick: this.close }) : '';
+	        var classString = (0, _classnames2["default"])((_classNames = {}, (0, _defineProperty3["default"])(_classNames, prefixCls, true), (0, _defineProperty3["default"])(_classNames, prefixCls + '-' + color, !!color), (0, _defineProperty3["default"])(_classNames, prefixCls + '-has-color', !!color), (0, _defineProperty3["default"])(_classNames, prefixCls + '-close', this.state.closing), (0, _defineProperty3["default"])(_classNames, className, !!className), _classNames));
+	        // fix https://fb.me/react-unknown-prop
+	        var divProps = (0, _omit2["default"])(otherProps, ['onClose', 'afterClose']);
+	        return _react2["default"].createElement(
+	            _rcAnimate2["default"],
+	            { component: '', showProp: 'data-show', transitionName: prefixCls + '-zoom', transitionAppear: true, onEnd: this.animationEnd },
+	            this.state.closed ? null : _react2["default"].createElement(
+	                'div',
+	                (0, _extends3["default"])({ 'data-show': !this.state.closing }, divProps, { className: classString, style: { backgroundColor: /blue|red|green|yellow/.test(color) ? null : color } }),
+	                _react2["default"].createElement(
+	                    'span',
+	                    { className: prefixCls + '-text' },
+	                    children
+	                ),
+	                closeIcon
+	            )
+	        );
+	    };
+
+	    return Tag;
+	}(_react2["default"].Component);
+
+	exports["default"] = Tag;
+
+	Tag.defaultProps = {
+	    prefixCls: 'ant-tag',
+	    closable: false,
+	    onClose: function onClose() {},
+	    afterClose: function afterClose() {}
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 589 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(199);
+
+	__webpack_require__(590);
+
+/***/ },
+/* 590 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(199);
+
+	__webpack_require__(591);
+
+/***/ },
+/* 591 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(592);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(202)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(true) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept(592, function() {
+				var newContent = __webpack_require__(592);
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 592 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(201)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".ant-popover {\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1030;\n  cursor: auto;\n  -webkit-user-select: text;\n     -moz-user-select: text;\n      -ms-user-select: text;\n          user-select: text;\n  white-space: normal;\n  font-size: 12px;\n  line-height: 1.5;\n  font-weight: normal;\n  text-align: left;\n}\n.ant-popover:after {\n  content: \"\";\n  position: absolute;\n  background: rgba(255, 255, 255, 0.01);\n}\n.ant-popover-hidden {\n  display: none;\n}\n.ant-popover-placement-top,\n.ant-popover-placement-topLeft,\n.ant-popover-placement-topRight {\n  padding-bottom: 4px;\n}\n.ant-popover-placement-right,\n.ant-popover-placement-rightTop,\n.ant-popover-placement-rightBottom {\n  padding-left: 4px;\n}\n.ant-popover-placement-bottom,\n.ant-popover-placement-bottomLeft,\n.ant-popover-placement-bottomRight {\n  padding-top: 4px;\n}\n.ant-popover-placement-left,\n.ant-popover-placement-leftTop,\n.ant-popover-placement-leftBottom {\n  padding-right: 4px;\n}\n.ant-popover-inner {\n  min-width: 177px;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #d9d9d9;\n  border-radius: 6px;\n  box-shadow: 0 1px 6px rgba(100, 100, 100, 0.2);\n}\n.ant-popover-title {\n  margin: 0;\n  padding: 0 16px;\n  line-height: 32px;\n  height: 32px;\n  border-bottom: 1px solid #e9e9e9;\n  color: #666;\n}\n.ant-popover-inner-content {\n  padding: 8px 16px;\n  color: #666;\n}\n.ant-popover-message {\n  padding: 8px 0 16px;\n  font-size: 12px;\n  color: #666;\n}\n.ant-popover-message > .anticon {\n  color: #fa0;\n  line-height: 17px;\n  position: absolute;\n}\n.ant-popover-message-title {\n  padding-left: 20px;\n}\n.ant-popover-buttons {\n  text-align: right;\n  margin-bottom: 8px;\n}\n.ant-popover-buttons button {\n  margin-left: 8px;\n}\n.ant-popover-arrow,\n.ant-popover-arrow:after {\n  position: absolute;\n  display: block;\n  width: 0;\n  height: 0;\n  border-color: transparent;\n  border-style: solid;\n}\n.ant-popover-arrow {\n  border-width: 5px;\n}\n.ant-popover-arrow:after {\n  border-width: 4px;\n  content: \"\";\n}\n.ant-popover-placement-top .ant-popover-arrow,\n.ant-popover-placement-topLeft .ant-popover-arrow,\n.ant-popover-placement-topRight .ant-popover-arrow {\n  border-bottom-width: 0;\n  border-top-color: #d9d9d9;\n  bottom: 0;\n}\n.ant-popover-placement-top .ant-popover-arrow:after,\n.ant-popover-placement-topLeft .ant-popover-arrow:after,\n.ant-popover-placement-topRight .ant-popover-arrow:after {\n  content: \" \";\n  bottom: 1px;\n  margin-left: -4px;\n  border-bottom-width: 0;\n  border-top-color: #fff;\n}\n.ant-popover-placement-top .ant-popover-arrow {\n  left: 50%;\n  margin-left: -5px;\n}\n.ant-popover-placement-topLeft .ant-popover-arrow {\n  left: 16px;\n}\n.ant-popover-placement-topRight .ant-popover-arrow {\n  right: 16px;\n}\n.ant-popover-placement-right .ant-popover-arrow,\n.ant-popover-placement-rightTop .ant-popover-arrow,\n.ant-popover-placement-rightBottom .ant-popover-arrow {\n  left: 0;\n  border-left-width: 0;\n  border-right-color: #d9d9d9;\n}\n.ant-popover-placement-right .ant-popover-arrow:after,\n.ant-popover-placement-rightTop .ant-popover-arrow:after,\n.ant-popover-placement-rightBottom .ant-popover-arrow:after {\n  content: \" \";\n  left: 1px;\n  bottom: -4px;\n  border-left-width: 0;\n  border-right-color: #fff;\n}\n.ant-popover-placement-right .ant-popover-arrow {\n  top: 50%;\n  margin-top: -5px;\n}\n.ant-popover-placement-rightTop .ant-popover-arrow {\n  top: 12px;\n}\n.ant-popover-placement-rightBottom .ant-popover-arrow {\n  bottom: 12px;\n}\n.ant-popover-placement-bottom .ant-popover-arrow,\n.ant-popover-placement-bottomLeft .ant-popover-arrow,\n.ant-popover-placement-bottomRight .ant-popover-arrow {\n  border-top-width: 0;\n  border-bottom-color: #d9d9d9;\n  top: 0;\n}\n.ant-popover-placement-bottom .ant-popover-arrow:after,\n.ant-popover-placement-bottomLeft .ant-popover-arrow:after,\n.ant-popover-placement-bottomRight .ant-popover-arrow:after {\n  content: \" \";\n  top: 1px;\n  margin-left: -4px;\n  border-top-width: 0;\n  border-bottom-color: #fff;\n}\n.ant-popover-placement-bottom .ant-popover-arrow {\n  left: 50%;\n  margin-left: -5px;\n}\n.ant-popover-placement-bottomLeft .ant-popover-arrow {\n  left: 16px;\n}\n.ant-popover-placement-bottomRight .ant-popover-arrow {\n  right: 16px;\n}\n.ant-popover-placement-left .ant-popover-arrow,\n.ant-popover-placement-leftTop .ant-popover-arrow,\n.ant-popover-placement-leftBottom .ant-popover-arrow {\n  right: 0;\n  border-right-width: 0;\n  border-left-color: #d9d9d9;\n}\n.ant-popover-placement-left .ant-popover-arrow:after,\n.ant-popover-placement-leftTop .ant-popover-arrow:after,\n.ant-popover-placement-leftBottom .ant-popover-arrow:after {\n  content: \" \";\n  right: 1px;\n  border-right-width: 0;\n  border-left-color: #fff;\n  bottom: -4px;\n}\n.ant-popover-placement-left .ant-popover-arrow {\n  top: 50%;\n  margin-top: -5px;\n}\n.ant-popover-placement-leftTop .ant-popover-arrow {\n  top: 12px;\n}\n.ant-popover-placement-leftBottom .ant-popover-arrow {\n  bottom: 12px;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 593 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = undefined;
+
+	var _extends2 = __webpack_require__(206);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _slicedToArray2 = __webpack_require__(337);
+
+	var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
+	var _classCallCheck2 = __webpack_require__(244);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(245);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(281);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _tooltip = __webpack_require__(594);
+
+	var _tooltip2 = _interopRequireDefault(_tooltip);
+
+	var _icon = __webpack_require__(328);
+
+	var _icon2 = _interopRequireDefault(_icon);
+
+	var _button = __webpack_require__(335);
+
+	var _button2 = _interopRequireDefault(_button);
+
+	var _placements = __webpack_require__(598);
+
+	var _placements2 = _interopRequireDefault(_placements);
+
+	var _splitObject3 = __webpack_require__(346);
+
+	var _splitObject4 = _interopRequireDefault(_splitObject3);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var noop = function noop() {};
+
+	var Popconfirm = function (_React$Component) {
+	    (0, _inherits3["default"])(Popconfirm, _React$Component);
+
+	    function Popconfirm(props) {
+	        (0, _classCallCheck3["default"])(this, Popconfirm);
+
+	        var _this = (0, _possibleConstructorReturn3["default"])(this, _React$Component.call(this, props));
+
+	        _this.confirm = function () {
+	            _this.setVisible(false);
+	            _this.props.onConfirm.call(_this);
+	        };
+	        _this.cancel = function () {
+	            _this.setVisible(false);
+	            _this.props.onCancel.call(_this);
+	        };
+	        _this.onVisibleChange = function (visible) {
+	            _this.setVisible(visible);
+	        };
+	        _this.state = {
+	            visible: false
+	        };
+	        return _this;
+	    }
+
+	    Popconfirm.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+	        if ('visible' in nextProps) {
+	            this.setState({ visible: nextProps.visible });
+	        }
+	    };
+
+	    Popconfirm.prototype.setVisible = function setVisible(visible) {
+	        if (!('visible' in this.props)) {
+	            this.setState({ visible: visible });
+	        }
+	        this.props.onVisibleChange(visible);
+	    };
+
+	    Popconfirm.prototype.render = function render() {
+	        var _splitObject = (0, _splitObject4["default"])(this.props, ['prefixCls', 'title', 'placement', 'arrowPointAtCenter']);
+
+	        var _splitObject2 = (0, _slicedToArray3["default"])(_splitObject, 2);
+
+	        var _splitObject2$ = _splitObject2[0];
+	        var prefixCls = _splitObject2$.prefixCls;
+	        var title = _splitObject2$.title;
+	        var placement = _splitObject2$.placement;
+	        var arrowPointAtCenter = _splitObject2$.arrowPointAtCenter;
+	        var restProps = _splitObject2[1];
+	        var _props = this.props;
+	        var okText = _props.okText;
+	        var cancelText = _props.cancelText;
+
+	        if (this.context.antLocale && this.context.antLocale.Popconfirm) {
+	            okText = okText || this.context.antLocale.Popconfirm.okText;
+	            cancelText = cancelText || this.context.antLocale.Popconfirm.cancelText;
+	        }
+	        var overlay = _react2["default"].createElement(
+	            'div',
+	            null,
+	            _react2["default"].createElement(
+	                'div',
+	                { className: prefixCls + '-inner-content' },
+	                _react2["default"].createElement(
+	                    'div',
+	                    { className: prefixCls + '-message' },
+	                    _react2["default"].createElement(_icon2["default"], { type: 'exclamation-circle' }),
+	                    _react2["default"].createElement(
+	                        'div',
+	                        { className: prefixCls + '-message-title' },
+	                        title
+	                    )
+	                ),
+	                _react2["default"].createElement(
+	                    'div',
+	                    { className: prefixCls + '-buttons' },
+	                    _react2["default"].createElement(
+	                        _button2["default"],
+	                        { onClick: this.cancel, type: 'ghost', size: 'small' },
+	                        cancelText || '取消'
+	                    ),
+	                    _react2["default"].createElement(
+	                        _button2["default"],
+	                        { onClick: this.confirm, type: 'primary', size: 'small' },
+	                        okText || '确定'
+	                    )
+	                )
+	            )
+	        );
+	        return _react2["default"].createElement(_tooltip2["default"], (0, _extends3["default"])({}, restProps, { builtinPlacements: (0, _placements2["default"])({ arrowPointAtCenter: arrowPointAtCenter }), prefixCls: prefixCls, placement: placement, onVisibleChange: this.onVisibleChange, visible: this.state.visible, overlay: overlay }));
+	    };
+
+	    return Popconfirm;
+	}(_react2["default"].Component);
+
+	exports["default"] = Popconfirm;
+
+	Popconfirm.defaultProps = {
+	    prefixCls: 'ant-popover',
+	    transitionName: 'zoom-big',
+	    placement: 'top',
+	    trigger: 'click',
+	    onConfirm: noop,
+	    onCancel: noop,
+	    onVisibleChange: noop
+	};
+	Popconfirm.contextTypes = {
+	    antLocale: _react2["default"].PropTypes.object
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 594 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = undefined;
+
+	var _extends2 = __webpack_require__(206);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _defineProperty2 = __webpack_require__(292);
+
+	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+	var _classCallCheck2 = __webpack_require__(244);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(245);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(281);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _rcTooltip = __webpack_require__(595);
+
+	var _rcTooltip2 = _interopRequireDefault(_rcTooltip);
+
+	var _placements = __webpack_require__(598);
+
+	var _placements2 = _interopRequireDefault(_placements);
+
+	var _classnames = __webpack_require__(298);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var Tooltip = function (_React$Component) {
+	    (0, _inherits3["default"])(Tooltip, _React$Component);
+
+	    function Tooltip(props) {
+	        (0, _classCallCheck3["default"])(this, Tooltip);
+
+	        var _this = (0, _possibleConstructorReturn3["default"])(this, _React$Component.call(this, props));
+
+	        _this.onVisibleChange = function (visible) {
+	            _this.setState({ visible: visible });
+	            _this.props.onVisibleChange(visible);
+	        };
+	        // 动态设置动画点
+	        _this.onPopupAlign = function (domNode, align) {
+	            var placements = _this.getPlacements();
+	            // 当前返回的位置
+	            var placement = Object.keys(placements).filter(function (key) {
+	                return placements[key].points[0] === align.points[0] && placements[key].points[1] === align.points[1];
+	            })[0];
+	            if (!placement) {
+	                return;
+	            }
+	            // 根据当前坐标设置动画点
+	            var rect = domNode.getBoundingClientRect();
+	            var transformOrigin = {
+	                top: '50%',
+	                left: '50%'
+	            };
+	            if (placement.indexOf('top') >= 0 || placement.indexOf('Bottom') >= 0) {
+	                transformOrigin.top = rect.height - align.offset[1] + 'px';
+	            } else if (placement.indexOf('Top') >= 0 || placement.indexOf('bottom') >= 0) {
+	                transformOrigin.top = -align.offset[1] + 'px';
+	            }
+	            if (placement.indexOf('left') >= 0 || placement.indexOf('Right') >= 0) {
+	                transformOrigin.left = rect.width - align.offset[0] + 'px';
+	            } else if (placement.indexOf('right') >= 0 || placement.indexOf('Left') >= 0) {
+	                transformOrigin.left = -align.offset[0] + 'px';
+	            }
+	            domNode.style.transformOrigin = transformOrigin.left + ' ' + transformOrigin.top;
+	        };
+	        _this.state = {
+	            visible: false
+	        };
+	        return _this;
+	    }
+
+	    Tooltip.prototype.getPopupDomNode = function getPopupDomNode() {
+	        return this.refs.tooltip.getPopupDomNode();
+	    };
+
+	    Tooltip.prototype.getPlacements = function getPlacements() {
+	        var _props = this.props;
+	        var builtinPlacements = _props.builtinPlacements;
+	        var arrowPointAtCenter = _props.arrowPointAtCenter;
+
+	        return builtinPlacements || (0, _placements2["default"])({
+	            arrowPointAtCenter: arrowPointAtCenter,
+	            verticalArrowShift: 8
+	        });
+	    };
+
+	    Tooltip.prototype.render = function render() {
+	        var _classNames;
+
+	        var _props2 = this.props;
+	        var prefixCls = _props2.prefixCls;
+	        var title = _props2.title;
+	        var overlay = _props2.overlay;
+	        var children = _props2.children;
+	        // Hide tooltip when there is no title
+
+	        var visible = this.state.visible;
+	        if (!title && !overlay) {
+	            visible = false;
+	        }
+	        if ('visible' in this.props) {
+	            visible = this.props.visible;
+	        }
+	        var childrenProps = children ? children.props : {};
+	        var childrenCls = (0, _classnames2["default"])((_classNames = {}, (0, _defineProperty3["default"])(_classNames, childrenProps.className, !!childrenProps.className), (0, _defineProperty3["default"])(_classNames, this.props.openClassName || prefixCls + '-open', true), _classNames));
+	        return _react2["default"].createElement(
+	            _rcTooltip2["default"],
+	            (0, _extends3["default"])({ overlay: title, visible: visible, onPopupAlign: this.onPopupAlign, ref: 'tooltip' }, this.props, { builtinPlacements: this.getPlacements(), onVisibleChange: this.onVisibleChange }),
+	            visible ? (0, _react.cloneElement)(children, { className: childrenCls }) : children
+	        );
+	    };
+
+	    return Tooltip;
+	}(_react2["default"].Component);
+
+	exports["default"] = Tooltip;
+
+	Tooltip.defaultProps = {
+	    prefixCls: 'ant-tooltip',
+	    placement: 'top',
+	    transitionName: 'zoom-big',
+	    mouseEnterDelay: 0.1,
+	    mouseLeaveDelay: 0.1,
+	    onVisibleChange: function onVisibleChange() {},
+
+	    arrowPointAtCenter: false
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 595 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(596);
+
+/***/ },
+/* 596 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _placements = __webpack_require__(597);
+
+	var _rcTrigger = __webpack_require__(386);
+
+	var _rcTrigger2 = _interopRequireDefault(_rcTrigger);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+	var Tooltip = _react2["default"].createClass({
+	  displayName: 'Tooltip',
+
+	  propTypes: {
+	    trigger: _react.PropTypes.any,
+	    children: _react.PropTypes.any,
+	    defaultVisible: _react.PropTypes.bool,
+	    visible: _react.PropTypes.bool,
+	    placement: _react.PropTypes.string,
+	    transitionName: _react.PropTypes.string,
+	    animation: _react.PropTypes.any,
+	    onVisibleChange: _react.PropTypes.func,
+	    afterVisibleChange: _react.PropTypes.func,
+	    overlay: _react.PropTypes.oneOfType([_react2["default"].PropTypes.node, _react2["default"].PropTypes.func]).isRequired,
+	    overlayStyle: _react.PropTypes.object,
+	    overlayClassName: _react.PropTypes.string,
+	    prefixCls: _react.PropTypes.string,
+	    mouseEnterDelay: _react.PropTypes.number,
+	    mouseLeaveDelay: _react.PropTypes.number,
+	    getTooltipContainer: _react.PropTypes.func,
+	    destroyTooltipOnHide: _react.PropTypes.bool,
+	    align: _react.PropTypes.object,
+	    arrowContent: _react.PropTypes.any
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      prefixCls: 'rc-tooltip',
+	      mouseEnterDelay: 0,
+	      destroyTooltipOnHide: false,
+	      mouseLeaveDelay: 0.1,
+	      align: {},
+	      placement: 'right',
+	      trigger: ['hover'],
+	      arrowContent: null
+	    };
+	  },
+	  getPopupElement: function getPopupElement() {
+	    var _props = this.props;
+	    var arrowContent = _props.arrowContent;
+	    var overlay = _props.overlay;
+	    var prefixCls = _props.prefixCls;
+
+	    return [_react2["default"].createElement(
+	      'div',
+	      { className: prefixCls + '-arrow', key: 'arrow' },
+	      arrowContent
+	    ), _react2["default"].createElement(
+	      'div',
+	      { className: prefixCls + '-inner', key: 'content' },
+	      typeof overlay === 'function' ? overlay() : overlay
+	    )];
+	  },
+	  getPopupDomNode: function getPopupDomNode() {
+	    return this.refs.trigger.getPopupDomNode();
+	  },
+	  render: function render() {
+	    var _props2 = this.props;
+	    var overlayClassName = _props2.overlayClassName;
+	    var trigger = _props2.trigger;
+	    var mouseEnterDelay = _props2.mouseEnterDelay;
+	    var mouseLeaveDelay = _props2.mouseLeaveDelay;
+	    var overlayStyle = _props2.overlayStyle;
+	    var prefixCls = _props2.prefixCls;
+	    var children = _props2.children;
+	    var onVisibleChange = _props2.onVisibleChange;
+	    var transitionName = _props2.transitionName;
+	    var animation = _props2.animation;
+	    var placement = _props2.placement;
+	    var align = _props2.align;
+	    var destroyTooltipOnHide = _props2.destroyTooltipOnHide;
+	    var defaultVisible = _props2.defaultVisible;
+	    var getTooltipContainer = _props2.getTooltipContainer;
+
+	    var restProps = _objectWithoutProperties(_props2, ['overlayClassName', 'trigger', 'mouseEnterDelay', 'mouseLeaveDelay', 'overlayStyle', 'prefixCls', 'children', 'onVisibleChange', 'transitionName', 'animation', 'placement', 'align', 'destroyTooltipOnHide', 'defaultVisible', 'getTooltipContainer']);
+
+	    var extraProps = _extends({}, restProps);
+	    if ('visible' in this.props) {
+	      extraProps.popupVisible = this.props.visible;
+	    }
+	    return _react2["default"].createElement(
+	      _rcTrigger2["default"],
+	      _extends({
+	        popupClassName: overlayClassName,
+	        ref: 'trigger',
+	        prefixCls: prefixCls,
+	        popup: this.getPopupElement,
+	        action: trigger,
+	        builtinPlacements: _placements.placements,
+	        popupPlacement: placement,
+	        popupAlign: align,
+	        getPopupContainer: getTooltipContainer,
+	        onPopupVisibleChange: onVisibleChange,
+	        popupTransitionName: transitionName,
+	        popupAnimation: animation,
+	        defaultPopupVisible: defaultVisible,
+	        destroyPopupOnHide: destroyTooltipOnHide,
+	        mouseLeaveDelay: mouseLeaveDelay,
+	        popupStyle: overlayStyle,
+	        mouseEnterDelay: mouseEnterDelay
+	      }, extraProps),
+	      children
+	    );
+	  }
+	});
+
+	exports["default"] = Tooltip;
+	module.exports = exports['default'];
+
+/***/ },
+/* 597 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var autoAdjustOverflow = {
+	  adjustX: 1,
+	  adjustY: 1
+	};
+
+	var targetOffset = [0, 0];
+
+	var placements = exports.placements = {
+	  left: {
+	    points: ['cr', 'cl'],
+	    overflow: autoAdjustOverflow,
+	    offset: [-4, 0],
+	    targetOffset: targetOffset
+	  },
+	  right: {
+	    points: ['cl', 'cr'],
+	    overflow: autoAdjustOverflow,
+	    offset: [4, 0],
+	    targetOffset: targetOffset
+	  },
+	  top: {
+	    points: ['bc', 'tc'],
+	    overflow: autoAdjustOverflow,
+	    offset: [0, -4],
+	    targetOffset: targetOffset
+	  },
+	  bottom: {
+	    points: ['tc', 'bc'],
+	    overflow: autoAdjustOverflow,
+	    offset: [0, 4],
+	    targetOffset: targetOffset
+	  },
+	  topLeft: {
+	    points: ['bl', 'tl'],
+	    overflow: autoAdjustOverflow,
+	    offset: [0, -4],
+	    targetOffset: targetOffset
+	  },
+	  leftTop: {
+	    points: ['tr', 'tl'],
+	    overflow: autoAdjustOverflow,
+	    offset: [-4, 0],
+	    targetOffset: targetOffset
+	  },
+	  topRight: {
+	    points: ['br', 'tr'],
+	    overflow: autoAdjustOverflow,
+	    offset: [0, -4],
+	    targetOffset: targetOffset
+	  },
+	  rightTop: {
+	    points: ['tl', 'tr'],
+	    overflow: autoAdjustOverflow,
+	    offset: [4, 0],
+	    targetOffset: targetOffset
+	  },
+	  bottomRight: {
+	    points: ['tr', 'br'],
+	    overflow: autoAdjustOverflow,
+	    offset: [0, 4],
+	    targetOffset: targetOffset
+	  },
+	  rightBottom: {
+	    points: ['bl', 'br'],
+	    overflow: autoAdjustOverflow,
+	    offset: [4, 0],
+	    targetOffset: targetOffset
+	  },
+	  bottomLeft: {
+	    points: ['tl', 'bl'],
+	    overflow: autoAdjustOverflow,
+	    offset: [0, 4],
+	    targetOffset: targetOffset
+	  },
+	  leftBottom: {
+	    points: ['br', 'bl'],
+	    overflow: autoAdjustOverflow,
+	    offset: [-4, 0],
+	    targetOffset: targetOffset
+	  }
+	};
+
+	exports["default"] = placements;
+
+/***/ },
+/* 598 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = getPlacements;
+
+	var _placements = __webpack_require__(597);
+
+	var autoAdjustOverflow = {
+	    adjustX: 1,
+	    adjustY: 1
+	};
+	var targetOffset = [0, 0];
+	function getPlacements() {
+	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+	    if (!config.arrowPointAtCenter) {
+	        return _placements.placements;
+	    }
+	    var _config$arrowWidth = config.arrowWidth;
+	    var arrowWidth = _config$arrowWidth === undefined ? 5 : _config$arrowWidth;
+	    var _config$horizontalArr = config.horizontalArrowShift;
+	    var horizontalArrowShift = _config$horizontalArr === undefined ? 16 : _config$horizontalArr;
+	    var _config$verticalArrow = config.verticalArrowShift;
+	    var verticalArrowShift = _config$verticalArrow === undefined ? 12 : _config$verticalArrow;
+
+	    return {
+	        left: {
+	            points: ['cr', 'cl'],
+	            overflow: autoAdjustOverflow,
+	            offset: [-4, 0],
+	            targetOffset: targetOffset
+	        },
+	        right: {
+	            points: ['cl', 'cr'],
+	            overflow: autoAdjustOverflow,
+	            offset: [4, 0],
+	            targetOffset: targetOffset
+	        },
+	        top: {
+	            points: ['bc', 'tc'],
+	            overflow: autoAdjustOverflow,
+	            offset: [0, -4],
+	            targetOffset: targetOffset
+	        },
+	        bottom: {
+	            points: ['tc', 'bc'],
+	            overflow: autoAdjustOverflow,
+	            offset: [0, 4],
+	            targetOffset: targetOffset
+	        },
+	        topLeft: {
+	            points: ['bl', 'tc'],
+	            overflow: autoAdjustOverflow,
+	            offset: [-(horizontalArrowShift + arrowWidth), -4],
+	            targetOffset: targetOffset
+	        },
+	        leftTop: {
+	            points: ['tr', 'cl'],
+	            overflow: autoAdjustOverflow,
+	            offset: [-4, -(verticalArrowShift + arrowWidth)],
+	            targetOffset: targetOffset
+	        },
+	        topRight: {
+	            points: ['br', 'tc'],
+	            overflow: autoAdjustOverflow,
+	            offset: [horizontalArrowShift + arrowWidth, -4],
+	            targetOffset: targetOffset
+	        },
+	        rightTop: {
+	            points: ['tl', 'cr'],
+	            overflow: autoAdjustOverflow,
+	            offset: [4, -(verticalArrowShift + arrowWidth)],
+	            targetOffset: targetOffset
+	        },
+	        bottomRight: {
+	            points: ['tr', 'bc'],
+	            overflow: autoAdjustOverflow,
+	            offset: [horizontalArrowShift + arrowWidth, 4],
+	            targetOffset: targetOffset
+	        },
+	        rightBottom: {
+	            points: ['bl', 'cr'],
+	            overflow: autoAdjustOverflow,
+	            offset: [4, verticalArrowShift + arrowWidth],
+	            targetOffset: targetOffset
+	        },
+	        bottomLeft: {
+	            points: ['tl', 'bc'],
+	            overflow: autoAdjustOverflow,
+	            offset: [-(horizontalArrowShift + arrowWidth), 4],
+	            targetOffset: targetOffset
+	        },
+	        leftBottom: {
+	            points: ['br', 'cl'],
+	            overflow: autoAdjustOverflow,
+	            offset: [-4, verticalArrowShift + arrowWidth],
+	            targetOffset: targetOffset
+	        }
+	    };
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 599 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _css = __webpack_require__(563);
+
+	var _modal = __webpack_require__(566);
+
+	var _modal2 = _interopRequireDefault(_modal);
+
+	var _css2 = __webpack_require__(348);
+
+	var _datePicker = __webpack_require__(357);
 
 	var _datePicker2 = _interopRequireDefault(_datePicker);
 
-	var _css3 = __webpack_require__(350);
+	var _css3 = __webpack_require__(351);
 
-	var _input = __webpack_require__(577);
+	var _input = __webpack_require__(600);
 
 	var _input2 = _interopRequireDefault(_input);
 
-	var _css4 = __webpack_require__(436);
+	var _css4 = __webpack_require__(423);
 
-	var _form = __webpack_require__(442);
+	var _select = __webpack_require__(426);
+
+	var _select2 = _interopRequireDefault(_select);
+
+	var _css5 = __webpack_require__(437);
+
+	var _form = __webpack_require__(443);
 
 	var _form2 = _interopRequireDefault(_form);
 
@@ -32319,7 +33765,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(363);
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
@@ -32332,6 +33778,7 @@ webpackJsonp([0],[
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var FormItem = _form2.default.Item;
+	var Option = _select2.default.Option;
 
 	var TodoDialog = function (_Component) {
 	    _inherits(TodoDialog, _Component);
@@ -32339,7 +33786,7 @@ webpackJsonp([0],[
 	    function TodoDialog() {
 	        var _ref;
 
-	        var _temp2, _this, _ret;
+	        var _temp3, _this, _ret;
 
 	        _classCallCheck(this, TodoDialog);
 
@@ -32347,14 +33794,19 @@ webpackJsonp([0],[
 	            args[_key] = arguments[_key];
 	        }
 
-	        return _ret = (_temp2 = (_this = _possibleConstructorReturn(this, (_ref = TodoDialog.__proto__ || Object.getPrototypeOf(TodoDialog)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+	        return _ret = (_temp3 = (_this = _possibleConstructorReturn(this, (_ref = TodoDialog.__proto__ || Object.getPrototypeOf(TodoDialog)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
 	            text: _this.props.todo.text || '',
-	            date: _this.props.todo.date ? (0, _moment2.default)(_this.props.todo.date) : null
+	            date: _this.props.todo.date ? (0, _moment2.default)(_this.props.todo.date) : null,
+	            tags: (_this.props.todo.tags || []).map(function (tag) {
+	                return { key: tag, label: tag };
+	            })
 	        }, _this.handleChange = function (e) {
 	            _this.setState({ text: e.target.value });
-	        }, _this.handleDateChange = function (date, dateString) {
+	        }, _this.handleDateChange = function (date) {
 	            _this.setState({ date: date });
-	        }, _temp2), _possibleConstructorReturn(_this, _ret);
+	        }, _this.handleTagChange = function (value) {
+	            _this.setState({ tags: value });
+	        }, _temp3), _possibleConstructorReturn(_this, _ret);
 	    }
 
 	    _createClass(TodoDialog, [{
@@ -32365,18 +33817,61 @@ webpackJsonp([0],[
 	    }, {
 	        key: 'clearState',
 	        value: function clearState() {
-	            this.setState({ text: '', date: null });
+	            this.setState({ text: '', date: null, tags: [] });
+	        }
+	    }, {
+	        key: 'parseTags',
+	        value: function parseTags(tags) {
+	            var total = tags.map(function (tag) {
+	                return tag.label;
+	            });
+	            var newTags = [];
+	            var dataSource = this.props.dataSource;
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = total[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var tag = _step.value;
+
+	                    if (!dataSource.includes(tag)) {
+	                        newTags.push(tag);
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+
+	            return { total: total, newTags: newTags };
 	        }
 	    }, {
 	        key: 'handleOk',
 	        value: function handleOk() {
 	            var text = this.state.text;
 	            var date = this.state.date ? this.state.date.format('YYYY-MM-DD') : null;
-	            var id = this.props.todo.id;
+	            var id = this.props.todo._id;
+	            var tagObj = this.parseTags(this.state.tags);
+	            var tags = tagObj.total;
+	            var newTags = tagObj.newTags;
 	            if (id !== undefined) {
-	                this.props.onEdit(id, { text: text, date: date });
+	                this.props.onEdit(_extends({}, this.props.todo, { text: text, date: date, tags: tags }));
 	            } else {
-	                this.props.onSave(text, date);
+	                this.props.onSave({ text: text, date: date, tags: tags, completed: false });
+	            }
+	            if (newTags.length) {
+	                this.props.onAddTag(newTags);
 	            }
 	            this.hideModal();
 	            this.clearState();
@@ -32392,7 +33887,13 @@ webpackJsonp([0],[
 	        value: function componentWillReceiveProps(nextProps) {
 	            var todo = nextProps.todo;
 	            if (todo.text) {
-	                this.setState({ text: todo.text, date: todo.date ? (0, _moment2.default)(todo.date) : null });
+	                this.setState({
+	                    text: todo.text,
+	                    date: todo.date ? (0, _moment2.default)(todo.date) : null,
+	                    tags: todo.tags.map(function (tag) {
+	                        return { key: tag, label: tag };
+	                    })
+	                });
 	            }
 	        }
 	    }, {
@@ -32402,11 +33903,18 @@ webpackJsonp([0],[
 	                labelCol: { span: 7 },
 	                wrapperCol: { span: 12 }
 	            };
+	            var children = [];
+	            this.props.dataSource.forEach(function (tag, idx) {
+	                children.push(_react2.default.createElement(
+	                    Option,
+	                    { key: tag },
+	                    tag
+	                ));
+	            });
 	            return _react2.default.createElement(
 	                _modal2.default,
 	                { title: 'Basic Modal', visible: this.props.visible,
-	                    onOk: this.handleOk.bind(this), onCancel: this.handleCancel.bind(this)
-	                },
+	                    onOk: this.handleOk.bind(this), onCancel: this.handleCancel.bind(this) },
 	                _react2.default.createElement(
 	                    _form2.default,
 	                    { horizontal: true },
@@ -32416,7 +33924,21 @@ webpackJsonp([0],[
 	                            id: 'control-input'
 	                        }, formItemLayout, {
 	                            label: 'Todo' }),
-	                        _react2.default.createElement(_input2.default, { id: 'control-input', onChange: this.handleChange, placeholder: this.props.placeholder, value: this.state.text })
+	                        _react2.default.createElement(_input2.default, { type: 'textarea', id: 'control-input', onChange: this.handleChange, placeholder: this.props.placeholder, value: this.state.text })
+	                    ),
+	                    _react2.default.createElement(
+	                        FormItem,
+	                        _extends({}, formItemLayout, {
+	                            label: 'Tags' }),
+	                        _react2.default.createElement(
+	                            _select2.default,
+	                            {
+	                                tags: true,
+	                                labelInValue: true,
+	                                value: this.state.tags,
+	                                onChange: this.handleTagChange },
+	                            children
+	                        )
 	                    ),
 	                    _react2.default.createElement(
 	                        FormItem,
@@ -32436,15 +33958,17 @@ webpackJsonp([0],[
 
 	TodoDialog.propTypes = {
 	    onSave: _react.PropTypes.func.isRequired,
+	    onAddTag: _react.PropTypes.func.isRequired,
 	    toggleTodoDialog: _react.PropTypes.func.isRequired,
 	    todo: _react.PropTypes.object.isRequired,
 	    placeholder: _react.PropTypes.string,
-	    visible: _react.PropTypes.bool.isRequired
+	    visible: _react.PropTypes.bool.isRequired,
+	    dataSource: _react.PropTypes.array.isRequired
 	};
 	exports.default = TodoDialog;
 
 /***/ },
-/* 577 */
+/* 600 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32453,11 +33977,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _Input = __webpack_require__(578);
+	var _Input = __webpack_require__(601);
 
 	var _Input2 = _interopRequireDefault(_Input);
 
-	var _Group = __webpack_require__(580);
+	var _Group = __webpack_require__(603);
 
 	var _Group2 = _interopRequireDefault(_Group);
 
@@ -32468,7 +33992,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 578 */
+/* 601 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32478,23 +34002,23 @@ webpackJsonp([0],[
 	});
 	exports["default"] = undefined;
 
-	var _extends2 = __webpack_require__(204);
+	var _extends2 = __webpack_require__(206);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-	var _classCallCheck2 = __webpack_require__(246);
+	var _classCallCheck2 = __webpack_require__(244);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(247);
+	var _possibleConstructorReturn2 = __webpack_require__(245);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(283);
+	var _inherits2 = __webpack_require__(281);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -32502,11 +34026,11 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _calculateNodeHeight = __webpack_require__(579);
+	var _calculateNodeHeight = __webpack_require__(602);
 
 	var _calculateNodeHeight2 = _interopRequireDefault(_calculateNodeHeight);
 
@@ -32514,7 +34038,7 @@ webpackJsonp([0],[
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _omit = __webpack_require__(447);
+	var _omit = __webpack_require__(448);
 
 	var _omit2 = _interopRequireDefault(_omit);
 
@@ -32682,7 +34206,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 579 */
+/* 602 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32782,7 +34306,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 580 */
+/* 603 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32791,7 +34315,7 @@ webpackJsonp([0],[
 	    value: true
 	});
 
-	var _defineProperty2 = __webpack_require__(294);
+	var _defineProperty2 = __webpack_require__(292);
 
 	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
@@ -32799,7 +34323,7 @@ webpackJsonp([0],[
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _classnames = __webpack_require__(300);
+	var _classnames = __webpack_require__(298);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -32825,7 +34349,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 581 */
+/* 604 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32833,52 +34357,103 @@ webpackJsonp([0],[
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.filterTodo = exports.getTodos = exports.completeTodo = exports.editTodo = exports.deleteTodo = exports.addTodo = exports.toggleTodoDialog = undefined;
+	exports.switchMenu = exports.filterTodo = exports.getTodos = exports.completeTodo = exports.editTodo = exports.deleteTodo = exports.bulkAddTodos = exports.addTodo = exports.toggleTodoDialog = exports.addTags = exports.getTags = undefined;
 
-	var _ActionTypes = __webpack_require__(582);
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _ActionTypes = __webpack_require__(605);
 
 	var types = _interopRequireWildcard(_ActionTypes);
 
-	var _db = __webpack_require__(583);
+	var _pouchdb = __webpack_require__(606);
 
-	var _doFilter = __webpack_require__(586);
+	var _doFilter = __webpack_require__(621);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function queryTodos(dispatch, state) {
-	    var filter = (0, _doFilter.doFilter)(state.todoFilter);
-	    return (0, _db.getTodosFromDb)(filter).then(function (todos) {
-	        return dispatch({ type: types.GET_TODOS, todos: todos });
+	    var filter = (0, _doFilter.doFilter)(state.todoFilter, state.navigation);
+	    return (0, _pouchdb.getTodosFromDb)().then(function (todos) {
+	        var transformTodo = [];
+	        // 过滤数据
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+
+	        try {
+	            for (var _iterator = todos.rows[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var todoDoc = _step.value;
+
+	                if (filter(todoDoc.doc)) {
+	                    transformTodo.push(todoDoc.doc);
+	                }
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator.return) {
+	                    _iterator.return();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+
+	        return dispatch({ type: types.GET_TODOS, todos: transformTodo });
 	    });
 	}
+
+	var getTags = exports.getTags = function getTags() {
+	    return function (dispatch, getState) {
+	        if (getState().tags.length) {
+	            return getState().tags;
+	        }
+	        return (0, _pouchdb.getTagsFromDb)().then(function (tags) {
+	            console.log('get tags success', tags);
+	            return dispatch({ type: types.GET_TAGS, tags: tags });
+	        });
+	    };
+	};
+
+	var addTags = exports.addTags = function addTags(tags) {
+	    return { type: types.ADD_TAGS, tags: tags };
+	};
 
 	var toggleTodoDialog = exports.toggleTodoDialog = function toggleTodoDialog(isOpen, todo) {
 	    return { type: types.TOGGLE_TODO_DIALOG, isOpen: isOpen, todo: todo };
 	};
 
-	var addTodo = exports.addTodo = function addTodo(text, date) {
+	var addTodo = exports.addTodo = function addTodo(todo) {
 	    return function (dispatch, getState) {
-	        (0, _db.addTodoToDb)({
-	            text: text,
-	            date: date,
-	            completed: false
-	        }).then(function (res) {
+	        (0, _pouchdb.addTodoToDb)(todo).then(function (res) {
 	            queryTodos(dispatch, getState());
 	        });
 	    };
 	};
 
-	var deleteTodo = exports.deleteTodo = function deleteTodo(id) {
+	var bulkAddTodos = exports.bulkAddTodos = function bulkAddTodos(todos) {
 	    return function (dispatch, getState) {
-	        (0, _db.deleteTodoFromDb)(id).then(function (res) {
+	        (0, _pouchdb.bulkAddTodosToDb)(todos).then(function (res) {
 	            queryTodos(dispatch, getState());
 	        });
 	    };
 	};
 
-	var editTodo = exports.editTodo = function editTodo(id, todo) {
+	var deleteTodo = exports.deleteTodo = function deleteTodo(todo) {
 	    return function (dispatch, getState) {
-	        (0, _db.updateTodoSyncDb)(id, todo).then(function (res) {
+	        (0, _pouchdb.deleteTodoFromDb)(todo).then(function (res) {
+	            queryTodos(dispatch, getState());
+	        });
+	    };
+	};
+
+	var editTodo = exports.editTodo = function editTodo(todo) {
+	    return function (dispatch, getState) {
+	        (0, _pouchdb.updateTodoSyncDb)(todo).then(function (res) {
 	            queryTodos(dispatch, getState());
 	        });
 	    };
@@ -32886,9 +34461,9 @@ webpackJsonp([0],[
 
 	var completeTodo = exports.completeTodo = function completeTodo(todo) {
 	    return function (dispatch, getState) {
-	        (0, _db.updateTodoSyncDb)(todo.id, {
+	        (0, _pouchdb.updateTodoSyncDb)(_extends({}, todo, {
 	            completed: !todo.completed
-	        }).then(function (res) {
+	        })).then(function (res) {
 	            queryTodos(dispatch, getState());
 	        });
 	    };
@@ -32910,8 +34485,16 @@ webpackJsonp([0],[
 	    };
 	};
 
+	var switchMenu = exports.switchMenu = function switchMenu(key) {
+	    return function (dispatch, getState) {
+	        dispatch({ type: _ActionTypes.SWITCH_MENU, key: key });
+	        console.log('switch: ' + key);
+	        queryTodos(dispatch, getState());
+	    };
+	};
+
 /***/ },
-/* 582 */
+/* 605 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32921,6 +34504,8 @@ webpackJsonp([0],[
 	});
 	var ADD_TODO = exports.ADD_TODO = 'ADD_TODO';
 	var GET_TODOS = exports.GET_TODOS = 'GET_TODOS';
+	var GET_TAGS = exports.GET_TAGS = 'GET_TAGS';
+	var ADD_TAGS = exports.ADD_TAGS = 'ADD_TAGS';
 	var TOGGLE_TODO_DIALOG = exports.TOGGLE_TODO_DIALOG = 'TOGGLE_TODO_DIALOG';
 	var DELETE_TODO = exports.DELETE_TODO = 'DELETE_TODO';
 	var EDIT_TODO = exports.EDIT_TODO = 'EDIT_TODO';
@@ -32930,8 +34515,10 @@ webpackJsonp([0],[
 
 	var FILTER_TODO = exports.FILTER_TODO = 'FILTER_TODO';
 
+	var SWITCH_MENU = exports.SWITCH_MENU = 'SWITCH_MENU';
+
 /***/ },
-/* 583 */
+/* 606 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32939,50 +34526,112 @@ webpackJsonp([0],[
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.closeDb = exports.openDb = exports.getRawTodosFromDb = exports.getTodosFromDb = exports.updateTodoSyncDb = exports.deleteTodoFromDb = exports.addTodoToDb = undefined;
+	exports.closeDb = exports.openDb = exports.getTagsFromDb = exports.getRawTodosFromDb = exports.getTodosFromDb = exports.updateTodoSyncDb = exports.deleteTodoFromDb = exports.bulkAddTodosToDb = exports.addTodoToDb = undefined;
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _dexie = __webpack_require__(584);
+	var _pouchdbBrowser = __webpack_require__(607);
 
-	var _dexie2 = _interopRequireDefault(_dexie);
+	var _pouchdbBrowser2 = _interopRequireDefault(_pouchdbBrowser);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var db = new _dexie2.default('TestTodo');
-
-	db.version(0.1).stores({ todo: '++id' });
-	db.open().catch(function (err) {
-	    console.error('Failed to open db: ' + (err.stack || err));
-	});
+	var db = new _pouchdbBrowser2.default('PouchDB_TODO');
 
 	var addTodoToDb = exports.addTodoToDb = function addTodoToDb(todo) {
-	    return db.todo.put(_extends({}, todo)).then(function (res) {
+	    return db.put(_extends({
+	        _id: +new Date() + ''
+	    }, todo)).then(function (res) {
 	        console.log('add success');
 	        return res;
 	    });
 	};
 
-	var deleteTodoFromDb = exports.deleteTodoFromDb = function deleteTodoFromDb(id) {
-	    return db.todo.where('id').equals(id).delete().then(function (res) {
+	var bulkAddTodosToDb = exports.bulkAddTodosToDb = function bulkAddTodosToDb(todos) {
+	    if (Array.isArray(todos)) {
+	        var _ret = function () {
+	            var id = +new Date();
+	            todos.map(function (todo, idx) {
+	                todo._id = id + idx + '';
+	            });
+	            return {
+	                v: db.bulkDocs(todos).then(function (res) {
+	                    console.log('bulk add todos success');
+	                    return res;
+	                })
+	            };
+	        }();
+
+	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	    } else {
+	        throw new Error('todos must be array');
+	    }
+	};
+
+	var deleteTodoFromDb = exports.deleteTodoFromDb = function deleteTodoFromDb(todo) {
+	    return db.remove(todo).then(function (res) {
 	        console.log('delete success');
 	        return res;
 	    });
 	};
 
-	var updateTodoSyncDb = exports.updateTodoSyncDb = function updateTodoSyncDb(id, todo) {
-	    if (!id) {
-	        throw Error('required id');
-	    }
-	    return db.todo.update(id, _extends({}, todo));
+	var updateTodoSyncDb = exports.updateTodoSyncDb = function updateTodoSyncDb(todo) {
+	    return db.put(todo);
 	};
 
-	var getTodosFromDb = exports.getTodosFromDb = function getTodosFromDb(doFilter) {
-	    return db.todo.filter(doFilter).toArray();
+	var getTodosFromDb = exports.getTodosFromDb = function getTodosFromDb() {
+	    return db.allDocs({ include_docs: true, attachments: true });
 	};
 
 	var getRawTodosFromDb = exports.getRawTodosFromDb = function getRawTodosFromDb() {
 	    return db.todo;
+	};
+
+	var getTagsFromDb = exports.getTagsFromDb = function getTagsFromDb() {
+	    var todoMap = function todoMap(doc) {
+	        emit(doc.tags);
+	    };
+	    var todoReduce = function todoReduce(keys) {
+	        var tags = [];
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+
+	        try {
+	            for (var _iterator = keys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var item = _step.value;
+
+	                tags = tags.concat(item[0]);
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator.return) {
+	                    _iterator.return();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+
+	        return Array.from(new Set(tags));
+	    };
+	    return db.query({
+	        map: todoMap,
+	        reduce: todoReduce
+	    }, {
+	        reduce: true
+	    }).then(function (result) {
+	        return result.rows[0].value || [];
+	    }).catch(function (err) {
+	        console.error(err);
+	    });
 	};
 
 	var openDb = exports.openDb = function openDb() {
@@ -32996,4632 +34645,13401 @@ webpackJsonp([0],[
 
 	exports.default = db;
 
-/***/ },
-/* 584 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global, setImmediate) {(function (global, factory) {
-	    true ? module.exports = factory() :
-	   typeof define === 'function' && define.amd ? define(factory) :
-	   global.Dexie = factory();
-	}(this, function () { 'use strict';
-
-	   // By default, debug will be true only if platform is a web platform and its page is served from localhost.
-	   // When debug = true, error's stacks will contain asyncronic long stacks.
-	   var debug = typeof location !== 'undefined' &&
-	   // By default, use debug mode if served from localhost.
-	   /^(http|https):\/\/(localhost|127\.0\.0\.1)/.test(location.href);
-
-	   function setDebug(value, filter) {
-	       debug = value;
-	       libraryFilter = filter;
-	   }
-
-	   var libraryFilter = function () {
-	       return true;
-	   };
-
-	   var NEEDS_THROW_FOR_STACK = !new Error("").stack;
-
-	   function getErrorWithStack() {
-	       "use strict";
-
-	       if (NEEDS_THROW_FOR_STACK) try {
-	           // Doing something naughty in strict mode here to trigger a specific error
-	           // that can be explicitely ignored in debugger's exception settings.
-	           // If we'd just throw new Error() here, IE's debugger's exception settings
-	           // will just consider it as "exception thrown by javascript code" which is
-	           // something you wouldn't want it to ignore.
-	           getErrorWithStack.arguments;
-	           throw new Error(); // Fallback if above line don't throw.
-	       } catch (e) {
-	           return e;
-	       }
-	       return new Error();
-	   }
-
-	   function prettyStack(exception, numIgnoredFrames) {
-	       var stack = exception.stack;
-	       if (!stack) return "";
-	       numIgnoredFrames = numIgnoredFrames || 0;
-	       if (stack.indexOf(exception.name) === 0) numIgnoredFrames += (exception.name + exception.message).split('\n').length;
-	       return stack.split('\n').slice(numIgnoredFrames).filter(libraryFilter).map(function (frame) {
-	           return "\n" + frame;
-	       }).join('');
-	   }
-
-	   function nop() {}
-	   function mirror(val) {
-	       return val;
-	   }
-	   function pureFunctionChain(f1, f2) {
-	       // Enables chained events that takes ONE argument and returns it to the next function in chain.
-	       // This pattern is used in the hook("reading") event.
-	       if (f1 == null || f1 === mirror) return f2;
-	       return function (val) {
-	           return f2(f1(val));
-	       };
-	   }
-
-	   function callBoth(on1, on2) {
-	       return function () {
-	           on1.apply(this, arguments);
-	           on2.apply(this, arguments);
-	       };
-	   }
-
-	   function hookCreatingChain(f1, f2) {
-	       // Enables chained events that takes several arguments and may modify first argument by making a modification and then returning the same instance.
-	       // This pattern is used in the hook("creating") event.
-	       if (f1 === nop) return f2;
-	       return function () {
-	           var res = f1.apply(this, arguments);
-	           if (res !== undefined) arguments[0] = res;
-	           var onsuccess = this.onsuccess,
-	               // In case event listener has set this.onsuccess
-	           onerror = this.onerror; // In case event listener has set this.onerror
-	           this.onsuccess = null;
-	           this.onerror = null;
-	           var res2 = f2.apply(this, arguments);
-	           if (onsuccess) this.onsuccess = this.onsuccess ? callBoth(onsuccess, this.onsuccess) : onsuccess;
-	           if (onerror) this.onerror = this.onerror ? callBoth(onerror, this.onerror) : onerror;
-	           return res2 !== undefined ? res2 : res;
-	       };
-	   }
-
-	   function hookDeletingChain(f1, f2) {
-	       if (f1 === nop) return f2;
-	       return function () {
-	           f1.apply(this, arguments);
-	           var onsuccess = this.onsuccess,
-	               // In case event listener has set this.onsuccess
-	           onerror = this.onerror; // In case event listener has set this.onerror
-	           this.onsuccess = this.onerror = null;
-	           f2.apply(this, arguments);
-	           if (onsuccess) this.onsuccess = this.onsuccess ? callBoth(onsuccess, this.onsuccess) : onsuccess;
-	           if (onerror) this.onerror = this.onerror ? callBoth(onerror, this.onerror) : onerror;
-	       };
-	   }
-
-	   function hookUpdatingChain(f1, f2) {
-	       if (f1 === nop) return f2;
-	       return function (modifications) {
-	           var res = f1.apply(this, arguments);
-	           extend(modifications, res); // If f1 returns new modifications, extend caller's modifications with the result before calling next in chain.
-	           var onsuccess = this.onsuccess,
-	               // In case event listener has set this.onsuccess
-	           onerror = this.onerror; // In case event listener has set this.onerror
-	           this.onsuccess = null;
-	           this.onerror = null;
-	           var res2 = f2.apply(this, arguments);
-	           if (onsuccess) this.onsuccess = this.onsuccess ? callBoth(onsuccess, this.onsuccess) : onsuccess;
-	           if (onerror) this.onerror = this.onerror ? callBoth(onerror, this.onerror) : onerror;
-	           return res === undefined ? res2 === undefined ? undefined : res2 : extend(res, res2);
-	       };
-	   }
-
-	   function reverseStoppableEventChain(f1, f2) {
-	       if (f1 === nop) return f2;
-	       return function () {
-	           if (f2.apply(this, arguments) === false) return false;
-	           return f1.apply(this, arguments);
-	       };
-	   }
-
-	   function promisableChain(f1, f2) {
-	       if (f1 === nop) return f2;
-	       return function () {
-	           var res = f1.apply(this, arguments);
-	           if (res && typeof res.then === 'function') {
-	               var thiz = this,
-	                   i = arguments.length,
-	                   args = new Array(i);
-	               while (i--) {
-	                   args[i] = arguments[i];
-	               }return res.then(function () {
-	                   return f2.apply(thiz, args);
-	               });
-	           }
-	           return f2.apply(this, arguments);
-	       };
-	   }
-
-	   var keys = Object.keys;
-	   var isArray = Array.isArray;
-	   var _global = typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : global;
-
-	   function extend(obj, extension) {
-	       if (typeof extension !== 'object') return obj;
-	       keys(extension).forEach(function (key) {
-	           obj[key] = extension[key];
-	       });
-	       return obj;
-	   }
-
-	   var getProto = Object.getPrototypeOf;
-	   var _hasOwn = {}.hasOwnProperty;
-	   function hasOwn(obj, prop) {
-	       return _hasOwn.call(obj, prop);
-	   }
-
-	   function props(proto, extension) {
-	       if (typeof extension === 'function') extension = extension(getProto(proto));
-	       keys(extension).forEach(function (key) {
-	           setProp(proto, key, extension[key]);
-	       });
-	   }
-
-	   function setProp(obj, prop, functionOrGetSet, options) {
-	       Object.defineProperty(obj, prop, extend(functionOrGetSet && hasOwn(functionOrGetSet, "get") && typeof functionOrGetSet.get === 'function' ? { get: functionOrGetSet.get, set: functionOrGetSet.set, configurable: true } : { value: functionOrGetSet, configurable: true, writable: true }, options));
-	   }
-
-	   function derive(Child) {
-	       return {
-	           from: function (Parent) {
-	               Child.prototype = Object.create(Parent.prototype);
-	               setProp(Child.prototype, "constructor", Child);
-	               return {
-	                   extend: props.bind(null, Child.prototype)
-	               };
-	           }
-	       };
-	   }
-
-	   var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-
-	   function getPropertyDescriptor(obj, prop) {
-	       var pd = getOwnPropertyDescriptor(obj, prop),
-	           proto;
-	       return pd || (proto = getProto(obj)) && getPropertyDescriptor(proto, prop);
-	   }
-
-	   var _slice = [].slice;
-	   function slice(args, start, end) {
-	       return _slice.call(args, start, end);
-	   }
-
-	   function override(origFunc, overridedFactory) {
-	       return overridedFactory(origFunc);
-	   }
-
-	   function doFakeAutoComplete(fn) {
-	       var to = setTimeout(fn, 1000);
-	       clearTimeout(to);
-	   }
-
-	   function assert(b) {
-	       if (!b) throw new exceptions.Internal("Assertion failed");
-	   }
-
-	   function asap(fn) {
-	       if (_global.setImmediate) setImmediate(fn);else setTimeout(fn, 0);
-	   }
-
-	   /** Generate an object (hash map) based on given array.
-	    * @param extractor Function taking an array item and its index and returning an array of 2 items ([key, value]) to
-	    *        instert on the resulting object for each item in the array. If this function returns a falsy value, the
-	    *        current item wont affect the resulting object.
-	    */
-	   function arrayToObject(array, extractor) {
-	       return array.reduce(function (result, item, i) {
-	           var nameAndValue = extractor(item, i);
-	           if (nameAndValue) result[nameAndValue[0]] = nameAndValue[1];
-	           return result;
-	       }, {});
-	   }
-
-	   function trycatcher(fn, reject) {
-	       return function () {
-	           try {
-	               fn.apply(this, arguments);
-	           } catch (e) {
-	               reject(e);
-	           }
-	       };
-	   }
-
-	   function tryCatch(fn, onerror, args) {
-	       try {
-	           fn.apply(null, args);
-	       } catch (ex) {
-	           onerror && onerror(ex);
-	       }
-	   }
-
-	   function rejection(err, uncaughtHandler) {
-	       // Get the call stack and return a rejected promise.
-	       var rv = Promise.reject(err);
-	       return uncaughtHandler ? rv.uncaught(uncaughtHandler) : rv;
-	   }
-
-	   function getByKeyPath(obj, keyPath) {
-	       // http://www.w3.org/TR/IndexedDB/#steps-for-extracting-a-key-from-a-value-using-a-key-path
-	       if (hasOwn(obj, keyPath)) return obj[keyPath]; // This line is moved from last to first for optimization purpose.
-	       if (!keyPath) return obj;
-	       if (typeof keyPath !== 'string') {
-	           var rv = [];
-	           for (var i = 0, l = keyPath.length; i < l; ++i) {
-	               var val = getByKeyPath(obj, keyPath[i]);
-	               rv.push(val);
-	           }
-	           return rv;
-	       }
-	       var period = keyPath.indexOf('.');
-	       if (period !== -1) {
-	           var innerObj = obj[keyPath.substr(0, period)];
-	           return innerObj === undefined ? undefined : getByKeyPath(innerObj, keyPath.substr(period + 1));
-	       }
-	       return undefined;
-	   }
-
-	   function setByKeyPath(obj, keyPath, value) {
-	       if (!obj || keyPath === undefined) return;
-	       if ('isFrozen' in Object && Object.isFrozen(obj)) return;
-	       if (typeof keyPath !== 'string' && 'length' in keyPath) {
-	           assert(typeof value !== 'string' && 'length' in value);
-	           for (var i = 0, l = keyPath.length; i < l; ++i) {
-	               setByKeyPath(obj, keyPath[i], value[i]);
-	           }
-	       } else {
-	           var period = keyPath.indexOf('.');
-	           if (period !== -1) {
-	               var currentKeyPath = keyPath.substr(0, period);
-	               var remainingKeyPath = keyPath.substr(period + 1);
-	               if (remainingKeyPath === "") {
-	                   if (value === undefined) delete obj[currentKeyPath];else obj[currentKeyPath] = value;
-	               } else {
-	                   var innerObj = obj[currentKeyPath];
-	                   if (!innerObj) innerObj = obj[currentKeyPath] = {};
-	                   setByKeyPath(innerObj, remainingKeyPath, value);
-	               }
-	           } else {
-	               if (value === undefined) delete obj[keyPath];else obj[keyPath] = value;
-	           }
-	       }
-	   }
-
-	   function delByKeyPath(obj, keyPath) {
-	       if (typeof keyPath === 'string') setByKeyPath(obj, keyPath, undefined);else if ('length' in keyPath) [].map.call(keyPath, function (kp) {
-	           setByKeyPath(obj, kp, undefined);
-	       });
-	   }
-
-	   function shallowClone(obj) {
-	       var rv = {};
-	       for (var m in obj) {
-	           if (hasOwn(obj, m)) rv[m] = obj[m];
-	       }
-	       return rv;
-	   }
-
-	   function deepClone(any) {
-	       if (!any || typeof any !== 'object') return any;
-	       var rv;
-	       if (isArray(any)) {
-	           rv = [];
-	           for (var i = 0, l = any.length; i < l; ++i) {
-	               rv.push(deepClone(any[i]));
-	           }
-	       } else if (any instanceof Date) {
-	           rv = new Date();
-	           rv.setTime(any.getTime());
-	       } else {
-	           rv = any.constructor ? Object.create(any.constructor.prototype) : {};
-	           for (var prop in any) {
-	               if (hasOwn(any, prop)) {
-	                   rv[prop] = deepClone(any[prop]);
-	               }
-	           }
-	       }
-	       return rv;
-	   }
-
-	   function getObjectDiff(a, b, rv, prfx) {
-	       // Compares objects a and b and produces a diff object.
-	       rv = rv || {};
-	       prfx = prfx || '';
-	       keys(a).forEach(function (prop) {
-	           if (!hasOwn(b, prop)) rv[prfx + prop] = undefined; // Property removed
-	           else {
-	                   var ap = a[prop],
-	                       bp = b[prop];
-	                   if (typeof ap === 'object' && typeof bp === 'object' && ap && bp && ap.constructor === bp.constructor)
-	                       // Same type of object but its properties may have changed
-	                       getObjectDiff(ap, bp, rv, prfx + prop + ".");else if (ap !== bp) rv[prfx + prop] = b[prop]; // Primitive value changed
-	               }
-	       });
-	       keys(b).forEach(function (prop) {
-	           if (!hasOwn(a, prop)) {
-	               rv[prfx + prop] = b[prop]; // Property added
-	           }
-	       });
-	       return rv;
-	   }
-
-	   // If first argument is iterable or array-like, return it as an array
-	   var iteratorSymbol = typeof Symbol !== 'undefined' && Symbol.iterator;
-	   var getIteratorOf = iteratorSymbol ? function (x) {
-	       var i;
-	       return x != null && (i = x[iteratorSymbol]) && i.apply(x);
-	   } : function () {
-	       return null;
-	   };
-
-	   var NO_CHAR_ARRAY = {};
-	   // Takes one or several arguments and returns an array based on the following criteras:
-	   // * If several arguments provided, return arguments converted to an array in a way that
-	   //   still allows javascript engine to optimize the code.
-	   // * If single argument is an array, return a clone of it.
-	   // * If this-pointer equals NO_CHAR_ARRAY, don't accept strings as valid iterables as a special
-	   //   case to the two bullets below.
-	   // * If single argument is an iterable, convert it to an array and return the resulting array.
-	   // * If single argument is array-like (has length of type number), convert it to an array.
-	   function getArrayOf(arrayLike) {
-	       var i, a, x, it;
-	       if (arguments.length === 1) {
-	           if (isArray(arrayLike)) return arrayLike.slice();
-	           if (this === NO_CHAR_ARRAY && typeof arrayLike === 'string') return [arrayLike];
-	           if (it = getIteratorOf(arrayLike)) {
-	               a = [];
-	               while (x = it.next(), !x.done) {
-	                   a.push(x.value);
-	               }return a;
-	           }
-	           if (arrayLike == null) return [arrayLike];
-	           i = arrayLike.length;
-	           if (typeof i === 'number') {
-	               a = new Array(i);
-	               while (i--) {
-	                   a[i] = arrayLike[i];
-	               }return a;
-	           }
-	           return [arrayLike];
-	       }
-	       i = arguments.length;
-	       a = new Array(i);
-	       while (i--) {
-	           a[i] = arguments[i];
-	       }return a;
-	   }
-
-	   var concat = [].concat;
-	   function flatten(a) {
-	       return concat.apply([], a);
-	   }
-
-	   var dexieErrorNames = ['Modify', 'Bulk', 'OpenFailed', 'VersionChange', 'Schema', 'Upgrade', 'InvalidTable', 'MissingAPI', 'NoSuchDatabase', 'InvalidArgument', 'SubTransaction', 'Unsupported', 'Internal', 'DatabaseClosed', 'IncompatiblePromise'];
-
-	   var idbDomErrorNames = ['Unknown', 'Constraint', 'Data', 'TransactionInactive', 'ReadOnly', 'Version', 'NotFound', 'InvalidState', 'InvalidAccess', 'Abort', 'Timeout', 'QuotaExceeded', 'Syntax', 'DataClone'];
-
-	   var errorList = dexieErrorNames.concat(idbDomErrorNames);
-
-	   var defaultTexts = {
-	       VersionChanged: "Database version changed by other database connection",
-	       DatabaseClosed: "Database has been closed",
-	       Abort: "Transaction aborted",
-	       TransactionInactive: "Transaction has already completed or failed"
-	   };
-
-	   //
-	   // DexieError - base class of all out exceptions.
-	   //
-	   function DexieError(name, msg) {
-	       // Reason we don't use ES6 classes is because:
-	       // 1. It bloats transpiled code and increases size of minified code.
-	       // 2. It doesn't give us much in this case.
-	       // 3. It would require sub classes to call super(), which
-	       //    is not needed when deriving from Error.
-	       this._e = getErrorWithStack();
-	       this.name = name;
-	       this.message = msg;
-	   }
-
-	   derive(DexieError).from(Error).extend({
-	       stack: {
-	           get: function () {
-	               return this._stack || (this._stack = this.name + ": " + this.message + prettyStack(this._e, 2));
-	           }
-	       },
-	       toString: function () {
-	           return this.name + ": " + this.message;
-	       }
-	   });
-
-	   function getMultiErrorMessage(msg, failures) {
-	       return msg + ". Errors: " + failures.map(function (f) {
-	           return f.toString();
-	       }).filter(function (v, i, s) {
-	           return s.indexOf(v) === i;
-	       }) // Only unique error strings
-	       .join('\n');
-	   }
-
-	   //
-	   // ModifyError - thrown in WriteableCollection.modify()
-	   // Specific constructor because it contains members failures and failedKeys.
-	   //
-	   function ModifyError(msg, failures, successCount, failedKeys) {
-	       this._e = getErrorWithStack();
-	       this.failures = failures;
-	       this.failedKeys = failedKeys;
-	       this.successCount = successCount;
-	   }
-	   derive(ModifyError).from(DexieError);
-
-	   function BulkError(msg, failures) {
-	       this._e = getErrorWithStack();
-	       this.name = "BulkError";
-	       this.failures = failures;
-	       this.message = getMultiErrorMessage(msg, failures);
-	   }
-	   derive(BulkError).from(DexieError);
-
-	   //
-	   //
-	   // Dynamically generate error names and exception classes based
-	   // on the names in errorList.
-	   //
-	   //
-
-	   // Map of {ErrorName -> ErrorName + "Error"}
-	   var errnames = errorList.reduce(function (obj, name) {
-	       return obj[name] = name + "Error", obj;
-	   }, {});
-
-	   // Need an alias for DexieError because we're gonna create subclasses with the same name.
-	   var BaseException = DexieError;
-	   // Map of {ErrorName -> exception constructor}
-	   var exceptions = errorList.reduce(function (obj, name) {
-	       // Let the name be "DexieError" because this name may
-	       // be shown in call stack and when debugging. DexieError is
-	       // the most true name because it derives from DexieError,
-	       // and we cannot change Function.name programatically without
-	       // dynamically create a Function object, which would be considered
-	       // 'eval-evil'.
-	       var fullName = name + "Error";
-	       function DexieError(msgOrInner, inner) {
-	           this._e = getErrorWithStack();
-	           this.name = fullName;
-	           if (!msgOrInner) {
-	               this.message = defaultTexts[name] || fullName;
-	               this.inner = null;
-	           } else if (typeof msgOrInner === 'string') {
-	               this.message = msgOrInner;
-	               this.inner = inner || null;
-	           } else if (typeof msgOrInner === 'object') {
-	               this.message = msgOrInner.name + ' ' + msgOrInner.message;
-	               this.inner = msgOrInner;
-	           }
-	       }
-	       derive(DexieError).from(BaseException);
-	       obj[name] = DexieError;
-	       return obj;
-	   }, {});
-
-	   // Use ECMASCRIPT standard exceptions where applicable:
-	   exceptions.Syntax = SyntaxError;
-	   exceptions.Type = TypeError;
-	   exceptions.Range = RangeError;
-
-	   var exceptionMap = idbDomErrorNames.reduce(function (obj, name) {
-	       obj[name + "Error"] = exceptions[name];
-	       return obj;
-	   }, {});
-
-	   function mapError(domError, message) {
-	       if (!domError || domError instanceof DexieError || domError instanceof TypeError || domError instanceof SyntaxError || !domError.name || !exceptionMap[domError.name]) return domError;
-	       var rv = new exceptionMap[domError.name](message || domError.message, domError);
-	       if ("stack" in domError) {
-	           // Derive stack from inner exception if it has a stack
-	           setProp(rv, "stack", { get: function () {
-	                   return this.inner.stack;
-	               } });
-	       }
-	       return rv;
-	   }
-
-	   var fullNameExceptions = errorList.reduce(function (obj, name) {
-	       if (["Syntax", "Type", "Range"].indexOf(name) === -1) obj[name + "Error"] = exceptions[name];
-	       return obj;
-	   }, {});
-
-	   fullNameExceptions.ModifyError = ModifyError;
-	   fullNameExceptions.DexieError = DexieError;
-	   fullNameExceptions.BulkError = BulkError;
-
-	   function Events(ctx) {
-	       var evs = {};
-	       var rv = function (eventName, subscriber) {
-	           if (subscriber) {
-	               // Subscribe. If additional arguments than just the subscriber was provided, forward them as well.
-	               var i = arguments.length,
-	                   args = new Array(i - 1);
-	               while (--i) {
-	                   args[i - 1] = arguments[i];
-	               }evs[eventName].subscribe.apply(null, args);
-	               return ctx;
-	           } else if (typeof eventName === 'string') {
-	               // Return interface allowing to fire or unsubscribe from event
-	               return evs[eventName];
-	           }
-	       };
-	       rv.addEventType = add;
-
-	       for (var i = 1, l = arguments.length; i < l; ++i) {
-	           add(arguments[i]);
-	       }
-
-	       return rv;
-
-	       function add(eventName, chainFunction, defaultFunction) {
-	           if (typeof eventName === 'object') return addConfiguredEvents(eventName);
-	           if (!chainFunction) chainFunction = reverseStoppableEventChain;
-	           if (!defaultFunction) defaultFunction = nop;
-
-	           var context = {
-	               subscribers: [],
-	               fire: defaultFunction,
-	               subscribe: function (cb) {
-	                   if (context.subscribers.indexOf(cb) === -1) {
-	                       context.subscribers.push(cb);
-	                       context.fire = chainFunction(context.fire, cb);
-	                   }
-	               },
-	               unsubscribe: function (cb) {
-	                   context.subscribers = context.subscribers.filter(function (fn) {
-	                       return fn !== cb;
-	                   });
-	                   context.fire = context.subscribers.reduce(chainFunction, defaultFunction);
-	               }
-	           };
-	           evs[eventName] = rv[eventName] = context;
-	           return context;
-	       }
-
-	       function addConfiguredEvents(cfg) {
-	           // events(this, {reading: [functionChain, nop]});
-	           keys(cfg).forEach(function (eventName) {
-	               var args = cfg[eventName];
-	               if (isArray(args)) {
-	                   add(eventName, cfg[eventName][0], cfg[eventName][1]);
-	               } else if (args === 'asap') {
-	                   // Rather than approaching event subscription using a functional approach, we here do it in a for-loop where subscriber is executed in its own stack
-	                   // enabling that any exception that occur wont disturb the initiator and also not nescessary be catched and forgotten.
-	                   var context = add(eventName, mirror, function fire() {
-	                       // Optimazation-safe cloning of arguments into args.
-	                       var i = arguments.length,
-	                           args = new Array(i);
-	                       while (i--) {
-	                           args[i] = arguments[i];
-	                       } // All each subscriber:
-	                       context.subscribers.forEach(function (fn) {
-	                           asap(function fireEvent() {
-	                               fn.apply(null, args);
-	                           });
-	                       });
-	                   });
-	               } else throw new exceptions.InvalidArgument("Invalid event config");
-	           });
-	       }
-	   }
-
-	   //
-	   // Promise Class for Dexie library
-	   //
-	   // I started out writing this Promise class by copying promise-light (https://github.com/taylorhakes/promise-light) by
-	   // https://github.com/taylorhakes - an A+ and ECMASCRIPT 6 compliant Promise implementation.
-	   //
-	   // Modifications needed to be done to support indexedDB because it wont accept setTimeout()
-	   // (See discussion: https://github.com/promises-aplus/promises-spec/issues/45) .
-	   // This topic was also discussed in the following thread: https://github.com/promises-aplus/promises-spec/issues/45
-	   //
-	   // This implementation will not use setTimeout or setImmediate when it's not needed. The behavior is 100% Promise/A+ compliant since
-	   // the caller of new Promise() can be certain that the promise wont be triggered the lines after constructing the promise.
-	   //
-	   // In previous versions this was fixed by not calling setTimeout when knowing that the resolve() or reject() came from another
-	   // tick. In Dexie v1.4.0, I've rewritten the Promise class entirely. Just some fragments of promise-light is left. I use
-	   // another strategy now that simplifies everything a lot: to always execute callbacks in a new tick, but have an own microTick
-	   // engine that is used instead of setImmediate() or setTimeout().
-	   // Promise class has also been optimized a lot with inspiration from bluebird - to avoid closures as much as possible.
-	   // Also with inspiration from bluebird, asyncronic stacks in debug mode.
-	   //
-	   // Specific non-standard features of this Promise class:
-	   // * Async static context support (Promise.PSD)
-	   // * Promise.follow() method built upon PSD, that allows user to track all promises created from current stack frame
-	   //   and below + all promises that those promises creates or awaits.
-	   // * Detect any unhandled promise in a PSD-scope (PSD.onunhandled).
-	   //
-	   // David Fahlander, https://github.com/dfahlander
-	   //
-
-	   // Just a pointer that only this module knows about.
-	   // Used in Promise constructor to emulate a private constructor.
-	   var INTERNAL = {};
-
-	   // Async stacks (long stacks) must not grow infinitely.
-	   var LONG_STACKS_CLIP_LIMIT = 100;
-	   var MAX_LONG_STACKS = 20;
-	   var stack_being_generated = false;
-	   /* The default "nextTick" function used only for the very first promise in a promise chain.
-	      As soon as then promise is resolved or rejected, all next tasks will be executed in micro ticks
-	      emulated in this module. For indexedDB compatibility, this means that every method needs to 
-	      execute at least one promise before doing an indexedDB operation. Dexie will always call 
-	      db.ready().then() for every operation to make sure the indexedDB event is started in an
-	      emulated micro tick.
-	   */
-	   var schedulePhysicalTick = _global.setImmediate ?
-	   // setImmediate supported. Those modern platforms also supports Function.bind().
-	   setImmediate.bind(null, physicalTick) : _global.MutationObserver ?
-	   // MutationObserver supported
-	   function () {
-	       var hiddenDiv = document.createElement("div");
-	       new MutationObserver(function () {
-	           physicalTick();
-	           hiddenDiv = null;
-	       }).observe(hiddenDiv, { attributes: true });
-	       hiddenDiv.setAttribute('i', '1');
-	   } :
-	   // No support for setImmediate or MutationObserver. No worry, setTimeout is only called
-	   // once time. Every tick that follows will be our emulated micro tick.
-	   // Could have uses setTimeout.bind(null, 0, physicalTick) if it wasnt for that FF13 and below has a bug
-	   function () {
-	       setTimeout(physicalTick, 0);
-	   };
-
-	   // Confifurable through Promise.scheduler.
-	   // Don't export because it would be unsafe to let unknown
-	   // code call it unless they do try..catch within their callback.
-	   // This function can be retrieved through getter of Promise.scheduler though,
-	   // but users must not do Promise.scheduler (myFuncThatThrows exception)!
-	   var asap$1 = function (callback, args) {
-	       microtickQueue.push([callback, args]);
-	       if (needsNewPhysicalTick) {
-	           schedulePhysicalTick();
-	           needsNewPhysicalTick = false;
-	       }
-	   };
-
-	   var isOutsideMicroTick = true;
-	   var needsNewPhysicalTick = true;
-	   var unhandledErrors = [];
-	   var rejectingErrors = [];
-	   var currentFulfiller = null;
-	   var rejectionMapper = mirror;
-	   // Remove in next major when removing error mapping of DOMErrors and DOMExceptions
-
-	   var globalPSD = {
-	       global: true,
-	       ref: 0,
-	       unhandleds: [],
-	       onunhandled: globalError,
-	       //env: null, // Will be set whenever leaving a scope using wrappers.snapshot()
-	       finalize: function () {
-	           this.unhandleds.forEach(function (uh) {
-	               try {
-	                   globalError(uh[0], uh[1]);
-	               } catch (e) {}
-	           });
-	       }
-	   };
-
-	   var PSD = globalPSD;
-
-	   var microtickQueue = []; // Callbacks to call in this or next physical tick.
-	   var numScheduledCalls = 0; // Number of listener-calls left to do in this physical tick.
-	   var tickFinalizers = []; // Finalizers to call when there are no more async calls scheduled within current physical tick.
-
-	   // Wrappers are not being used yet. Their framework is functioning and can be used
-	   // to replace environment during a PSD scope (a.k.a. 'zone').
-	   /* **KEEP** export var wrappers = (() => {
-	       var wrappers = [];
-
-	       return {
-	           snapshot: () => {
-	               var i = wrappers.length,
-	                   result = new Array(i);
-	               while (i--) result[i] = wrappers[i].snapshot();
-	               return result;
-	           },
-	           restore: values => {
-	               var i = wrappers.length;
-	               while (i--) wrappers[i].restore(values[i]);
-	           },
-	           wrap: () => wrappers.map(w => w.wrap()),
-	           add: wrapper => {
-	               wrappers.push(wrapper);
-	           }
-	       };
-	   })();
-	   */
-
-	   function Promise(fn) {
-	       if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new');
-	       this._listeners = [];
-	       this.onuncatched = nop; // Deprecate in next major. Not needed. Better to use global error handler.
-
-	       // A library may set `promise._lib = true;` after promise is created to make resolve() or reject()
-	       // execute the microtask engine implicitely within the call to resolve() or reject().
-	       // To remain A+ compliant, a library must only set `_lib=true` if it can guarantee that the stack
-	       // only contains library code when calling resolve() or reject().
-	       // RULE OF THUMB: ONLY set _lib = true for promises explicitely resolving/rejecting directly from
-	       // global scope (event handler, timer etc)!
-	       this._lib = false;
-	       // Current async scope
-	       var psd = this._PSD = PSD;
-
-	       if (debug) {
-	           this._stackHolder = getErrorWithStack();
-	           this._prev = null;
-	           this._numPrev = 0; // Number of previous promises (for long stacks)
-	           linkToPreviousPromise(this, currentFulfiller);
-	       }
-
-	       if (typeof fn !== 'function') {
-	           if (fn !== INTERNAL) throw new TypeError('Not a function');
-	           // Private constructor (INTERNAL, state, value).
-	           // Used internally by Promise.resolve() and Promise.reject().
-	           this._state = arguments[1];
-	           this._value = arguments[2];
-	           if (this._state === false) handleRejection(this, this._value); // Map error, set stack and addPossiblyUnhandledError().
-	           return;
-	       }
-
-	       this._state = null; // null (=pending), false (=rejected) or true (=resolved)
-	       this._value = null; // error or result
-	       ++psd.ref; // Refcounting current scope
-	       executePromiseTask(this, fn);
-	   }
-
-	   props(Promise.prototype, {
-
-	       then: function (onFulfilled, onRejected) {
-	           var _this = this;
-
-	           var rv = new Promise(function (resolve, reject) {
-	               propagateToListener(_this, new Listener(onFulfilled, onRejected, resolve, reject));
-	           });
-	           debug && (!this._prev || this._state === null) && linkToPreviousPromise(rv, this);
-	           return rv;
-	       },
-
-	       _then: function (onFulfilled, onRejected) {
-	           // A little tinier version of then() that don't have to create a resulting promise.
-	           propagateToListener(this, new Listener(null, null, onFulfilled, onRejected));
-	       },
-
-	       catch: function (onRejected) {
-	           if (arguments.length === 1) return this.then(null, onRejected);
-	           // First argument is the Error type to catch
-	           var type = arguments[0],
-	               handler = arguments[1];
-	           return typeof type === 'function' ? this.then(null, function (err) {
-	               return(
-	                   // Catching errors by its constructor type (similar to java / c++ / c#)
-	                   // Sample: promise.catch(TypeError, function (e) { ... });
-	                   err instanceof type ? handler(err) : PromiseReject(err)
-	               );
-	           }) : this.then(null, function (err) {
-	               return(
-	                   // Catching errors by the error.name property. Makes sense for indexedDB where error type
-	                   // is always DOMError but where e.name tells the actual error type.
-	                   // Sample: promise.catch('ConstraintError', function (e) { ... });
-	                   err && err.name === type ? handler(err) : PromiseReject(err)
-	               );
-	           });
-	       },
-
-	       finally: function (onFinally) {
-	           return this.then(function (value) {
-	               onFinally();
-	               return value;
-	           }, function (err) {
-	               onFinally();
-	               return PromiseReject(err);
-	           });
-	       },
-
-	       // Deprecate in next major. Needed only for db.on.error.
-	       uncaught: function (uncaughtHandler) {
-	           var _this2 = this;
-
-	           // Be backward compatible and use "onuncatched" as the event name on this.
-	           // Handle multiple subscribers through reverseStoppableEventChain(). If a handler returns `false`, bubbling stops.
-	           this.onuncatched = reverseStoppableEventChain(this.onuncatched, uncaughtHandler);
-	           // In case caller does this on an already rejected promise, assume caller wants to point out the error to this promise and not
-	           // a previous promise. Reason: the prevous promise may lack onuncatched handler.
-	           if (this._state === false && unhandledErrors.indexOf(this) === -1) {
-	               // Replace unhandled error's destinaion promise with this one!
-	               unhandledErrors.some(function (p, i, l) {
-	                   return p._value === _this2._value && (l[i] = _this2);
-	               });
-	               // Actually we do this shit because we need to support db.on.error() correctly during db.open(). If we deprecate db.on.error, we could
-	               // take away this piece of code as well as the onuncatched and uncaught() method.
-	           }
-	           return this;
-	       },
-
-	       stack: {
-	           get: function () {
-	               if (this._stack) return this._stack;
-	               try {
-	                   stack_being_generated = true;
-	                   var stacks = getStack(this, [], MAX_LONG_STACKS);
-	                   var stack = stacks.join("\nFrom previous: ");
-	                   if (this._state !== null) this._stack = stack; // Stack may be updated on reject.
-	                   return stack;
-	               } finally {
-	                   stack_being_generated = false;
-	               }
-	           }
-	       }
-	   });
-
-	   function Listener(onFulfilled, onRejected, resolve, reject) {
-	       this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-	       this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-	       this.resolve = resolve;
-	       this.reject = reject;
-	       this.psd = PSD;
-	   }
-
-	   // Promise Static Properties
-	   props(Promise, {
-	       all: function () {
-	           var values = getArrayOf.apply(null, arguments); // Supports iterables, implicit arguments and array-like.
-	           return new Promise(function (resolve, reject) {
-	               if (values.length === 0) resolve([]);
-	               var remaining = values.length;
-	               values.forEach(function (a, i) {
-	                   return Promise.resolve(a).then(function (x) {
-	                       values[i] = x;
-	                       if (! --remaining) resolve(values);
-	                   }, reject);
-	               });
-	           });
-	       },
-
-	       resolve: function (value) {
-	           if (value && typeof value.then === 'function') return value;
-	           return new Promise(INTERNAL, true, value);
-	       },
-
-	       reject: PromiseReject,
-
-	       race: function () {
-	           var values = getArrayOf.apply(null, arguments);
-	           return new Promise(function (resolve, reject) {
-	               values.map(function (value) {
-	                   return Promise.resolve(value).then(resolve, reject);
-	               });
-	           });
-	       },
-
-	       PSD: {
-	           get: function () {
-	               return PSD;
-	           },
-	           set: function (value) {
-	               return PSD = value;
-	           }
-	       },
-
-	       newPSD: newScope,
-
-	       usePSD: usePSD,
-
-	       scheduler: {
-	           get: function () {
-	               return asap$1;
-	           },
-	           set: function (value) {
-	               asap$1 = value;
-	           }
-	       },
-
-	       rejectionMapper: {
-	           get: function () {
-	               return rejectionMapper;
-	           },
-	           set: function (value) {
-	               rejectionMapper = value;
-	           } // Map reject failures
-	       },
-
-	       follow: function (fn) {
-	           return new Promise(function (resolve, reject) {
-	               return newScope(function (resolve, reject) {
-	                   var psd = PSD;
-	                   psd.unhandleds = []; // For unhandled standard- or 3rd party Promises. Checked at psd.finalize()
-	                   psd.onunhandled = reject; // Triggered directly on unhandled promises of this library.
-	                   psd.finalize = callBoth(function () {
-	                       var _this3 = this;
-
-	                       // Unhandled standard or 3rd part promises are put in PSD.unhandleds and
-	                       // examined upon scope completion while unhandled rejections in this Promise
-	                       // will trigger directly through psd.onunhandled
-	                       run_at_end_of_this_or_next_physical_tick(function () {
-	                           _this3.unhandleds.length === 0 ? resolve() : reject(_this3.unhandleds[0]);
-	                       });
-	                   }, psd.finalize);
-	                   fn();
-	               }, resolve, reject);
-	           });
-	       },
-
-	       on: Events(null, { "error": [reverseStoppableEventChain, defaultErrorHandler] // Default to defaultErrorHandler
-	       })
-
-	   });
-
-	   /**
-	   * Take a potentially misbehaving resolver function and make sure
-	   * onFulfilled and onRejected are only called once.
-	   *
-	   * Makes no guarantees about asynchrony.
-	   */
-	   function executePromiseTask(promise, fn) {
-	       // Promise Resolution Procedure:
-	       // https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-	       try {
-	           fn(function (value) {
-	               if (promise._state !== null) return;
-	               if (value === promise) throw new TypeError('A promise cannot be resolved with itself.');
-	               var shouldExecuteTick = promise._lib && beginMicroTickScope();
-	               if (value && typeof value.then === 'function') {
-	                   executePromiseTask(promise, function (resolve, reject) {
-	                       value instanceof Promise ? value._then(resolve, reject) : value.then(resolve, reject);
-	                   });
-	               } else {
-	                   promise._state = true;
-	                   promise._value = value;
-	                   propagateAllListeners(promise);
-	               }
-	               if (shouldExecuteTick) endMicroTickScope();
-	           }, handleRejection.bind(null, promise)); // If Function.bind is not supported. Exception is handled in catch below
-	       } catch (ex) {
-	           handleRejection(promise, ex);
-	       }
-	   }
-
-	   function handleRejection(promise, reason) {
-	       rejectingErrors.push(reason);
-	       if (promise._state !== null) return;
-	       var shouldExecuteTick = promise._lib && beginMicroTickScope();
-	       reason = rejectionMapper(reason);
-	       promise._state = false;
-	       promise._value = reason;
-	       debug && reason !== null && typeof reason === 'object' && !reason._promise && tryCatch(function () {
-	           var origProp = getPropertyDescriptor(reason, "stack");
-	           reason._promise = promise;
-	           setProp(reason, "stack", {
-	               get: function () {
-	                   return stack_being_generated ? origProp && (origProp.get ? origProp.get.apply(reason) : origProp.value) : promise.stack;
-	               }
-	           });
-	       });
-	       // Add the failure to a list of possibly uncaught errors
-	       addPossiblyUnhandledError(promise);
-	       propagateAllListeners(promise);
-	       if (shouldExecuteTick) endMicroTickScope();
-	   }
-
-	   function propagateAllListeners(promise) {
-	       //debug && linkToPreviousPromise(promise);
-	       var listeners = promise._listeners;
-	       promise._listeners = [];
-	       for (var i = 0, len = listeners.length; i < len; ++i) {
-	           propagateToListener(promise, listeners[i]);
-	       }
-	       var psd = promise._PSD;
-	       --psd.ref || psd.finalize(); // if psd.ref reaches zero, call psd.finalize();
-	       if (numScheduledCalls === 0) {
-	           // If numScheduledCalls is 0, it means that our stack is not in a callback of a scheduled call,
-	           // and that no deferreds where listening to this rejection or success.
-	           // Since there is a risk that our stack can contain application code that may
-	           // do stuff after this code is finished that may generate new calls, we cannot
-	           // call finalizers here.
-	           ++numScheduledCalls;
-	           asap$1(function () {
-	               if (--numScheduledCalls === 0) finalizePhysicalTick(); // Will detect unhandled errors
-	           }, []);
-	       }
-	   }
-
-	   function propagateToListener(promise, listener) {
-	       if (promise._state === null) {
-	           promise._listeners.push(listener);
-	           return;
-	       }
-
-	       var cb = promise._state ? listener.onFulfilled : listener.onRejected;
-	       if (cb === null) {
-	           // This Listener doesnt have a listener for the event being triggered (onFulfilled or onReject) so lets forward the event to any eventual listeners on the Promise instance returned by then() or catch()
-	           return (promise._state ? listener.resolve : listener.reject)(promise._value);
-	       }
-	       var psd = listener.psd;
-	       ++psd.ref;
-	       ++numScheduledCalls;
-	       asap$1(callListener, [cb, promise, listener]);
-	   }
-
-	   function callListener(cb, promise, listener) {
-	       var outerScope = PSD;
-	       var psd = listener.psd;
-	       try {
-	           if (psd !== outerScope) {
-	               // **KEEP** outerScope.env = wrappers.snapshot(); // Snapshot outerScope's environment.
-	               PSD = psd;
-	               // **KEEP** wrappers.restore(psd.env); // Restore PSD's environment.
-	           }
-
-	           // Set static variable currentFulfiller to the promise that is being fullfilled,
-	           // so that we connect the chain of promises (for long stacks support)
-	           currentFulfiller = promise;
-
-	           // Call callback and resolve our listener with it's return value.
-	           var value = promise._value,
-	               ret;
-	           if (promise._state) {
-	               ret = cb(value);
-	           } else {
-	               if (rejectingErrors.length) rejectingErrors = [];
-	               ret = cb(value);
-	               if (rejectingErrors.indexOf(value) === -1) markErrorAsHandled(promise); // Callback didnt do Promise.reject(err) nor reject(err) onto another promise.
-	           }
-	           listener.resolve(ret);
-	       } catch (e) {
-	           // Exception thrown in callback. Reject our listener.
-	           listener.reject(e);
-	       } finally {
-	           // Restore PSD, env and currentFulfiller.
-	           if (psd !== outerScope) {
-	               PSD = outerScope;
-	               // **KEEP** wrappers.restore(outerScope.env); // Restore outerScope's environment
-	           }
-	           currentFulfiller = null;
-	           if (--numScheduledCalls === 0) finalizePhysicalTick();
-	           --psd.ref || psd.finalize();
-	       }
-	   }
-
-	   function getStack(promise, stacks, limit) {
-	       if (stacks.length === limit) return stacks;
-	       var stack = "";
-	       if (promise._state === false) {
-	           var failure = promise._value,
-	               errorName,
-	               message;
-
-	           if (failure != null) {
-	               errorName = failure.name || "Error";
-	               message = failure.message || failure;
-	               stack = prettyStack(failure, 0);
-	           } else {
-	               errorName = failure; // If error is undefined or null, show that.
-	               message = "";
-	           }
-	           stacks.push(errorName + (message ? ": " + message : "") + stack);
-	       }
-	       if (debug) {
-	           stack = prettyStack(promise._stackHolder, 2);
-	           if (stack && stacks.indexOf(stack) === -1) stacks.push(stack);
-	           if (promise._prev) getStack(promise._prev, stacks, limit);
-	       }
-	       return stacks;
-	   }
-
-	   function linkToPreviousPromise(promise, prev) {
-	       // Support long stacks by linking to previous completed promise.
-	       var numPrev = prev ? prev._numPrev + 1 : 0;
-	       if (numPrev < LONG_STACKS_CLIP_LIMIT) {
-	           // Prohibit infinite Promise loops to get an infinite long memory consuming "tail".
-	           promise._prev = prev;
-	           promise._numPrev = numPrev;
-	       }
-	   }
-
-	   /* The callback to schedule with setImmediate() or setTimeout().
-	      It runs a virtual microtick and executes any callback registered in microtickQueue.
-	    */
-	   function physicalTick() {
-	       beginMicroTickScope() && endMicroTickScope();
-	   }
-
-	   function beginMicroTickScope() {
-	       var wasRootExec = isOutsideMicroTick;
-	       isOutsideMicroTick = false;
-	       needsNewPhysicalTick = false;
-	       return wasRootExec;
-	   }
-
-	   /* Executes micro-ticks without doing try..catch.
-	      This can be possible because we only use this internally and
-	      the registered functions are exception-safe (they do try..catch
-	      internally before calling any external method). If registering
-	      functions in the microtickQueue that are not exception-safe, this
-	      would destroy the framework and make it instable. So we don't export
-	      our asap method.
-	   */
-	   function endMicroTickScope() {
-	       var callbacks, i, l;
-	       do {
-	           while (microtickQueue.length > 0) {
-	               callbacks = microtickQueue;
-	               microtickQueue = [];
-	               l = callbacks.length;
-	               for (i = 0; i < l; ++i) {
-	                   var item = callbacks[i];
-	                   item[0].apply(null, item[1]);
-	               }
-	           }
-	       } while (microtickQueue.length > 0);
-	       isOutsideMicroTick = true;
-	       needsNewPhysicalTick = true;
-	   }
-
-	   function finalizePhysicalTick() {
-	       var unhandledErrs = unhandledErrors;
-	       unhandledErrors = [];
-	       unhandledErrs.forEach(function (p) {
-	           p._PSD.onunhandled.call(null, p._value, p);
-	       });
-	       var finalizers = tickFinalizers.slice(0); // Clone first because finalizer may remove itself from list.
-	       var i = finalizers.length;
-	       while (i) {
-	           finalizers[--i]();
-	       }
-	   }
-
-	   function run_at_end_of_this_or_next_physical_tick(fn) {
-	       function finalizer() {
-	           fn();
-	           tickFinalizers.splice(tickFinalizers.indexOf(finalizer), 1);
-	       }
-	       tickFinalizers.push(finalizer);
-	       ++numScheduledCalls;
-	       asap$1(function () {
-	           if (--numScheduledCalls === 0) finalizePhysicalTick();
-	       }, []);
-	   }
-
-	   function addPossiblyUnhandledError(promise) {
-	       // Only add to unhandledErrors if not already there. The first one to add to this list
-	       // will be upon the first rejection so that the root cause (first promise in the
-	       // rejection chain) is the one listed.
-	       if (!unhandledErrors.some(function (p) {
-	           return p._value === promise._value;
-	       })) unhandledErrors.push(promise);
-	   }
-
-	   function markErrorAsHandled(promise) {
-	       // Called when a reject handled is actually being called.
-	       // Search in unhandledErrors for any promise whos _value is this promise_value (list
-	       // contains only rejected promises, and only one item per error)
-	       var i = unhandledErrors.length;
-	       while (i) {
-	           if (unhandledErrors[--i]._value === promise._value) {
-	               // Found a promise that failed with this same error object pointer,
-	               // Remove that since there is a listener that actually takes care of it.
-	               unhandledErrors.splice(i, 1);
-	               return;
-	           }
-	       }
-	   }
-
-	   // By default, log uncaught errors to the console
-	   function defaultErrorHandler(e) {
-	       console.warn('Unhandled rejection: ' + (e.stack || e));
-	   }
-
-	   function PromiseReject(reason) {
-	       return new Promise(INTERNAL, false, reason);
-	   }
-
-	   function wrap(fn, errorCatcher) {
-	       var psd = PSD;
-	       return function () {
-	           var wasRootExec = beginMicroTickScope(),
-	               outerScope = PSD;
-
-	           try {
-	               if (outerScope !== psd) {
-	                   // **KEEP** outerScope.env = wrappers.snapshot(); // Snapshot outerScope's environment
-	                   PSD = psd;
-	                   // **KEEP** wrappers.restore(psd.env); // Restore PSD's environment.
-	               }
-	               return fn.apply(this, arguments);
-	           } catch (e) {
-	               errorCatcher && errorCatcher(e);
-	           } finally {
-	               if (outerScope !== psd) {
-	                   PSD = outerScope;
-	                   // **KEEP** wrappers.restore(outerScope.env); // Restore outerScope's environment
-	               }
-	               if (wasRootExec) endMicroTickScope();
-	           }
-	       };
-	   }
-
-	   function newScope(fn, a1, a2, a3) {
-	       var parent = PSD,
-	           psd = Object.create(parent);
-	       psd.parent = parent;
-	       psd.ref = 0;
-	       psd.global = false;
-	       // **KEEP** psd.env = wrappers.wrap(psd);
-
-	       // unhandleds and onunhandled should not be specifically set here.
-	       // Leave them on parent prototype.
-	       // unhandleds.push(err) will push to parent's prototype
-	       // onunhandled() will call parents onunhandled (with this scope's this-pointer though!)
-	       ++parent.ref;
-	       psd.finalize = function () {
-	           --this.parent.ref || this.parent.finalize();
-	       };
-	       var rv = usePSD(psd, fn, a1, a2, a3);
-	       if (psd.ref === 0) psd.finalize();
-	       return rv;
-	   }
-
-	   function usePSD(psd, fn, a1, a2, a3) {
-	       var outerScope = PSD;
-	       try {
-	           if (psd !== outerScope) {
-	               // **KEEP** outerScope.env = wrappers.snapshot(); // snapshot outerScope's environment.
-	               PSD = psd;
-	               // **KEEP** wrappers.restore(psd.env); // Restore PSD's environment.
-	           }
-	           return fn(a1, a2, a3);
-	       } finally {
-	           if (psd !== outerScope) {
-	               PSD = outerScope;
-	               // **KEEP** wrappers.restore(outerScope.env); // Restore outerScope's environment.
-	           }
-	       }
-	   }
-
-	   function globalError(err, promise) {
-	       var rv;
-	       try {
-	           rv = promise.onuncatched(err);
-	       } catch (e) {}
-	       if (rv !== false) try {
-	           Promise.on.error.fire(err, promise); // TODO: Deprecated and use same global handler as bluebird.
-	       } catch (e) {}
-	   }
-
-	   /* **KEEP** 
-
-	   export function wrapPromise(PromiseClass) {
-	       var proto = PromiseClass.prototype;
-	       var origThen = proto.then;
-	       
-	       wrappers.add({
-	           snapshot: () => proto.then,
-	           restore: value => {proto.then = value;},
-	           wrap: () => patchedThen
-	       });
-
-	       function patchedThen (onFulfilled, onRejected) {
-	           var promise = this;
-	           var onFulfilledProxy = wrap(function(value){
-	               var rv = value;
-	               if (onFulfilled) {
-	                   rv = onFulfilled(rv);
-	                   if (rv && typeof rv.then === 'function') rv.then(); // Intercept that promise as well.
-	               }
-	               --PSD.ref || PSD.finalize();
-	               return rv;
-	           });
-	           var onRejectedProxy = wrap(function(err){
-	               promise._$err = err;
-	               var unhandleds = PSD.unhandleds;
-	               var idx = unhandleds.length,
-	                   rv;
-	               while (idx--) if (unhandleds[idx]._$err === err) break;
-	               if (onRejected) {
-	                   if (idx !== -1) unhandleds.splice(idx, 1); // Mark as handled.
-	                   rv = onRejected(err);
-	                   if (rv && typeof rv.then === 'function') rv.then(); // Intercept that promise as well.
-	               } else {
-	                   if (idx === -1) unhandleds.push(promise);
-	                   rv = PromiseClass.reject(err);
-	                   rv._$nointercept = true; // Prohibit eternal loop.
-	               }
-	               --PSD.ref || PSD.finalize();
-	               return rv;
-	           });
-	           
-	           if (this._$nointercept) return origThen.apply(this, arguments);
-	           ++PSD.ref;
-	           return origThen.call(this, onFulfilledProxy, onRejectedProxy);
-	       }
-	   }
-
-	   // Global Promise wrapper
-	   if (_global.Promise) wrapPromise(_global.Promise);
-
-	   */
-
-	   doFakeAutoComplete(function () {
-	       // Simplify the job for VS Intellisense. This piece of code is one of the keys to the new marvellous intellisense support in Dexie.
-	       asap$1 = function (fn, args) {
-	           setTimeout(function () {
-	               fn.apply(null, args);
-	           }, 0);
-	       };
-	   });
-
-	   var DEXIE_VERSION = '1.4.2';
-	   var maxString = String.fromCharCode(65535);
-	   var maxKey = function () {
-	       try {
-	           IDBKeyRange.only([[]]);return [[]];
-	       } catch (e) {
-	           return maxString;
-	       }
-	   }();
-	   var INVALID_KEY_ARGUMENT = "Invalid key provided. Keys must be of type string, number, Date or Array<string | number | Date>.";
-	   var STRING_EXPECTED = "String expected.";
-	   var connections = [];
-	   var isIEOrEdge = typeof navigator !== 'undefined' && /(MSIE|Trident|Edge)/.test(navigator.userAgent);
-	   var hasIEDeleteObjectStoreBug = isIEOrEdge;
-	   var hangsOnDeleteLargeKeyRange = isIEOrEdge;
-	   var dexieStackFrameFilter = function (frame) {
-	       return !/(dexie\.js|dexie\.min\.js)/.test(frame);
-	   };
-	   setDebug(debug, dexieStackFrameFilter);
-
-	   function Dexie(dbName, options) {
-	       /// <param name="options" type="Object" optional="true">Specify only if you wich to control which addons that should run on this instance</param>
-	       var deps = Dexie.dependencies;
-	       var opts = extend({
-	           // Default Options
-	           addons: Dexie.addons, // Pick statically registered addons by default
-	           autoOpen: true, // Don't require db.open() explicitely.
-	           indexedDB: deps.indexedDB, // Backend IndexedDB api. Default to IDBShim or browser env.
-	           IDBKeyRange: deps.IDBKeyRange // Backend IDBKeyRange api. Default to IDBShim or browser env.
-	       }, options);
-	       var addons = opts.addons,
-	           autoOpen = opts.autoOpen,
-	           indexedDB = opts.indexedDB,
-	           IDBKeyRange = opts.IDBKeyRange;
-
-	       var globalSchema = this._dbSchema = {};
-	       var versions = [];
-	       var dbStoreNames = [];
-	       var allTables = {};
-	       ///<var type="IDBDatabase" />
-	       var idbdb = null; // Instance of IDBDatabase
-	       var dbOpenError = null;
-	       var isBeingOpened = false;
-	       var openComplete = false;
-	       var READONLY = "readonly",
-	           READWRITE = "readwrite";
-	       var db = this;
-	       var dbReadyResolve,
-	           dbReadyPromise = new Promise(function (resolve) {
-	           dbReadyResolve = resolve;
-	       }),
-	           cancelOpen,
-	           openCanceller = new Promise(function (_, reject) {
-	           cancelOpen = reject;
-	       });
-	       var autoSchema = true;
-	       var hasNativeGetDatabaseNames = !!getNativeGetDatabaseNamesFn(indexedDB),
-	           hasGetAll;
-
-	       function init() {
-	           // Default subscribers to "versionchange" and "blocked".
-	           // Can be overridden by custom handlers. If custom handlers return false, these default
-	           // behaviours will be prevented.
-	           db.on("versionchange", function (ev) {
-	               // Default behavior for versionchange event is to close database connection.
-	               // Caller can override this behavior by doing db.on("versionchange", function(){ return false; });
-	               // Let's not block the other window from making it's delete() or open() call.
-	               // NOTE! This event is never fired in IE,Edge or Safari.
-	               if (ev.newVersion > 0) console.warn('Another connection wants to upgrade database \'' + db.name + '\'. Closing db now to resume the upgrade.');else console.warn('Another connection wants to delete database \'' + db.name + '\'. Closing db now to resume the delete request.');
-	               db.close();
-	               // In many web applications, it would be recommended to force window.reload()
-	               // when this event occurs. To do that, subscribe to the versionchange event
-	               // and call window.location.reload(true) if ev.newVersion > 0 (not a deletion)
-	               // The reason for this is that your current web app obviously has old schema code that needs
-	               // to be updated. Another window got a newer version of the app and needs to upgrade DB but
-	               // your window is blocking it unless we close it here.
-	           });
-	           db.on("blocked", function (ev) {
-	               if (!ev.newVersion || ev.newVersion < ev.oldVersion) console.warn('Dexie.delete(\'' + db.name + '\') was blocked');else console.warn('Upgrade \'' + db.name + '\' blocked by other connection holding version ' + ev.oldVersion / 10);
-	           });
-	       }
-
-	       //
-	       //
-	       //
-	       // ------------------------- Versioning Framework---------------------------
-	       //
-	       //
-	       //
-
-	       this.version = function (versionNumber) {
-	           /// <param name="versionNumber" type="Number"></param>
-	           /// <returns type="Version"></returns>
-	           if (idbdb || isBeingOpened) throw new exceptions.Schema("Cannot add version when database is open");
-	           this.verno = Math.max(this.verno, versionNumber);
-	           var versionInstance = versions.filter(function (v) {
-	               return v._cfg.version === versionNumber;
-	           })[0];
-	           if (versionInstance) return versionInstance;
-	           versionInstance = new Version(versionNumber);
-	           versions.push(versionInstance);
-	           versions.sort(lowerVersionFirst);
-	           return versionInstance;
-	       };
-
-	       function Version(versionNumber) {
-	           this._cfg = {
-	               version: versionNumber,
-	               storesSource: null,
-	               dbschema: {},
-	               tables: {},
-	               contentUpgrade: null
-	           };
-	           this.stores({}); // Derive earlier schemas by default.
-	       }
-
-	       extend(Version.prototype, {
-	           stores: function (stores) {
-	               /// <summary>
-	               ///   Defines the schema for a particular version
-	               /// </summary>
-	               /// <param name="stores" type="Object">
-	               /// Example: <br/>
-	               ///   {users: "id++,first,last,&amp;username,*email", <br/>
-	               ///   passwords: "id++,&amp;username"}<br/>
-	               /// <br/>
-	               /// Syntax: {Table: "[primaryKey][++],[&amp;][*]index1,[&amp;][*]index2,..."}<br/><br/>
-	               /// Special characters:<br/>
-	               ///  "&amp;"  means unique key, <br/>
-	               ///  "*"  means value is multiEntry, <br/>
-	               ///  "++" means auto-increment and only applicable for primary key <br/>
-	               /// </param>
-	               this._cfg.storesSource = this._cfg.storesSource ? extend(this._cfg.storesSource, stores) : stores;
-
-	               // Derive stores from earlier versions if they are not explicitely specified as null or a new syntax.
-	               var storesSpec = {};
-	               versions.forEach(function (version) {
-	                   // 'versions' is always sorted by lowest version first.
-	                   extend(storesSpec, version._cfg.storesSource);
-	               });
-
-	               var dbschema = this._cfg.dbschema = {};
-	               this._parseStoresSpec(storesSpec, dbschema);
-	               // Update the latest schema to this version
-	               // Update API
-	               globalSchema = db._dbSchema = dbschema;
-	               removeTablesApi([allTables, db, Transaction.prototype]);
-	               setApiOnPlace([allTables, db, Transaction.prototype, this._cfg.tables], keys(dbschema), READWRITE, dbschema);
-	               dbStoreNames = keys(dbschema);
-	               return this;
-	           },
-	           upgrade: function (upgradeFunction) {
-	               /// <param name="upgradeFunction" optional="true">Function that performs upgrading actions.</param>
-	               var self = this;
-	               fakeAutoComplete(function () {
-	                   upgradeFunction(db._createTransaction(READWRITE, keys(self._cfg.dbschema), self._cfg.dbschema)); // BUGBUG: No code completion for prev version's tables wont appear.
-	               });
-	               this._cfg.contentUpgrade = upgradeFunction;
-	               return this;
-	           },
-	           _parseStoresSpec: function (stores, outSchema) {
-	               keys(stores).forEach(function (tableName) {
-	                   if (stores[tableName] !== null) {
-	                       var instanceTemplate = {};
-	                       var indexes = parseIndexSyntax(stores[tableName]);
-	                       var primKey = indexes.shift();
-	                       if (primKey.multi) throw new exceptions.Schema("Primary key cannot be multi-valued");
-	                       if (primKey.keyPath) setByKeyPath(instanceTemplate, primKey.keyPath, primKey.auto ? 0 : primKey.keyPath);
-	                       indexes.forEach(function (idx) {
-	                           if (idx.auto) throw new exceptions.Schema("Only primary key can be marked as autoIncrement (++)");
-	                           if (!idx.keyPath) throw new exceptions.Schema("Index must have a name and cannot be an empty string");
-	                           setByKeyPath(instanceTemplate, idx.keyPath, idx.compound ? idx.keyPath.map(function () {
-	                               return "";
-	                           }) : "");
-	                       });
-	                       outSchema[tableName] = new TableSchema(tableName, primKey, indexes, instanceTemplate);
-	                   }
-	               });
-	           }
-	       });
-
-	       function runUpgraders(oldVersion, idbtrans, reject) {
-	           var trans = db._createTransaction(READWRITE, dbStoreNames, globalSchema);
-	           trans.create(idbtrans);
-	           trans._completion.catch(reject);
-	           var rejectTransaction = trans._reject.bind(trans);
-	           newScope(function () {
-	               PSD.trans = trans;
-	               if (oldVersion === 0) {
-	                   // Create tables:
-	                   keys(globalSchema).forEach(function (tableName) {
-	                       createTable(idbtrans, tableName, globalSchema[tableName].primKey, globalSchema[tableName].indexes);
-	                   });
-	                   Promise.follow(function () {
-	                       return db.on.populate.fire(trans);
-	                   }).catch(rejectTransaction);
-	               } else updateTablesAndIndexes(oldVersion, trans, idbtrans).catch(rejectTransaction);
-	           });
-	       }
-
-	       function updateTablesAndIndexes(oldVersion, trans, idbtrans) {
-	           // Upgrade version to version, step-by-step from oldest to newest version.
-	           // Each transaction object will contain the table set that was current in that version (but also not-yet-deleted tables from its previous version)
-	           var queue = [];
-	           var oldVersionStruct = versions.filter(function (version) {
-	               return version._cfg.version === oldVersion;
-	           })[0];
-	           if (!oldVersionStruct) throw new exceptions.Upgrade("Dexie specification of currently installed DB version is missing");
-	           globalSchema = db._dbSchema = oldVersionStruct._cfg.dbschema;
-	           var anyContentUpgraderHasRun = false;
-
-	           var versToRun = versions.filter(function (v) {
-	               return v._cfg.version > oldVersion;
-	           });
-	           versToRun.forEach(function (version) {
-	               /// <param name="version" type="Version"></param>
-	               queue.push(function () {
-	                   var oldSchema = globalSchema;
-	                   var newSchema = version._cfg.dbschema;
-	                   adjustToExistingIndexNames(oldSchema, idbtrans);
-	                   adjustToExistingIndexNames(newSchema, idbtrans);
-	                   globalSchema = db._dbSchema = newSchema;
-	                   var diff = getSchemaDiff(oldSchema, newSchema);
-	                   // Add tables          
-	                   diff.add.forEach(function (tuple) {
-	                       createTable(idbtrans, tuple[0], tuple[1].primKey, tuple[1].indexes);
-	                   });
-	                   // Change tables
-	                   diff.change.forEach(function (change) {
-	                       if (change.recreate) {
-	                           throw new exceptions.Upgrade("Not yet support for changing primary key");
-	                       } else {
-	                           var store = idbtrans.objectStore(change.name);
-	                           // Add indexes
-	                           change.add.forEach(function (idx) {
-	                               addIndex(store, idx);
-	                           });
-	                           // Update indexes
-	                           change.change.forEach(function (idx) {
-	                               store.deleteIndex(idx.name);
-	                               addIndex(store, idx);
-	                           });
-	                           // Delete indexes
-	                           change.del.forEach(function (idxName) {
-	                               store.deleteIndex(idxName);
-	                           });
-	                       }
-	                   });
-	                   if (version._cfg.contentUpgrade) {
-	                       anyContentUpgraderHasRun = true;
-	                       return Promise.follow(function () {
-	                           version._cfg.contentUpgrade(trans);
-	                       });
-	                   }
-	               });
-	               queue.push(function (idbtrans) {
-	                   if (!anyContentUpgraderHasRun || !hasIEDeleteObjectStoreBug) {
-	                       // Dont delete old tables if ieBug is present and a content upgrader has run. Let tables be left in DB so far. This needs to be taken care of.
-	                       var newSchema = version._cfg.dbschema;
-	                       // Delete old tables
-	                       deleteRemovedTables(newSchema, idbtrans);
-	                   }
-	               });
-	           });
-
-	           // Now, create a queue execution engine
-	           function runQueue() {
-	               return queue.length ? Promise.resolve(queue.shift()(trans.idbtrans)).then(runQueue) : Promise.resolve();
-	           }
-
-	           return runQueue().then(function () {
-	               createMissingTables(globalSchema, idbtrans); // At last, make sure to create any missing tables. (Needed by addons that add stores to DB without specifying version)
-	           });
-	       }
-
-	       function getSchemaDiff(oldSchema, newSchema) {
-	           var diff = {
-	               del: [], // Array of table names
-	               add: [], // Array of [tableName, newDefinition]
-	               change: [] // Array of {name: tableName, recreate: newDefinition, del: delIndexNames, add: newIndexDefs, change: changedIndexDefs}
-	           };
-	           for (var table in oldSchema) {
-	               if (!newSchema[table]) diff.del.push(table);
-	           }
-	           for (table in newSchema) {
-	               var oldDef = oldSchema[table],
-	                   newDef = newSchema[table];
-	               if (!oldDef) {
-	                   diff.add.push([table, newDef]);
-	               } else {
-	                   var change = {
-	                       name: table,
-	                       def: newDef,
-	                       recreate: false,
-	                       del: [],
-	                       add: [],
-	                       change: []
-	                   };
-	                   if (oldDef.primKey.src !== newDef.primKey.src) {
-	                       // Primary key has changed. Remove and re-add table.
-	                       change.recreate = true;
-	                       diff.change.push(change);
-	                   } else {
-	                       // Same primary key. Just find out what differs:
-	                       var oldIndexes = oldDef.idxByName;
-	                       var newIndexes = newDef.idxByName;
-	                       for (var idxName in oldIndexes) {
-	                           if (!newIndexes[idxName]) change.del.push(idxName);
-	                       }
-	                       for (idxName in newIndexes) {
-	                           var oldIdx = oldIndexes[idxName],
-	                               newIdx = newIndexes[idxName];
-	                           if (!oldIdx) change.add.push(newIdx);else if (oldIdx.src !== newIdx.src) change.change.push(newIdx);
-	                       }
-	                       if (change.del.length > 0 || change.add.length > 0 || change.change.length > 0) {
-	                           diff.change.push(change);
-	                       }
-	                   }
-	               }
-	           }
-	           return diff;
-	       }
-
-	       function createTable(idbtrans, tableName, primKey, indexes) {
-	           /// <param name="idbtrans" type="IDBTransaction"></param>
-	           var store = idbtrans.db.createObjectStore(tableName, primKey.keyPath ? { keyPath: primKey.keyPath, autoIncrement: primKey.auto } : { autoIncrement: primKey.auto });
-	           indexes.forEach(function (idx) {
-	               addIndex(store, idx);
-	           });
-	           return store;
-	       }
-
-	       function createMissingTables(newSchema, idbtrans) {
-	           keys(newSchema).forEach(function (tableName) {
-	               if (!idbtrans.db.objectStoreNames.contains(tableName)) {
-	                   createTable(idbtrans, tableName, newSchema[tableName].primKey, newSchema[tableName].indexes);
-	               }
-	           });
-	       }
-
-	       function deleteRemovedTables(newSchema, idbtrans) {
-	           for (var i = 0; i < idbtrans.db.objectStoreNames.length; ++i) {
-	               var storeName = idbtrans.db.objectStoreNames[i];
-	               if (newSchema[storeName] == null) {
-	                   idbtrans.db.deleteObjectStore(storeName);
-	               }
-	           }
-	       }
-
-	       function addIndex(store, idx) {
-	           store.createIndex(idx.name, idx.keyPath, { unique: idx.unique, multiEntry: idx.multi });
-	       }
-
-	       function dbUncaught(err) {
-	           return db.on.error.fire(err);
-	       }
-
-	       //
-	       //
-	       //      Dexie Protected API
-	       //
-	       //
-
-	       this._allTables = allTables;
-
-	       this._tableFactory = function createTable(mode, tableSchema) {
-	           /// <param name="tableSchema" type="TableSchema"></param>
-	           if (mode === READONLY) return new Table(tableSchema.name, tableSchema, Collection);else return new WriteableTable(tableSchema.name, tableSchema);
-	       };
-
-	       this._createTransaction = function (mode, storeNames, dbschema, parentTransaction) {
-	           return new Transaction(mode, storeNames, dbschema, parentTransaction);
-	       };
-
-	       /* Generate a temporary transaction when db operations are done outside a transactino scope.
-	       */
-	       function tempTransaction(mode, storeNames, fn) {
-	           // Last argument is "writeLocked". But this doesnt apply to oneshot direct db operations, so we ignore it.
-	           if (!openComplete && !PSD.letThrough) {
-	               if (!isBeingOpened) {
-	                   if (!autoOpen) return rejection(new exceptions.DatabaseClosed(), dbUncaught);
-	                   db.open().catch(nop); // Open in background. If if fails, it will be catched by the final promise anyway.
-	               }
-	               return dbReadyPromise.then(function () {
-	                   return tempTransaction(mode, storeNames, fn);
-	               });
-	           } else {
-	               var trans = db._createTransaction(mode, storeNames, globalSchema);
-	               return trans._promise(mode, function (resolve, reject) {
-	                   newScope(function () {
-	                       // OPTIMIZATION POSSIBLE? newScope() not needed because it's already done in _promise.
-	                       PSD.trans = trans;
-	                       fn(resolve, reject, trans);
-	                   });
-	               }).then(function (result) {
-	                   // Instead of resolving value directly, wait with resolving it until transaction has completed.
-	                   // Otherwise the data would not be in the DB if requesting it in the then() operation.
-	                   // Specifically, to ensure that the following expression will work:
-	                   //
-	                   //   db.friends.put({name: "Arne"}).then(function () {
-	                   //       db.friends.where("name").equals("Arne").count(function(count) {
-	                   //           assert (count === 1);
-	                   //       });
-	                   //   });
-	                   //
-	                   return trans._completion.then(function () {
-	                       return result;
-	                   });
-	               }); /*.catch(err => { // Don't do this as of now. If would affect bulk- and modify methods in a way that could be more intuitive. But wait! Maybe change in next major.
-	                    trans._reject(err);
-	                    return rejection(err);
-	                   });*/
-	           }
-	       }
-
-	       this._whenReady = function (fn) {
-	           return new Promise(fake || openComplete || PSD.letThrough ? fn : function (resolve, reject) {
-	               if (!isBeingOpened) {
-	                   if (!autoOpen) {
-	                       reject(new exceptions.DatabaseClosed());
-	                       return;
-	                   }
-	                   db.open().catch(nop); // Open in background. If if fails, it will be catched by the final promise anyway.
-	               }
-	               dbReadyPromise.then(function () {
-	                   fn(resolve, reject);
-	               });
-	           }).uncaught(dbUncaught);
-	       };
-
-	       //
-	       //
-	       //
-	       //
-	       //      Dexie API
-	       //
-	       //
-	       //
-
-	       this.verno = 0;
-
-	       this.open = function () {
-	           if (isBeingOpened || idbdb) return dbReadyPromise.then(function () {
-	               return dbOpenError ? rejection(dbOpenError, dbUncaught) : db;
-	           });
-	           debug && (openCanceller._stackHolder = getErrorWithStack()); // Let stacks point to when open() was called rather than where new Dexie() was called.
-	           isBeingOpened = true;
-	           dbOpenError = null;
-	           openComplete = false;
-
-	           // Function pointers to call when the core opening process completes.
-	           var resolveDbReady = dbReadyResolve,
-
-	           // upgradeTransaction to abort on failure.
-	           upgradeTransaction = null;
-
-	           return Promise.race([openCanceller, new Promise(function (resolve, reject) {
-	               doFakeAutoComplete(function () {
-	                   return resolve();
-	               });
-
-	               // Make sure caller has specified at least one version
-	               if (versions.length > 0) autoSchema = false;
-
-	               // Multiply db.verno with 10 will be needed to workaround upgrading bug in IE:
-	               // IE fails when deleting objectStore after reading from it.
-	               // A future version of Dexie.js will stopover an intermediate version to workaround this.
-	               // At that point, we want to be backward compatible. Could have been multiplied with 2, but by using 10, it is easier to map the number to the real version number.
-
-	               // If no API, throw!
-	               if (!indexedDB) throw new exceptions.MissingAPI("indexedDB API not found. If using IE10+, make sure to run your code on a server URL " + "(not locally). If using old Safari versions, make sure to include indexedDB polyfill.");
-
-	               var req = autoSchema ? indexedDB.open(dbName) : indexedDB.open(dbName, Math.round(db.verno * 10));
-	               if (!req) throw new exceptions.MissingAPI("IndexedDB API not available"); // May happen in Safari private mode, see https://github.com/dfahlander/Dexie.js/issues/134
-	               req.onerror = wrap(eventRejectHandler(reject));
-	               req.onblocked = wrap(fireOnBlocked);
-	               req.onupgradeneeded = wrap(function (e) {
-	                   upgradeTransaction = req.transaction;
-	                   if (autoSchema && !db._allowEmptyDB) {
-	                       // Unless an addon has specified db._allowEmptyDB, lets make the call fail.
-	                       // Caller did not specify a version or schema. Doing that is only acceptable for opening alread existing databases.
-	                       // If onupgradeneeded is called it means database did not exist. Reject the open() promise and make sure that we
-	                       // do not create a new database by accident here.
-	                       req.onerror = preventDefault; // Prohibit onabort error from firing before we're done!
-	                       upgradeTransaction.abort(); // Abort transaction (would hope that this would make DB disappear but it doesnt.)
-	                       // Close database and delete it.
-	                       req.result.close();
-	                       var delreq = indexedDB.deleteDatabase(dbName); // The upgrade transaction is atomic, and javascript is single threaded - meaning that there is no risk that we delete someone elses database here!
-	                       delreq.onsuccess = delreq.onerror = wrap(function () {
-	                           reject(new exceptions.NoSuchDatabase('Database ' + dbName + ' doesnt exist'));
-	                       });
-	                   } else {
-	                       upgradeTransaction.onerror = wrap(eventRejectHandler(reject));
-	                       var oldVer = e.oldVersion > Math.pow(2, 62) ? 0 : e.oldVersion; // Safari 8 fix.
-	                       runUpgraders(oldVer / 10, upgradeTransaction, reject, req);
-	                   }
-	               }, reject);
-
-	               req.onsuccess = wrap(function () {
-	                   // Core opening procedure complete. Now let's just record some stuff.
-	                   upgradeTransaction = null;
-	                   idbdb = req.result;
-	                   connections.push(db); // Used for emulating versionchange event on IE/Edge/Safari.
-
-	                   if (autoSchema) readGlobalSchema();else if (idbdb.objectStoreNames.length > 0) {
-	                       try {
-	                           adjustToExistingIndexNames(globalSchema, idbdb.transaction(safariMultiStoreFix(idbdb.objectStoreNames), READONLY));
-	                       } catch (e) {
-	                           // Safari may bail out if > 1 store names. However, this shouldnt be a showstopper. Issue #120.
-	                       }
-	                   }
-
-	                   idbdb.onversionchange = wrap(function (ev) {
-	                       db._vcFired = true; // detect implementations that not support versionchange (IE/Edge/Safari)
-	                       db.on("versionchange").fire(ev);
-	                   });
-
-	                   if (!hasNativeGetDatabaseNames) {
-	                       // Update localStorage with list of database names
-	                       globalDatabaseList(function (databaseNames) {
-	                           if (databaseNames.indexOf(dbName) === -1) return databaseNames.push(dbName);
-	                       });
-	                   }
-
-	                   resolve();
-	               }, reject);
-	           })]).then(function () {
-	               // Before finally resolving the dbReadyPromise and this promise,
-	               // call and await all on('ready') subscribers:
-	               // Dexie.vip() makes subscribers able to use the database while being opened.
-	               // This is a must since these subscribers take part of the opening procedure.
-	               return Dexie.vip(db.on.ready.fire);
-	           }).then(function () {
-	               // Resolve the db.open() with the db instance.
-	               isBeingOpened = false;
-	               return db;
-	           }).catch(function (err) {
-	               try {
-	                   // Did we fail within onupgradeneeded? Make sure to abort the upgrade transaction so it doesnt commit.
-	                   upgradeTransaction && upgradeTransaction.abort();
-	               } catch (e) {}
-	               isBeingOpened = false; // Set before calling db.close() so that it doesnt reject openCanceller again (leads to unhandled rejection event).
-	               db.close(); // Closes and resets idbdb, removes connections, resets dbReadyPromise and openCanceller so that a later db.open() is fresh.
-	               // A call to db.close() may have made on-ready subscribers fail. Use dbOpenError if set, since err could be a follow-up error on that.
-	               dbOpenError = err; // Record the error. It will be used to reject further promises of db operations.
-	               return rejection(dbOpenError, dbUncaught); // dbUncaught will make sure any error that happened in any operation before will now bubble to db.on.error() thanks to the special handling in Promise.uncaught().
-	           }).finally(function () {
-	               openComplete = true;
-	               resolveDbReady(); // dbReadyPromise is resolved no matter if open() rejects or resolved. It's just to wake up waiters.
-	           });
-	       };
-
-	       this.close = function () {
-	           var idx = connections.indexOf(db);
-	           if (idx >= 0) connections.splice(idx, 1);
-	           if (idbdb) {
-	               try {
-	                   idbdb.close();
-	               } catch (e) {}
-	               idbdb = null;
-	           }
-	           autoOpen = false;
-	           dbOpenError = new exceptions.DatabaseClosed();
-	           if (isBeingOpened) cancelOpen(dbOpenError);
-	           // Reset dbReadyPromise promise:
-	           dbReadyPromise = new Promise(function (resolve) {
-	               dbReadyResolve = resolve;
-	           });
-	           openCanceller = new Promise(function (_, reject) {
-	               cancelOpen = reject;
-	           });
-	       };
-
-	       this.delete = function () {
-	           var hasArguments = arguments.length > 0;
-	           return new Promise(function (resolve, reject) {
-	               if (hasArguments) throw new exceptions.InvalidArgument("Arguments not allowed in db.delete()");
-	               if (isBeingOpened) {
-	                   dbReadyPromise.then(doDelete);
-	               } else {
-	                   doDelete();
-	               }
-	               function doDelete() {
-	                   db.close();
-	                   var req = indexedDB.deleteDatabase(dbName);
-	                   req.onsuccess = wrap(function () {
-	                       if (!hasNativeGetDatabaseNames) {
-	                           globalDatabaseList(function (databaseNames) {
-	                               var pos = databaseNames.indexOf(dbName);
-	                               if (pos >= 0) return databaseNames.splice(pos, 1);
-	                           });
-	                       }
-	                       resolve();
-	                   });
-	                   req.onerror = wrap(eventRejectHandler(reject));
-	                   req.onblocked = fireOnBlocked;
-	               }
-	           }).uncaught(dbUncaught);
-	       };
-
-	       this.backendDB = function () {
-	           return idbdb;
-	       };
-
-	       this.isOpen = function () {
-	           return idbdb !== null;
-	       };
-	       this.hasFailed = function () {
-	           return dbOpenError !== null;
-	       };
-	       this.dynamicallyOpened = function () {
-	           return autoSchema;
-	       };
-
-	       //
-	       // Properties
-	       //
-	       this.name = dbName;
-
-	       // db.tables - an array of all Table instances.
-	       setProp(this, "tables", {
-	           get: function () {
-	               /// <returns type="Array" elementType="WriteableTable" />
-	               return keys(allTables).map(function (name) {
-	                   return allTables[name];
-	               });
-	           }
-	       });
-
-	       //
-	       // Events
-	       //
-	       this.on = Events(this, "error", "populate", "blocked", "versionchange", { ready: [promisableChain, nop] });
-
-	       this.on.ready.subscribe = override(this.on.ready.subscribe, function (subscribe) {
-	           return function (subscriber, bSticky) {
-	               Dexie.vip(function () {
-	                   if (openComplete) {
-	                       // Database already open. Call subscriber asap.
-	                       Promise.resolve().then(subscriber);
-	                       // bSticky: Also subscribe to future open sucesses (after close / reopen)
-	                       if (bSticky) subscribe(subscriber);
-	                   } else {
-	                       // Database not yet open. Subscribe to it.
-	                       subscribe(subscriber);
-	                       // If bSticky is falsy, make sure to unsubscribe subscriber when fired once.
-	                       if (!bSticky) subscribe(function unsubscribe() {
-	                           db.on.ready.unsubscribe(subscriber);
-	                           db.on.ready.unsubscribe(unsubscribe);
-	                       });
-	                   }
-	               });
-	           };
-	       });
-
-	       fakeAutoComplete(function () {
-	           db.on("populate").fire(db._createTransaction(READWRITE, dbStoreNames, globalSchema));
-	           db.on("error").fire(new Error());
-	       });
-
-	       this.transaction = function (mode, tableInstances, scopeFunc) {
-	           /// <summary>
-	           ///
-	           /// </summary>
-	           /// <param name="mode" type="String">"r" for readonly, or "rw" for readwrite</param>
-	           /// <param name="tableInstances">Table instance, Array of Table instances, String or String Array of object stores to include in the transaction</param>
-	           /// <param name="scopeFunc" type="Function">Function to execute with transaction</param>
-
-	           // Let table arguments be all arguments between mode and last argument.
-	           var i = arguments.length;
-	           if (i < 2) throw new exceptions.InvalidArgument("Too few arguments");
-	           // Prevent optimzation killer (https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments)
-	           // and clone arguments except the first one into local var 'args'.
-	           var args = new Array(i - 1);
-	           while (--i) {
-	               args[i - 1] = arguments[i];
-	           } // Let scopeFunc be the last argument and pop it so that args now only contain the table arguments.
-	           scopeFunc = args.pop();
-	           var tables = flatten(args); // Support using array as middle argument, or a mix of arrays and non-arrays.
-	           var parentTransaction = PSD.trans;
-	           // Check if parent transactions is bound to this db instance, and if caller wants to reuse it
-	           if (!parentTransaction || parentTransaction.db !== db || mode.indexOf('!') !== -1) parentTransaction = null;
-	           var onlyIfCompatible = mode.indexOf('?') !== -1;
-	           mode = mode.replace('!', '').replace('?', ''); // Ok. Will change arguments[0] as well but we wont touch arguments henceforth.
-
-	           try {
-	               //
-	               // Get storeNames from arguments. Either through given table instances, or through given table names.
-	               //
-	               var storeNames = tables.map(function (table) {
-	                   var storeName = table instanceof Table ? table.name : table;
-	                   if (typeof storeName !== 'string') throw new TypeError("Invalid table argument to Dexie.transaction(). Only Table or String are allowed");
-	                   return storeName;
-	               });
-
-	               //
-	               // Resolve mode. Allow shortcuts "r" and "rw".
-	               //
-	               if (mode == "r" || mode == READONLY) mode = READONLY;else if (mode == "rw" || mode == READWRITE) mode = READWRITE;else throw new exceptions.InvalidArgument("Invalid transaction mode: " + mode);
-
-	               if (parentTransaction) {
-	                   // Basic checks
-	                   if (parentTransaction.mode === READONLY && mode === READWRITE) {
-	                       if (onlyIfCompatible) {
-	                           // Spawn new transaction instead.
-	                           parentTransaction = null;
-	                       } else throw new exceptions.SubTransaction("Cannot enter a sub-transaction with READWRITE mode when parent transaction is READONLY");
-	                   }
-	                   if (parentTransaction) {
-	                       storeNames.forEach(function (storeName) {
-	                           if (!hasOwn(parentTransaction.tables, storeName)) {
-	                               if (onlyIfCompatible) {
-	                                   // Spawn new transaction instead.
-	                                   parentTransaction = null;
-	                               } else throw new exceptions.SubTransaction("Table " + storeName + " not included in parent transaction.");
-	                           }
-	                       });
-	                   }
-	               }
-	           } catch (e) {
-	               return parentTransaction ? parentTransaction._promise(null, function (_, reject) {
-	                   reject(e);
-	               }) : rejection(e, dbUncaught);
-	           }
-	           // If this is a sub-transaction, lock the parent and then launch the sub-transaction.
-	           return parentTransaction ? parentTransaction._promise(mode, enterTransactionScope, "lock") : db._whenReady(enterTransactionScope);
-
-	           function enterTransactionScope(resolve) {
-	               var parentPSD = PSD;
-	               resolve(Promise.resolve().then(function () {
-	                   return newScope(function () {
-	                       // Keep a pointer to last non-transactional PSD to use if someone calls Dexie.ignoreTransaction().
-	                       PSD.transless = PSD.transless || parentPSD;
-	                       // Our transaction.
-	                       //return new Promise((resolve, reject) => {
-	                       var trans = db._createTransaction(mode, storeNames, globalSchema, parentTransaction);
-	                       // Let the transaction instance be part of a Promise-specific data (PSD) value.
-	                       PSD.trans = trans;
-
-	                       if (parentTransaction) {
-	                           // Emulate transaction commit awareness for inner transaction (must 'commit' when the inner transaction has no more operations ongoing)
-	                           trans.idbtrans = parentTransaction.idbtrans;
-	                       } else {
-	                           trans.create(); // Create the backend transaction so that complete() or error() will trigger even if no operation is made upon it.
-	                       }
-
-	                       // Provide arguments to the scope function (for backward compatibility)
-	                       var tableArgs = storeNames.map(function (name) {
-	                           return trans.tables[name];
-	                       });
-	                       tableArgs.push(trans);
-
-	                       var returnValue;
-	                       return Promise.follow(function () {
-	                           // Finally, call the scope function with our table and transaction arguments.
-	                           returnValue = scopeFunc.apply(trans, tableArgs); // NOTE: returnValue is used in trans.on.complete() not as a returnValue to this func.
-	                           if (returnValue) {
-	                               if (typeof returnValue.next === 'function' && typeof returnValue.throw === 'function') {
-	                                   // scopeFunc returned an iterator with throw-support. Handle yield as await.
-	                                   returnValue = awaitIterator(returnValue);
-	                               } else if (typeof returnValue.then === 'function' && !hasOwn(returnValue, '_PSD')) {
-	                                   throw new exceptions.IncompatiblePromise("Incompatible Promise returned from transaction scope (read more at http://tinyurl.com/znyqjqc). Transaction scope: " + scopeFunc.toString());
-	                               }
-	                           }
-	                       }).uncaught(dbUncaught).then(function () {
-	                           if (parentTransaction) trans._resolve(); // sub transactions don't react to idbtrans.oncomplete. We must trigger a acompletion.
-	                           return trans._completion; // Even if WE believe everything is fine. Await IDBTransaction's oncomplete or onerror as well.
-	                       }).then(function () {
-	                           return returnValue;
-	                       }).catch(function (e) {
-	                           //reject(e);
-	                           trans._reject(e); // Yes, above then-handler were maybe not called because of an unhandled rejection in scopeFunc!
-	                           return rejection(e);
-	                       });
-	                       //});
-	                   });
-	               }));
-	           }
-	       };
-
-	       this.table = function (tableName) {
-	           /// <returns type="WriteableTable"></returns>
-	           if (fake && autoSchema) return new WriteableTable(tableName);
-	           if (!hasOwn(allTables, tableName)) {
-	               throw new exceptions.InvalidTable('Table ' + tableName + ' does not exist');
-	           }
-	           return allTables[tableName];
-	       };
-
-	       //
-	       //
-	       //
-	       // Table Class
-	       //
-	       //
-	       //
-	       function Table(name, tableSchema, collClass) {
-	           /// <param name="name" type="String"></param>
-	           this.name = name;
-	           this.schema = tableSchema;
-	           this.hook = allTables[name] ? allTables[name].hook : Events(null, {
-	               "creating": [hookCreatingChain, nop],
-	               "reading": [pureFunctionChain, mirror],
-	               "updating": [hookUpdatingChain, nop],
-	               "deleting": [hookDeletingChain, nop]
-	           });
-	           this._collClass = collClass || Collection;
-	       }
-
-	       props(Table.prototype, {
-
-	           //
-	           // Table Protected Methods
-	           //
-
-	           _trans: function getTransaction(mode, fn, writeLocked) {
-	               var trans = PSD.trans;
-	               return trans && trans.db === db ? trans._promise(mode, fn, writeLocked) : tempTransaction(mode, [this.name], fn);
-	           },
-	           _idbstore: function getIDBObjectStore(mode, fn, writeLocked) {
-	               if (fake) return new Promise(fn); // Simplify the work for Intellisense/Code completion.
-	               var trans = PSD.trans,
-	                   tableName = this.name;
-	               function supplyIdbStore(resolve, reject, trans) {
-	                   fn(resolve, reject, trans.idbtrans.objectStore(tableName), trans);
-	               }
-	               return trans && trans.db === db ? trans._promise(mode, supplyIdbStore, writeLocked) : tempTransaction(mode, [this.name], supplyIdbStore);
-	           },
-
-	           //
-	           // Table Public Methods
-	           //
-	           get: function (key, cb) {
-	               var self = this;
-	               return this._idbstore(READONLY, function (resolve, reject, idbstore) {
-	                   fake && resolve(self.schema.instanceTemplate);
-	                   var req = idbstore.get(key);
-	                   req.onerror = eventRejectHandler(reject);
-	                   req.onsuccess = function () {
-	                       resolve(self.hook.reading.fire(req.result));
-	                   };
-	               }).then(cb);
-	           },
-	           where: function (indexName) {
-	               return new WhereClause(this, indexName);
-	           },
-	           count: function (cb) {
-	               return this.toCollection().count(cb);
-	           },
-	           offset: function (offset) {
-	               return this.toCollection().offset(offset);
-	           },
-	           limit: function (numRows) {
-	               return this.toCollection().limit(numRows);
-	           },
-	           reverse: function () {
-	               return this.toCollection().reverse();
-	           },
-	           filter: function (filterFunction) {
-	               return this.toCollection().and(filterFunction);
-	           },
-	           each: function (fn) {
-	               return this.toCollection().each(fn);
-	           },
-	           toArray: function (cb) {
-	               return this.toCollection().toArray(cb);
-	           },
-	           orderBy: function (index) {
-	               return new this._collClass(new WhereClause(this, index));
-	           },
-
-	           toCollection: function () {
-	               return new this._collClass(new WhereClause(this));
-	           },
-
-	           mapToClass: function (constructor, structure) {
-	               /// <summary>
-	               ///     Map table to a javascript constructor function. Objects returned from the database will be instances of this class, making
-	               ///     it possible to the instanceOf operator as well as extending the class using constructor.prototype.method = function(){...}.
-	               /// </summary>
-	               /// <param name="constructor">Constructor function representing the class.</param>
-	               /// <param name="structure" optional="true">Helps IDE code completion by knowing the members that objects contain and not just the indexes. Also
-	               /// know what type each member has. Example: {name: String, emailAddresses: [String], password}</param>
-	               this.schema.mappedClass = constructor;
-	               var instanceTemplate = Object.create(constructor.prototype);
-	               if (structure) {
-	                   // structure and instanceTemplate is for IDE code competion only while constructor.prototype is for actual inheritance.
-	                   applyStructure(instanceTemplate, structure);
-	               }
-	               this.schema.instanceTemplate = instanceTemplate;
-
-	               // Now, subscribe to the when("reading") event to make all objects that come out from this table inherit from given class
-	               // no matter which method to use for reading (Table.get() or Table.where(...)... )
-	               var readHook = function (obj) {
-	                   if (!obj) return obj; // No valid object. (Value is null). Return as is.
-	                   // Create a new object that derives from constructor:
-	                   var res = Object.create(constructor.prototype);
-	                   // Clone members:
-	                   for (var m in obj) {
-	                       if (hasOwn(obj, m)) res[m] = obj[m];
-	                   }return res;
-	               };
-
-	               if (this.schema.readHook) {
-	                   this.hook.reading.unsubscribe(this.schema.readHook);
-	               }
-	               this.schema.readHook = readHook;
-	               this.hook("reading", readHook);
-	               return constructor;
-	           },
-	           defineClass: function (structure) {
-	               /// <summary>
-	               ///     Define all members of the class that represents the table. This will help code completion of when objects are read from the database
-	               ///     as well as making it possible to extend the prototype of the returned constructor function.
-	               /// </summary>
-	               /// <param name="structure">Helps IDE code completion by knowing the members that objects contain and not just the indexes. Also
-	               /// know what type each member has. Example: {name: String, emailAddresses: [String], properties: {shoeSize: Number}}</param>
-	               return this.mapToClass(Dexie.defineClass(structure), structure);
-	           }
-	       });
-
-	       //
-	       //
-	       //
-	       // WriteableTable Class (extends Table)
-	       //
-	       //
-	       //
-	       function WriteableTable(name, tableSchema, collClass) {
-	           Table.call(this, name, tableSchema, collClass || WriteableCollection);
-	       }
-
-	       function BulkErrorHandlerCatchAll(errorList, done, supportHooks) {
-	           return (supportHooks ? hookedEventRejectHandler : eventRejectHandler)(function (e) {
-	               errorList.push(e);
-	               done && done();
-	           });
-	       }
-
-	       function bulkDelete(idbstore, trans, keysOrTuples, hasDeleteHook, deletingHook) {
-	           // If hasDeleteHook, keysOrTuples must be an array of tuples: [[key1, value2],[key2,value2],...],
-	           // else keysOrTuples must be just an array of keys: [key1, key2, ...].
-	           return new Promise(function (resolve, reject) {
-	               var len = keysOrTuples.length,
-	                   lastItem = len - 1;
-	               if (len === 0) return resolve();
-	               if (!hasDeleteHook) {
-	                   for (var i = 0; i < len; ++i) {
-	                       var req = idbstore.delete(keysOrTuples[i]);
-	                       req.onerror = wrap(eventRejectHandler(reject));
-	                       if (i === lastItem) req.onsuccess = wrap(function () {
-	                           return resolve();
-	                       });
-	                   }
-	               } else {
-	                   var hookCtx,
-	                       errorHandler = hookedEventRejectHandler(reject),
-	                       successHandler = hookedEventSuccessHandler(null);
-	                   tryCatch(function () {
-	                       for (var i = 0; i < len; ++i) {
-	                           hookCtx = { onsuccess: null, onerror: null };
-	                           var tuple = keysOrTuples[i];
-	                           deletingHook.call(hookCtx, tuple[0], tuple[1], trans);
-	                           var req = idbstore.delete(tuple[0]);
-	                           req._hookCtx = hookCtx;
-	                           req.onerror = errorHandler;
-	                           if (i === lastItem) req.onsuccess = hookedEventSuccessHandler(resolve);else req.onsuccess = successHandler;
-	                       }
-	                   }, function (err) {
-	                       hookCtx.onerror && hookCtx.onerror(err);
-	                       throw err;
-	                   });
-	               }
-	           }).uncaught(dbUncaught);
-	       }
-
-	       derive(WriteableTable).from(Table).extend({
-	           bulkDelete: function (keys) {
-	               if (this.hook.deleting.fire === nop) {
-	                   return this._idbstore(READWRITE, function (resolve, reject, idbstore, trans) {
-	                       resolve(bulkDelete(idbstore, trans, keys, false, nop));
-	                   });
-	               } else {
-	                   return this.where(':id').anyOf(keys).delete().then(function () {}); // Resolve with undefined.
-	               }
-	           },
-	           bulkPut: function (objects, keys) {
-	               var _this = this;
-
-	               return this._idbstore(READWRITE, function (resolve, reject, idbstore) {
-	                   if (!idbstore.keyPath && !_this.schema.primKey.auto && !keys) throw new exceptions.InvalidArgument("bulkPut() with non-inbound keys requires keys array in second argument");
-	                   if (idbstore.keyPath && keys) throw new exceptions.InvalidArgument("bulkPut(): keys argument invalid on tables with inbound keys");
-	                   if (keys && keys.length !== objects.length) throw new exceptions.InvalidArgument("Arguments objects and keys must have the same length");
-	                   if (objects.length === 0) return resolve(); // Caller provided empty list.
-	                   var done = function (result) {
-	                       if (errorList.length === 0) resolve(result);else reject(new BulkError(_this.name + '.bulkPut(): ' + errorList.length + ' of ' + numObjs + ' operations failed', errorList));
-	                   };
-	                   var req,
-	                       errorList = [],
-	                       errorHandler,
-	                       numObjs = objects.length,
-	                       table = _this;
-	                   if (_this.hook.creating.fire === nop && _this.hook.updating.fire === nop) {
-	                       //
-	                       // Standard Bulk (no 'creating' or 'updating' hooks to care about)
-	                       //
-	                       errorHandler = BulkErrorHandlerCatchAll(errorList);
-	                       for (var i = 0, l = objects.length; i < l; ++i) {
-	                           req = keys ? idbstore.put(objects[i], keys[i]) : idbstore.put(objects[i]);
-	                           req.onerror = errorHandler;
-	                       }
-	                       // Only need to catch success or error on the last operation
-	                       // according to the IDB spec.
-	                       req.onerror = BulkErrorHandlerCatchAll(errorList, done);
-	                       req.onsuccess = eventSuccessHandler(done);
-	                   } else {
-	                       var effectiveKeys = keys || idbstore.keyPath && objects.map(function (o) {
-	                           return getByKeyPath(o, idbstore.keyPath);
-	                       });
-	                       // Generate map of {[key]: object}
-	                       var objectLookup = effectiveKeys && arrayToObject(effectiveKeys, function (key, i) {
-	                           return key != null && [key, objects[i]];
-	                       });
-	                       var promise = !effectiveKeys ?
-
-	                       // Auto-incremented key-less objects only without any keys argument.
-	                       table.bulkAdd(objects) :
-
-	                       // Keys provided. Either as inbound in provided objects, or as a keys argument.
-	                       // Begin with updating those that exists in DB:
-	                       table.where(':id').anyOf(effectiveKeys.filter(function (key) {
-	                           return key != null;
-	                       })).modify(function () {
-	                           this.value = objectLookup[this.primKey];
-	                           objectLookup[this.primKey] = null; // Mark as "don't add this"
-	                       }).catch(ModifyError, function (e) {
-	                           errorList = e.failures; // No need to concat here. These are the first errors added.
-	                       }).then(function () {
-	                           // Now, let's examine which items didnt exist so we can add them:
-	                           var objsToAdd = [],
-	                               keysToAdd = keys && [];
-	                           // Iterate backwards. Why? Because if same key was used twice, just add the last one.
-	                           for (var i = effectiveKeys.length - 1; i >= 0; --i) {
-	                               var key = effectiveKeys[i];
-	                               if (key == null || objectLookup[key]) {
-	                                   objsToAdd.push(objects[i]);
-	                                   keys && keysToAdd.push(key);
-	                                   if (key != null) objectLookup[key] = null; // Mark as "dont add again"
-	                               }
-	                           }
-	                           // The items are in reverse order so reverse them before adding.
-	                           // Could be important in order to get auto-incremented keys the way the caller
-	                           // would expect. Could have used unshift instead of push()/reverse(),
-	                           // but: http://jsperf.com/unshift-vs-reverse
-	                           objsToAdd.reverse();
-	                           keys && keysToAdd.reverse();
-	                           return table.bulkAdd(objsToAdd, keysToAdd);
-	                       }).then(function (lastAddedKey) {
-	                           // Resolve with key of the last object in given arguments to bulkPut():
-	                           var lastEffectiveKey = effectiveKeys[effectiveKeys.length - 1]; // Key was provided.
-	                           return lastEffectiveKey != null ? lastEffectiveKey : lastAddedKey;
-	                       });
-
-	                       promise.then(done).catch(BulkError, function (e) {
-	                           // Concat failure from ModifyError and reject using our 'done' method.
-	                           errorList = errorList.concat(e.failures);
-	                           done();
-	                       }).catch(reject);
-	                   }
-	               }, "locked"); // If called from transaction scope, lock transaction til all steps are done.
-	           },
-	           bulkAdd: function (objects, keys) {
-	               var self = this,
-	                   creatingHook = this.hook.creating.fire;
-	               return this._idbstore(READWRITE, function (resolve, reject, idbstore, trans) {
-	                   if (!idbstore.keyPath && !self.schema.primKey.auto && !keys) throw new exceptions.InvalidArgument("bulkAdd() with non-inbound keys requires keys array in second argument");
-	                   if (idbstore.keyPath && keys) throw new exceptions.InvalidArgument("bulkAdd(): keys argument invalid on tables with inbound keys");
-	                   if (keys && keys.length !== objects.length) throw new exceptions.InvalidArgument("Arguments objects and keys must have the same length");
-	                   if (objects.length === 0) return resolve(); // Caller provided empty list.
-	                   function done(result) {
-	                       if (errorList.length === 0) resolve(result);else reject(new BulkError(self.name + '.bulkAdd(): ' + errorList.length + ' of ' + numObjs + ' operations failed', errorList));
-	                   }
-	                   var req,
-	                       errorList = [],
-	                       errorHandler,
-	                       successHandler,
-	                       numObjs = objects.length;
-	                   if (creatingHook !== nop) {
-	                       //
-	                       // There are subscribers to hook('creating')
-	                       // Must behave as documented.
-	                       //
-	                       var keyPath = idbstore.keyPath,
-	                           hookCtx;
-	                       errorHandler = BulkErrorHandlerCatchAll(errorList, null, true);
-	                       successHandler = hookedEventSuccessHandler(null);
-
-	                       tryCatch(function () {
-	                           for (var i = 0, l = objects.length; i < l; ++i) {
-	                               hookCtx = { onerror: null, onsuccess: null };
-	                               var key = keys && keys[i];
-	                               var obj = objects[i],
-	                                   effectiveKey = keys ? key : keyPath ? getByKeyPath(obj, keyPath) : undefined,
-	                                   keyToUse = creatingHook.call(hookCtx, effectiveKey, obj, trans);
-	                               if (effectiveKey == null && keyToUse != null) {
-	                                   if (keyPath) {
-	                                       obj = deepClone(obj);
-	                                       setByKeyPath(obj, keyPath, keyToUse);
-	                                   } else {
-	                                       key = keyToUse;
-	                                   }
-	                               }
-	                               req = key != null ? idbstore.add(obj, key) : idbstore.add(obj);
-	                               req._hookCtx = hookCtx;
-	                               if (i < l - 1) {
-	                                   req.onerror = errorHandler;
-	                                   if (hookCtx.onsuccess) req.onsuccess = successHandler;
-	                               }
-	                           }
-	                       }, function (err) {
-	                           hookCtx.onerror && hookCtx.onerror(err);
-	                           throw err;
-	                       });
-
-	                       req.onerror = BulkErrorHandlerCatchAll(errorList, done, true);
-	                       req.onsuccess = hookedEventSuccessHandler(done);
-	                   } else {
-	                       //
-	                       // Standard Bulk (no 'creating' hook to care about)
-	                       //
-	                       errorHandler = BulkErrorHandlerCatchAll(errorList);
-	                       for (var i = 0, l = objects.length; i < l; ++i) {
-	                           req = keys ? idbstore.add(objects[i], keys[i]) : idbstore.add(objects[i]);
-	                           req.onerror = errorHandler;
-	                       }
-	                       // Only need to catch success or error on the last operation
-	                       // according to the IDB spec.
-	                       req.onerror = BulkErrorHandlerCatchAll(errorList, done);
-	                       req.onsuccess = eventSuccessHandler(done);
-	                   }
-	               });
-	           },
-	           add: function (obj, key) {
-	               /// <summary>
-	               ///   Add an object to the database. In case an object with same primary key already exists, the object will not be added.
-	               /// </summary>
-	               /// <param name="obj" type="Object">A javascript object to insert</param>
-	               /// <param name="key" optional="true">Primary key</param>
-	               var creatingHook = this.hook.creating.fire;
-	               return this._idbstore(READWRITE, function (resolve, reject, idbstore, trans) {
-	                   var hookCtx = { onsuccess: null, onerror: null };
-	                   if (creatingHook !== nop) {
-	                       var effectiveKey = key != null ? key : idbstore.keyPath ? getByKeyPath(obj, idbstore.keyPath) : undefined;
-	                       var keyToUse = creatingHook.call(hookCtx, effectiveKey, obj, trans); // Allow subscribers to when("creating") to generate the key.
-	                       if (effectiveKey == null && keyToUse != null) {
-	                           // Using "==" and "!=" to check for either null or undefined!
-	                           if (idbstore.keyPath) setByKeyPath(obj, idbstore.keyPath, keyToUse);else key = keyToUse;
-	                       }
-	                   }
-	                   try {
-	                       var req = key != null ? idbstore.add(obj, key) : idbstore.add(obj);
-	                       req._hookCtx = hookCtx;
-	                       req.onerror = hookedEventRejectHandler(reject);
-	                       req.onsuccess = hookedEventSuccessHandler(function (result) {
-	                           // TODO: Remove these two lines in next major release (2.0?)
-	                           // It's no good practice to have side effects on provided parameters
-	                           var keyPath = idbstore.keyPath;
-	                           if (keyPath) setByKeyPath(obj, keyPath, result);
-	                           resolve(result);
-	                       });
-	                   } catch (e) {
-	                       if (hookCtx.onerror) hookCtx.onerror(e);
-	                       throw e;
-	                   }
-	               });
-	           },
-
-	           put: function (obj, key) {
-	               /// <summary>
-	               ///   Add an object to the database but in case an object with same primary key alread exists, the existing one will get updated.
-	               /// </summary>
-	               /// <param name="obj" type="Object">A javascript object to insert or update</param>
-	               /// <param name="key" optional="true">Primary key</param>
-	               var self = this,
-	                   creatingHook = this.hook.creating.fire,
-	                   updatingHook = this.hook.updating.fire;
-	               if (creatingHook !== nop || updatingHook !== nop) {
-	                   //
-	                   // People listens to when("creating") or when("updating") events!
-	                   // We must know whether the put operation results in an CREATE or UPDATE.
-	                   //
-	                   return this._trans(READWRITE, function (resolve, reject, trans) {
-	                       // Since key is optional, make sure we get it from obj if not provided
-	                       var effectiveKey = key !== undefined ? key : self.schema.primKey.keyPath && getByKeyPath(obj, self.schema.primKey.keyPath);
-	                       if (effectiveKey == null) {
-	                           // "== null" means checking for either null or undefined.
-	                           // No primary key. Must use add().
-	                           trans.tables[self.name].add(obj).then(resolve, reject);
-	                       } else {
-	                           // Primary key exist. Lock transaction and try modifying existing. If nothing modified, call add().
-	                           trans._lock(); // Needed because operation is splitted into modify() and add().
-	                           // clone obj before this async call. If caller modifies obj the line after put(), the IDB spec requires that it should not affect operation.
-	                           obj = deepClone(obj);
-	                           trans.tables[self.name].where(":id").equals(effectiveKey).modify(function () {
-	                               // Replace extisting value with our object
-	                               // CRUD event firing handled in WriteableCollection.modify()
-	                               this.value = obj;
-	                           }).then(function (count) {
-	                               if (count === 0) {
-	                                   // Object's key was not found. Add the object instead.
-	                                   // CRUD event firing will be done in add()
-	                                   return trans.tables[self.name].add(obj, key); // Resolving with another Promise. Returned Promise will then resolve with the new key.
-	                               } else {
-	                                       return effectiveKey; // Resolve with the provided key.
-	                                   }
-	                           }).finally(function () {
-	                               trans._unlock();
-	                           }).then(resolve, reject);
-	                       }
-	                   });
-	               } else {
-	                   // Use the standard IDB put() method.
-	                   return this._idbstore(READWRITE, function (resolve, reject, idbstore) {
-	                       var req = key !== undefined ? idbstore.put(obj, key) : idbstore.put(obj);
-	                       req.onerror = eventRejectHandler(reject);
-	                       req.onsuccess = function (ev) {
-	                           var keyPath = idbstore.keyPath;
-	                           if (keyPath) setByKeyPath(obj, keyPath, ev.target.result);
-	                           resolve(req.result);
-	                       };
-	                   });
-	               }
-	           },
-
-	           'delete': function (key) {
-	               /// <param name="key">Primary key of the object to delete</param>
-	               if (this.hook.deleting.subscribers.length) {
-	                   // People listens to when("deleting") event. Must implement delete using WriteableCollection.delete() that will
-	                   // call the CRUD event. Only WriteableCollection.delete() will know whether an object was actually deleted.
-	                   return this.where(":id").equals(key).delete();
-	               } else {
-	                   // No one listens. Use standard IDB delete() method.
-	                   return this._idbstore(READWRITE, function (resolve, reject, idbstore) {
-	                       var req = idbstore.delete(key);
-	                       req.onerror = eventRejectHandler(reject);
-	                       req.onsuccess = function () {
-	                           resolve(req.result);
-	                       };
-	                   });
-	               }
-	           },
-
-	           clear: function () {
-	               if (this.hook.deleting.subscribers.length) {
-	                   // People listens to when("deleting") event. Must implement delete using WriteableCollection.delete() that will
-	                   // call the CRUD event. Only WriteableCollection.delete() will knows which objects that are actually deleted.
-	                   return this.toCollection().delete();
-	               } else {
-	                   return this._idbstore(READWRITE, function (resolve, reject, idbstore) {
-	                       var req = idbstore.clear();
-	                       req.onerror = eventRejectHandler(reject);
-	                       req.onsuccess = function () {
-	                           resolve(req.result);
-	                       };
-	                   });
-	               }
-	           },
-
-	           update: function (keyOrObject, modifications) {
-	               if (typeof modifications !== 'object' || isArray(modifications)) throw new exceptions.InvalidArgument("Modifications must be an object.");
-	               if (typeof keyOrObject === 'object' && !isArray(keyOrObject)) {
-	                   // object to modify. Also modify given object with the modifications:
-	                   keys(modifications).forEach(function (keyPath) {
-	                       setByKeyPath(keyOrObject, keyPath, modifications[keyPath]);
-	                   });
-	                   var key = getByKeyPath(keyOrObject, this.schema.primKey.keyPath);
-	                   if (key === undefined) return rejection(new exceptions.InvalidArgument("Given object does not contain its primary key"), dbUncaught);
-	                   return this.where(":id").equals(key).modify(modifications);
-	               } else {
-	                   // key to modify
-	                   return this.where(":id").equals(keyOrObject).modify(modifications);
-	               }
-	           }
-	       });
-
-	       //
-	       //
-	       //
-	       // Transaction Class
-	       //
-	       //
-	       //
-	       function Transaction(mode, storeNames, dbschema, parent) {
-	           var _this2 = this;
-
-	           /// <summary>
-	           ///    Transaction class. Represents a database transaction. All operations on db goes through a Transaction.
-	           /// </summary>
-	           /// <param name="mode" type="String">Any of "readwrite" or "readonly"</param>
-	           /// <param name="storeNames" type="Array">Array of table names to operate on</param>
-	           this.db = db;
-	           this.mode = mode;
-	           this.storeNames = storeNames;
-	           this.idbtrans = null;
-	           this.on = Events(this, "complete", "error", "abort");
-	           this.parent = parent || null;
-	           this.active = true;
-	           this._tables = null;
-	           this._reculock = 0;
-	           this._blockedFuncs = [];
-	           this._psd = null;
-	           this._dbschema = dbschema;
-	           this._resolve = null;
-	           this._reject = null;
-	           this._completion = new Promise(function (resolve, reject) {
-	               _this2._resolve = resolve;
-	               _this2._reject = reject;
-	           }).uncaught(dbUncaught);
-
-	           this._completion.then(function () {
-	               _this2.on.complete.fire();
-	           }, function (e) {
-	               _this2.on.error.fire(e);
-	               _this2.parent ? _this2.parent._reject(e) : _this2.active && _this2.idbtrans && _this2.idbtrans.abort();
-	               _this2.active = false;
-	               return rejection(e); // Indicate we actually DO NOT catch this error.
-	           });
-	       }
-
-	       props(Transaction.prototype, {
-	           //
-	           // Transaction Protected Methods (not required by API users, but needed internally and eventually by dexie extensions)
-	           //
-	           _lock: function () {
-	               assert(!PSD.global); // Locking and unlocking reuires to be within a PSD scope.
-	               // Temporary set all requests into a pending queue if they are called before database is ready.
-	               ++this._reculock; // Recursive read/write lock pattern using PSD (Promise Specific Data) instead of TLS (Thread Local Storage)
-	               if (this._reculock === 1 && !PSD.global) PSD.lockOwnerFor = this;
-	               return this;
-	           },
-	           _unlock: function () {
-	               assert(!PSD.global); // Locking and unlocking reuires to be within a PSD scope.
-	               if (--this._reculock === 0) {
-	                   if (!PSD.global) PSD.lockOwnerFor = null;
-	                   while (this._blockedFuncs.length > 0 && !this._locked()) {
-	                       var fn = this._blockedFuncs.shift();
-	                       try {
-	                           fn();
-	                       } catch (e) {}
-	                   }
-	               }
-	               return this;
-	           },
-	           _locked: function () {
-	               // Checks if any write-lock is applied on this transaction.
-	               // To simplify the Dexie API for extension implementations, we support recursive locks.
-	               // This is accomplished by using "Promise Specific Data" (PSD).
-	               // PSD data is bound to a Promise and any child Promise emitted through then() or resolve( new Promise() ).
-	               // PSD is local to code executing on top of the call stacks of any of any code executed by Promise():
-	               //         * callback given to the Promise() constructor  (function (resolve, reject){...})
-	               //         * callbacks given to then()/catch()/finally() methods (function (value){...})
-	               // If creating a new independant Promise instance from within a Promise call stack, the new Promise will derive the PSD from the call stack of the parent Promise.
-	               // Derivation is done so that the inner PSD __proto__ points to the outer PSD.
-	               // PSD.lockOwnerFor will point to current transaction object if the currently executing PSD scope owns the lock.
-	               return this._reculock && PSD.lockOwnerFor !== this;
-	           },
-	           create: function (idbtrans) {
-	               var _this3 = this;
-
-	               assert(!this.idbtrans);
-	               if (!idbtrans && !idbdb) {
-	                   switch (dbOpenError && dbOpenError.name) {
-	                       case "DatabaseClosedError":
-	                           // Errors where it is no difference whether it was caused by the user operation or an earlier call to db.open()
-	                           throw new exceptions.DatabaseClosed(dbOpenError);
-	                       case "MissingAPIError":
-	                           // Errors where it is no difference whether it was caused by the user operation or an earlier call to db.open()
-	                           throw new exceptions.MissingAPI(dbOpenError.message, dbOpenError);
-	                       default:
-	                           // Make it clear that the user operation was not what caused the error - the error had occurred earlier on db.open()!
-	                           throw new exceptions.OpenFailed(dbOpenError);
-	                   }
-	               }
-	               if (!this.active) throw new exceptions.TransactionInactive();
-	               assert(this._completion._state === null);
-
-	               idbtrans = this.idbtrans = idbtrans || idbdb.transaction(safariMultiStoreFix(this.storeNames), this.mode);
-	               idbtrans.onerror = wrap(function (ev) {
-	                   preventDefault(ev); // Prohibit default bubbling to window.error
-	                   _this3._reject(idbtrans.error);
-	               });
-	               idbtrans.onabort = wrap(function (ev) {
-	                   preventDefault(ev);
-	                   _this3.active && _this3._reject(new exceptions.Abort());
-	                   _this3.active = false;
-	                   _this3.on("abort").fire(ev);
-	               });
-	               idbtrans.oncomplete = wrap(function () {
-	                   _this3.active = false;
-	                   _this3._resolve();
-	               });
-	               return this;
-	           },
-	           _promise: function (mode, fn, bWriteLock) {
-	               var self = this;
-	               return newScope(function () {
-	                   var p;
-	                   // Read lock always
-	                   if (!self._locked()) {
-	                       p = self.active ? new Promise(function (resolve, reject) {
-	                           if (mode === READWRITE && self.mode !== READWRITE) throw new exceptions.ReadOnly("Transaction is readonly");
-	                           if (!self.idbtrans && mode) self.create();
-	                           if (bWriteLock) self._lock(); // Write lock if write operation is requested
-	                           fn(resolve, reject, self);
-	                       }) : rejection(new exceptions.TransactionInactive());
-	                       if (self.active && bWriteLock) p.finally(function () {
-	                           self._unlock();
-	                       });
-	                   } else {
-	                       // Transaction is write-locked. Wait for mutex.
-	                       p = new Promise(function (resolve, reject) {
-	                           self._blockedFuncs.push(function () {
-	                               self._promise(mode, fn, bWriteLock).then(resolve, reject);
-	                           });
-	                       });
-	                   }
-	                   p._lib = true;
-	                   return p.uncaught(dbUncaught);
-	               });
-	           },
-
-	           //
-	           // Transaction Public Properties and Methods
-	           //
-	           abort: function () {
-	               this.active && this._reject(new exceptions.Abort());
-	               this.active = false;
-	           },
-
-	           // Deprecate:
-	           tables: {
-	               get: function () {
-	                   if (this._tables) return this._tables;
-	                   return this._tables = arrayToObject(this.storeNames, function (name) {
-	                       return [name, allTables[name]];
-	                   });
-	               }
-	           },
-
-	           // Deprecate:
-	           complete: function (cb) {
-	               return this.on("complete", cb);
-	           },
-
-	           // Deprecate:
-	           error: function (cb) {
-	               return this.on("error", cb);
-	           },
-
-	           // Deprecate
-	           table: function (name) {
-	               if (this.storeNames.indexOf(name) === -1) throw new exceptions.InvalidTable("Table " + name + " not in transaction");
-	               return allTables[name];
-	           }
-	       });
-
-	       //
-	       //
-	       //
-	       // WhereClause
-	       //
-	       //
-	       //
-	       function WhereClause(table, index, orCollection) {
-	           /// <param name="table" type="Table"></param>
-	           /// <param name="index" type="String" optional="true"></param>
-	           /// <param name="orCollection" type="Collection" optional="true"></param>
-	           this._ctx = {
-	               table: table,
-	               index: index === ":id" ? null : index,
-	               collClass: table._collClass,
-	               or: orCollection
-	           };
-	       }
-
-	       props(WhereClause.prototype, function () {
-
-	           // WhereClause private methods
-
-	           function fail(collectionOrWhereClause, err, T) {
-	               var collection = collectionOrWhereClause instanceof WhereClause ? new collectionOrWhereClause._ctx.collClass(collectionOrWhereClause) : collectionOrWhereClause;
-
-	               collection._ctx.error = T ? new T(err) : new TypeError(err);
-	               return collection;
-	           }
-
-	           function emptyCollection(whereClause) {
-	               return new whereClause._ctx.collClass(whereClause, function () {
-	                   return IDBKeyRange.only("");
-	               }).limit(0);
-	           }
-
-	           function upperFactory(dir) {
-	               return dir === "next" ? function (s) {
-	                   return s.toUpperCase();
-	               } : function (s) {
-	                   return s.toLowerCase();
-	               };
-	           }
-	           function lowerFactory(dir) {
-	               return dir === "next" ? function (s) {
-	                   return s.toLowerCase();
-	               } : function (s) {
-	                   return s.toUpperCase();
-	               };
-	           }
-	           function nextCasing(key, lowerKey, upperNeedle, lowerNeedle, cmp, dir) {
-	               var length = Math.min(key.length, lowerNeedle.length);
-	               var llp = -1;
-	               for (var i = 0; i < length; ++i) {
-	                   var lwrKeyChar = lowerKey[i];
-	                   if (lwrKeyChar !== lowerNeedle[i]) {
-	                       if (cmp(key[i], upperNeedle[i]) < 0) return key.substr(0, i) + upperNeedle[i] + upperNeedle.substr(i + 1);
-	                       if (cmp(key[i], lowerNeedle[i]) < 0) return key.substr(0, i) + lowerNeedle[i] + upperNeedle.substr(i + 1);
-	                       if (llp >= 0) return key.substr(0, llp) + lowerKey[llp] + upperNeedle.substr(llp + 1);
-	                       return null;
-	                   }
-	                   if (cmp(key[i], lwrKeyChar) < 0) llp = i;
-	               }
-	               if (length < lowerNeedle.length && dir === "next") return key + upperNeedle.substr(key.length);
-	               if (length < key.length && dir === "prev") return key.substr(0, upperNeedle.length);
-	               return llp < 0 ? null : key.substr(0, llp) + lowerNeedle[llp] + upperNeedle.substr(llp + 1);
-	           }
-
-	           function addIgnoreCaseAlgorithm(whereClause, match, needles, suffix) {
-	               /// <param name="needles" type="Array" elementType="String"></param>
-	               var upper,
-	                   lower,
-	                   compare,
-	                   upperNeedles,
-	                   lowerNeedles,
-	                   direction,
-	                   nextKeySuffix,
-	                   needlesLen = needles.length;
-	               if (!needles.every(function (s) {
-	                   return typeof s === 'string';
-	               })) {
-	                   return fail(whereClause, STRING_EXPECTED);
-	               }
-	               function initDirection(dir) {
-	                   upper = upperFactory(dir);
-	                   lower = lowerFactory(dir);
-	                   compare = dir === "next" ? simpleCompare : simpleCompareReverse;
-	                   var needleBounds = needles.map(function (needle) {
-	                       return { lower: lower(needle), upper: upper(needle) };
-	                   }).sort(function (a, b) {
-	                       return compare(a.lower, b.lower);
-	                   });
-	                   upperNeedles = needleBounds.map(function (nb) {
-	                       return nb.upper;
-	                   });
-	                   lowerNeedles = needleBounds.map(function (nb) {
-	                       return nb.lower;
-	                   });
-	                   direction = dir;
-	                   nextKeySuffix = dir === "next" ? "" : suffix;
-	               }
-	               initDirection("next");
-
-	               var c = new whereClause._ctx.collClass(whereClause, function () {
-	                   return IDBKeyRange.bound(upperNeedles[0], lowerNeedles[needlesLen - 1] + suffix);
-	               });
-
-	               c._ondirectionchange = function (direction) {
-	                   // This event onlys occur before filter is called the first time.
-	                   initDirection(direction);
-	               };
-
-	               var firstPossibleNeedle = 0;
-
-	               c._addAlgorithm(function (cursor, advance, resolve) {
-	                   /// <param name="cursor" type="IDBCursor"></param>
-	                   /// <param name="advance" type="Function"></param>
-	                   /// <param name="resolve" type="Function"></param>
-	                   var key = cursor.key;
-	                   if (typeof key !== 'string') return false;
-	                   var lowerKey = lower(key);
-	                   if (match(lowerKey, lowerNeedles, firstPossibleNeedle)) {
-	                       return true;
-	                   } else {
-	                       var lowestPossibleCasing = null;
-	                       for (var i = firstPossibleNeedle; i < needlesLen; ++i) {
-	                           var casing = nextCasing(key, lowerKey, upperNeedles[i], lowerNeedles[i], compare, direction);
-	                           if (casing === null && lowestPossibleCasing === null) firstPossibleNeedle = i + 1;else if (lowestPossibleCasing === null || compare(lowestPossibleCasing, casing) > 0) {
-	                               lowestPossibleCasing = casing;
-	                           }
-	                       }
-	                       if (lowestPossibleCasing !== null) {
-	                           advance(function () {
-	                               cursor.continue(lowestPossibleCasing + nextKeySuffix);
-	                           });
-	                       } else {
-	                           advance(resolve);
-	                       }
-	                       return false;
-	                   }
-	               });
-	               return c;
-	           }
-
-	           //
-	           // WhereClause public methods
-	           //
-	           return {
-	               between: function (lower, upper, includeLower, includeUpper) {
-	                   /// <summary>
-	                   ///     Filter out records whose where-field lays between given lower and upper values. Applies to Strings, Numbers and Dates.
-	                   /// </summary>
-	                   /// <param name="lower"></param>
-	                   /// <param name="upper"></param>
-	                   /// <param name="includeLower" optional="true">Whether items that equals lower should be included. Default true.</param>
-	                   /// <param name="includeUpper" optional="true">Whether items that equals upper should be included. Default false.</param>
-	                   /// <returns type="Collection"></returns>
-	                   includeLower = includeLower !== false; // Default to true
-	                   includeUpper = includeUpper === true; // Default to false
-	                   try {
-	                       if (cmp(lower, upper) > 0 || cmp(lower, upper) === 0 && (includeLower || includeUpper) && !(includeLower && includeUpper)) return emptyCollection(this); // Workaround for idiotic W3C Specification that DataError must be thrown if lower > upper. The natural result would be to return an empty collection.
-	                       return new this._ctx.collClass(this, function () {
-	                           return IDBKeyRange.bound(lower, upper, !includeLower, !includeUpper);
-	                       });
-	                   } catch (e) {
-	                       return fail(this, INVALID_KEY_ARGUMENT);
-	                   }
-	               },
-	               equals: function (value) {
-	                   return new this._ctx.collClass(this, function () {
-	                       return IDBKeyRange.only(value);
-	                   });
-	               },
-	               above: function (value) {
-	                   return new this._ctx.collClass(this, function () {
-	                       return IDBKeyRange.lowerBound(value, true);
-	                   });
-	               },
-	               aboveOrEqual: function (value) {
-	                   return new this._ctx.collClass(this, function () {
-	                       return IDBKeyRange.lowerBound(value);
-	                   });
-	               },
-	               below: function (value) {
-	                   return new this._ctx.collClass(this, function () {
-	                       return IDBKeyRange.upperBound(value, true);
-	                   });
-	               },
-	               belowOrEqual: function (value) {
-	                   return new this._ctx.collClass(this, function () {
-	                       return IDBKeyRange.upperBound(value);
-	                   });
-	               },
-	               startsWith: function (str) {
-	                   /// <param name="str" type="String"></param>
-	                   if (typeof str !== 'string') return fail(this, STRING_EXPECTED);
-	                   return this.between(str, str + maxString, true, true);
-	               },
-	               startsWithIgnoreCase: function (str) {
-	                   /// <param name="str" type="String"></param>
-	                   if (str === "") return this.startsWith(str);
-	                   return addIgnoreCaseAlgorithm(this, function (x, a) {
-	                       return x.indexOf(a[0]) === 0;
-	                   }, [str], maxString);
-	               },
-	               equalsIgnoreCase: function (str) {
-	                   /// <param name="str" type="String"></param>
-	                   return addIgnoreCaseAlgorithm(this, function (x, a) {
-	                       return x === a[0];
-	                   }, [str], "");
-	               },
-	               anyOfIgnoreCase: function () {
-	                   var set = getArrayOf.apply(NO_CHAR_ARRAY, arguments);
-	                   if (set.length === 0) return emptyCollection(this);
-	                   return addIgnoreCaseAlgorithm(this, function (x, a) {
-	                       return a.indexOf(x) !== -1;
-	                   }, set, "");
-	               },
-	               startsWithAnyOfIgnoreCase: function () {
-	                   var set = getArrayOf.apply(NO_CHAR_ARRAY, arguments);
-	                   if (set.length === 0) return emptyCollection(this);
-	                   return addIgnoreCaseAlgorithm(this, function (x, a) {
-	                       return a.some(function (n) {
-	                           return x.indexOf(n) === 0;
-	                       });
-	                   }, set, maxString);
-	               },
-	               anyOf: function () {
-	                   var set = getArrayOf.apply(NO_CHAR_ARRAY, arguments);
-	                   var compare = ascending;
-	                   try {
-	                       set.sort(compare);
-	                   } catch (e) {
-	                       return fail(this, INVALID_KEY_ARGUMENT);
-	                   }
-	                   if (set.length === 0) return emptyCollection(this);
-	                   var c = new this._ctx.collClass(this, function () {
-	                       return IDBKeyRange.bound(set[0], set[set.length - 1]);
-	                   });
-
-	                   c._ondirectionchange = function (direction) {
-	                       compare = direction === "next" ? ascending : descending;
-	                       set.sort(compare);
-	                   };
-	                   var i = 0;
-	                   c._addAlgorithm(function (cursor, advance, resolve) {
-	                       var key = cursor.key;
-	                       while (compare(key, set[i]) > 0) {
-	                           // The cursor has passed beyond this key. Check next.
-	                           ++i;
-	                           if (i === set.length) {
-	                               // There is no next. Stop searching.
-	                               advance(resolve);
-	                               return false;
-	                           }
-	                       }
-	                       if (compare(key, set[i]) === 0) {
-	                           // The current cursor value should be included and we should continue a single step in case next item has the same key or possibly our next key in set.
-	                           return true;
-	                       } else {
-	                           // cursor.key not yet at set[i]. Forward cursor to the next key to hunt for.
-	                           advance(function () {
-	                               cursor.continue(set[i]);
-	                           });
-	                           return false;
-	                       }
-	                   });
-	                   return c;
-	               },
-
-	               notEqual: function (value) {
-	                   return this.inAnyRange([[-Infinity, value], [value, maxKey]], { includeLowers: false, includeUppers: false });
-	               },
-
-	               noneOf: function () {
-	                   var set = getArrayOf.apply(NO_CHAR_ARRAY, arguments);
-	                   if (set.length === 0) return new this._ctx.collClass(this); // Return entire collection.
-	                   try {
-	                       set.sort(ascending);
-	                   } catch (e) {
-	                       return fail(this, INVALID_KEY_ARGUMENT);
-	                   }
-	                   // Transform ["a","b","c"] to a set of ranges for between/above/below: [[-Infinity,"a"], ["a","b"], ["b","c"], ["c",maxKey]]
-	                   var ranges = set.reduce(function (res, val) {
-	                       return res ? res.concat([[res[res.length - 1][1], val]]) : [[-Infinity, val]];
-	                   }, null);
-	                   ranges.push([set[set.length - 1], maxKey]);
-	                   return this.inAnyRange(ranges, { includeLowers: false, includeUppers: false });
-	               },
-
-	               /** Filter out values withing given set of ranges.
-	               * Example, give children and elders a rebate of 50%:
-	               *
-	               *   db.friends.where('age').inAnyRange([[0,18],[65,Infinity]]).modify({Rebate: 1/2});
-	               *
-	               * @param {(string|number|Date|Array)[][]} ranges
-	               * @param {{includeLowers: boolean, includeUppers: boolean}} options
-	               */
-	               inAnyRange: function (ranges, options) {
-	                   var ctx = this._ctx;
-	                   if (ranges.length === 0) return emptyCollection(this);
-	                   if (!ranges.every(function (range) {
-	                       return range[0] !== undefined && range[1] !== undefined && ascending(range[0], range[1]) <= 0;
-	                   })) {
-	                       return fail(this, "First argument to inAnyRange() must be an Array of two-value Arrays [lower,upper] where upper must not be lower than lower", exceptions.InvalidArgument);
-	                   }
-	                   var includeLowers = !options || options.includeLowers !== false; // Default to true
-	                   var includeUppers = options && options.includeUppers === true; // Default to false
-
-	                   function addRange(ranges, newRange) {
-	                       for (var i = 0, l = ranges.length; i < l; ++i) {
-	                           var range = ranges[i];
-	                           if (cmp(newRange[0], range[1]) < 0 && cmp(newRange[1], range[0]) > 0) {
-	                               range[0] = min(range[0], newRange[0]);
-	                               range[1] = max(range[1], newRange[1]);
-	                               break;
-	                           }
-	                       }
-	                       if (i === l) ranges.push(newRange);
-	                       return ranges;
-	                   }
-
-	                   var sortDirection = ascending;
-	                   function rangeSorter(a, b) {
-	                       return sortDirection(a[0], b[0]);
-	                   }
-
-	                   // Join overlapping ranges
-	                   var set;
-	                   try {
-	                       set = ranges.reduce(addRange, []);
-	                       set.sort(rangeSorter);
-	                   } catch (ex) {
-	                       return fail(this, INVALID_KEY_ARGUMENT);
-	                   }
-
-	                   var i = 0;
-	                   var keyIsBeyondCurrentEntry = includeUppers ? function (key) {
-	                       return ascending(key, set[i][1]) > 0;
-	                   } : function (key) {
-	                       return ascending(key, set[i][1]) >= 0;
-	                   };
-
-	                   var keyIsBeforeCurrentEntry = includeLowers ? function (key) {
-	                       return descending(key, set[i][0]) > 0;
-	                   } : function (key) {
-	                       return descending(key, set[i][0]) >= 0;
-	                   };
-
-	                   function keyWithinCurrentRange(key) {
-	                       return !keyIsBeyondCurrentEntry(key) && !keyIsBeforeCurrentEntry(key);
-	                   }
-
-	                   var checkKey = keyIsBeyondCurrentEntry;
-
-	                   var c = new ctx.collClass(this, function () {
-	                       return IDBKeyRange.bound(set[0][0], set[set.length - 1][1], !includeLowers, !includeUppers);
-	                   });
-
-	                   c._ondirectionchange = function (direction) {
-	                       if (direction === "next") {
-	                           checkKey = keyIsBeyondCurrentEntry;
-	                           sortDirection = ascending;
-	                       } else {
-	                           checkKey = keyIsBeforeCurrentEntry;
-	                           sortDirection = descending;
-	                       }
-	                       set.sort(rangeSorter);
-	                   };
-
-	                   c._addAlgorithm(function (cursor, advance, resolve) {
-	                       var key = cursor.key;
-	                       while (checkKey(key)) {
-	                           // The cursor has passed beyond this key. Check next.
-	                           ++i;
-	                           if (i === set.length) {
-	                               // There is no next. Stop searching.
-	                               advance(resolve);
-	                               return false;
-	                           }
-	                       }
-	                       if (keyWithinCurrentRange(key)) {
-	                           // The current cursor value should be included and we should continue a single step in case next item has the same key or possibly our next key in set.
-	                           return true;
-	                       } else if (cmp(key, set[i][1]) === 0 || cmp(key, set[i][0]) === 0) {
-	                           // includeUpper or includeLower is false so keyWithinCurrentRange() returns false even though we are at range border.
-	                           // Continue to next key but don't include this one.
-	                           return false;
-	                       } else {
-	                           // cursor.key not yet at set[i]. Forward cursor to the next key to hunt for.
-	                           advance(function () {
-	                               if (sortDirection === ascending) cursor.continue(set[i][0]);else cursor.continue(set[i][1]);
-	                           });
-	                           return false;
-	                       }
-	                   });
-	                   return c;
-	               },
-	               startsWithAnyOf: function () {
-	                   var set = getArrayOf.apply(NO_CHAR_ARRAY, arguments);
-
-	                   if (!set.every(function (s) {
-	                       return typeof s === 'string';
-	                   })) {
-	                       return fail(this, "startsWithAnyOf() only works with strings");
-	                   }
-	                   if (set.length === 0) return emptyCollection(this);
-
-	                   return this.inAnyRange(set.map(function (str) {
-	                       return [str, str + maxString];
-	                   }));
-	               }
-	           };
-	       });
-
-	       //
-	       //
-	       //
-	       // Collection Class
-	       //
-	       //
-	       //
-	       function Collection(whereClause, keyRangeGenerator) {
-	           /// <summary>
-	           ///
-	           /// </summary>
-	           /// <param name="whereClause" type="WhereClause">Where clause instance</param>
-	           /// <param name="keyRangeGenerator" value="function(){ return IDBKeyRange.bound(0,1);}" optional="true"></param>
-	           var keyRange = null,
-	               error = null;
-	           if (keyRangeGenerator) try {
-	               keyRange = keyRangeGenerator();
-	           } catch (ex) {
-	               error = ex;
-	           }
-
-	           var whereCtx = whereClause._ctx,
-	               table = whereCtx.table;
-	           this._ctx = {
-	               table: table,
-	               index: whereCtx.index,
-	               isPrimKey: !whereCtx.index || table.schema.primKey.keyPath && whereCtx.index === table.schema.primKey.name,
-	               range: keyRange,
-	               keysOnly: false,
-	               dir: "next",
-	               unique: "",
-	               algorithm: null,
-	               filter: null,
-	               replayFilter: null,
-	               justLimit: true, // True if a replayFilter is just a filter that performs a "limit" operation (or none at all)
-	               isMatch: null,
-	               offset: 0,
-	               limit: Infinity,
-	               error: error, // If set, any promise must be rejected with this error
-	               or: whereCtx.or,
-	               valueMapper: table.hook.reading.fire
-	           };
-	       }
-
-	       function isPlainKeyRange(ctx, ignoreLimitFilter) {
-	           return !(ctx.filter || ctx.algorithm || ctx.or) && (ignoreLimitFilter ? ctx.justLimit : !ctx.replayFilter);
-	       }
-
-	       props(Collection.prototype, function () {
-
-	           //
-	           // Collection Private Functions
-	           //
-
-	           function addFilter(ctx, fn) {
-	               ctx.filter = combine(ctx.filter, fn);
-	           }
-
-	           function addReplayFilter(ctx, factory, isLimitFilter) {
-	               var curr = ctx.replayFilter;
-	               ctx.replayFilter = curr ? function () {
-	                   return combine(curr(), factory());
-	               } : factory;
-	               ctx.justLimit = isLimitFilter && !curr;
-	           }
-
-	           function addMatchFilter(ctx, fn) {
-	               ctx.isMatch = combine(ctx.isMatch, fn);
-	           }
-
-	           /** @param ctx {
-	            *      isPrimKey: boolean,
-	            *      table: Table,
-	            *      index: string
-	            * }
-	            * @param store IDBObjectStore
-	            **/
-	           function getIndexOrStore(ctx, store) {
-	               if (ctx.isPrimKey) return store;
-	               var indexSpec = ctx.table.schema.idxByName[ctx.index];
-	               if (!indexSpec) throw new exceptions.Schema("KeyPath " + ctx.index + " on object store " + store.name + " is not indexed");
-	               return store.index(indexSpec.name);
-	           }
-
-	           /** @param ctx {
-	            *      isPrimKey: boolean,
-	            *      table: Table,
-	            *      index: string,
-	            *      keysOnly: boolean,
-	            *      range?: IDBKeyRange,
-	            *      dir: "next" | "prev"
-	            * }
-	            */
-	           function openCursor(ctx, store) {
-	               var idxOrStore = getIndexOrStore(ctx, store);
-	               return ctx.keysOnly && 'openKeyCursor' in idxOrStore ? idxOrStore.openKeyCursor(ctx.range || null, ctx.dir + ctx.unique) : idxOrStore.openCursor(ctx.range || null, ctx.dir + ctx.unique);
-	           }
-
-	           function iter(ctx, fn, resolve, reject, idbstore) {
-	               var filter = ctx.replayFilter ? combine(ctx.filter, ctx.replayFilter()) : ctx.filter;
-	               if (!ctx.or) {
-	                   iterate(openCursor(ctx, idbstore), combine(ctx.algorithm, filter), fn, resolve, reject, !ctx.keysOnly && ctx.valueMapper);
-	               } else (function () {
-	                   var set = {};
-	                   var resolved = 0;
-
-	                   function resolveboth() {
-	                       if (++resolved === 2) resolve(); // Seems like we just support or btwn max 2 expressions, but there are no limit because we do recursion.
-	                   }
-
-	                   function union(item, cursor, advance) {
-	                       if (!filter || filter(cursor, advance, resolveboth, reject)) {
-	                           var key = cursor.primaryKey.toString(); // Converts any Date to String, String to String, Number to String and Array to comma-separated string
-	                           if (!hasOwn(set, key)) {
-	                               set[key] = true;
-	                               fn(item, cursor, advance);
-	                           }
-	                       }
-	                   }
-
-	                   ctx.or._iterate(union, resolveboth, reject, idbstore);
-	                   iterate(openCursor(ctx, idbstore), ctx.algorithm, union, resolveboth, reject, !ctx.keysOnly && ctx.valueMapper);
-	               })();
-	           }
-	           function getInstanceTemplate(ctx) {
-	               return ctx.table.schema.instanceTemplate;
-	           }
-
-	           return {
-
-	               //
-	               // Collection Protected Functions
-	               //
-
-	               _read: function (fn, cb) {
-	                   var ctx = this._ctx;
-	                   if (ctx.error) return ctx.table._trans(null, function rejector(resolve, reject) {
-	                       reject(ctx.error);
-	                   });else return ctx.table._idbstore(READONLY, fn).then(cb);
-	               },
-	               _write: function (fn) {
-	                   var ctx = this._ctx;
-	                   if (ctx.error) return ctx.table._trans(null, function rejector(resolve, reject) {
-	                       reject(ctx.error);
-	                   });else return ctx.table._idbstore(READWRITE, fn, "locked"); // When doing write operations on collections, always lock the operation so that upcoming operations gets queued.
-	               },
-	               _addAlgorithm: function (fn) {
-	                   var ctx = this._ctx;
-	                   ctx.algorithm = combine(ctx.algorithm, fn);
-	               },
-
-	               _iterate: function (fn, resolve, reject, idbstore) {
-	                   return iter(this._ctx, fn, resolve, reject, idbstore);
-	               },
-
-	               clone: function (props) {
-	                   var rv = Object.create(this.constructor.prototype),
-	                       ctx = Object.create(this._ctx);
-	                   if (props) extend(ctx, props);
-	                   rv._ctx = ctx;
-	                   return rv;
-	               },
-
-	               raw: function () {
-	                   this._ctx.valueMapper = null;
-	                   return this;
-	               },
-
-	               //
-	               // Collection Public methods
-	               //
-
-	               each: function (fn) {
-	                   var ctx = this._ctx;
-
-	                   if (fake) {
-	                       var item = getInstanceTemplate(ctx),
-	                           primKeyPath = ctx.table.schema.primKey.keyPath,
-	                           key = getByKeyPath(item, ctx.index ? ctx.table.schema.idxByName[ctx.index].keyPath : primKeyPath),
-	                           primaryKey = getByKeyPath(item, primKeyPath);
-	                       fn(item, { key: key, primaryKey: primaryKey });
-	                   }
-
-	                   return this._read(function (resolve, reject, idbstore) {
-	                       iter(ctx, fn, resolve, reject, idbstore);
-	                   });
-	               },
-
-	               count: function (cb) {
-	                   if (fake) return Promise.resolve(0).then(cb);
-	                   var ctx = this._ctx;
-
-	                   if (isPlainKeyRange(ctx, true)) {
-	                       // This is a plain key range. We can use the count() method if the index.
-	                       return this._read(function (resolve, reject, idbstore) {
-	                           var idx = getIndexOrStore(ctx, idbstore);
-	                           var req = ctx.range ? idx.count(ctx.range) : idx.count();
-	                           req.onerror = eventRejectHandler(reject);
-	                           req.onsuccess = function (e) {
-	                               resolve(Math.min(e.target.result, ctx.limit));
-	                           };
-	                       }, cb);
-	                   } else {
-	                       // Algorithms, filters or expressions are applied. Need to count manually.
-	                       var count = 0;
-	                       return this._read(function (resolve, reject, idbstore) {
-	                           iter(ctx, function () {
-	                               ++count;return false;
-	                           }, function () {
-	                               resolve(count);
-	                           }, reject, idbstore);
-	                       }, cb);
-	                   }
-	               },
-
-	               sortBy: function (keyPath, cb) {
-	                   /// <param name="keyPath" type="String"></param>
-	                   var parts = keyPath.split('.').reverse(),
-	                       lastPart = parts[0],
-	                       lastIndex = parts.length - 1;
-	                   function getval(obj, i) {
-	                       if (i) return getval(obj[parts[i]], i - 1);
-	                       return obj[lastPart];
-	                   }
-	                   var order = this._ctx.dir === "next" ? 1 : -1;
-
-	                   function sorter(a, b) {
-	                       var aVal = getval(a, lastIndex),
-	                           bVal = getval(b, lastIndex);
-	                       return aVal < bVal ? -order : aVal > bVal ? order : 0;
-	                   }
-	                   return this.toArray(function (a) {
-	                       return a.sort(sorter);
-	                   }).then(cb);
-	               },
-
-	               toArray: function (cb) {
-	                   var ctx = this._ctx;
-	                   return this._read(function (resolve, reject, idbstore) {
-	                       fake && resolve([getInstanceTemplate(ctx)]);
-	                       if (hasGetAll && ctx.dir === 'next' && isPlainKeyRange(ctx, true) && ctx.limit > 0) {
-	                           // Special optimation if we could use IDBObjectStore.getAll() or
-	                           // IDBKeyRange.getAll():
-	                           var readingHook = ctx.table.hook.reading.fire;
-	                           var idxOrStore = getIndexOrStore(ctx, idbstore);
-	                           var req = ctx.limit < Infinity ? idxOrStore.getAll(ctx.range, ctx.limit) : idxOrStore.getAll(ctx.range);
-	                           req.onerror = eventRejectHandler(reject);
-	                           req.onsuccess = readingHook === mirror ? eventSuccessHandler(resolve) : wrap(eventSuccessHandler(function (res) {
-	                               resolve(res.map(readingHook));
-	                           }));
-	                       } else {
-	                           // Getting array through a cursor.
-	                           var a = [];
-	                           iter(ctx, function (item) {
-	                               a.push(item);
-	                           }, function arrayComplete() {
-	                               resolve(a);
-	                           }, reject, idbstore);
-	                       }
-	                   }, cb);
-	               },
-
-	               offset: function (offset) {
-	                   var ctx = this._ctx;
-	                   if (offset <= 0) return this;
-	                   ctx.offset += offset; // For count()
-	                   if (isPlainKeyRange(ctx)) {
-	                       addReplayFilter(ctx, function () {
-	                           var offsetLeft = offset;
-	                           return function (cursor, advance) {
-	                               if (offsetLeft === 0) return true;
-	                               if (offsetLeft === 1) {
-	                                   --offsetLeft;return false;
-	                               }
-	                               advance(function () {
-	                                   cursor.advance(offsetLeft);
-	                                   offsetLeft = 0;
-	                               });
-	                               return false;
-	                           };
-	                       });
-	                   } else {
-	                       addReplayFilter(ctx, function () {
-	                           var offsetLeft = offset;
-	                           return function () {
-	                               return --offsetLeft < 0;
-	                           };
-	                       });
-	                   }
-	                   return this;
-	               },
-
-	               limit: function (numRows) {
-	                   this._ctx.limit = Math.min(this._ctx.limit, numRows); // For count()
-	                   addReplayFilter(this._ctx, function () {
-	                       var rowsLeft = numRows;
-	                       return function (cursor, advance, resolve) {
-	                           if (--rowsLeft <= 0) advance(resolve); // Stop after this item has been included
-	                           return rowsLeft >= 0; // If numRows is already below 0, return false because then 0 was passed to numRows initially. Otherwise we wouldnt come here.
-	                       };
-	                   }, true);
-	                   return this;
-	               },
-
-	               until: function (filterFunction, bIncludeStopEntry) {
-	                   var ctx = this._ctx;
-	                   fake && filterFunction(getInstanceTemplate(ctx));
-	                   addFilter(this._ctx, function (cursor, advance, resolve) {
-	                       if (filterFunction(cursor.value)) {
-	                           advance(resolve);
-	                           return bIncludeStopEntry;
-	                       } else {
-	                           return true;
-	                       }
-	                   });
-	                   return this;
-	               },
-
-	               first: function (cb) {
-	                   return this.limit(1).toArray(function (a) {
-	                       return a[0];
-	                   }).then(cb);
-	               },
-
-	               last: function (cb) {
-	                   return this.reverse().first(cb);
-	               },
-
-	               filter: function (filterFunction) {
-	                   /// <param name="jsFunctionFilter" type="Function">function(val){return true/false}</param>
-	                   fake && filterFunction(getInstanceTemplate(this._ctx));
-	                   addFilter(this._ctx, function (cursor) {
-	                       return filterFunction(cursor.value);
-	                   });
-	                   // match filters not used in Dexie.js but can be used by 3rd part libraries to test a
-	                   // collection for a match without querying DB. Used by Dexie.Observable.
-	                   addMatchFilter(this._ctx, filterFunction);
-	                   return this;
-	               },
-
-	               and: function (filterFunction) {
-	                   return this.filter(filterFunction);
-	               },
-
-	               or: function (indexName) {
-	                   return new WhereClause(this._ctx.table, indexName, this);
-	               },
-
-	               reverse: function () {
-	                   this._ctx.dir = this._ctx.dir === "prev" ? "next" : "prev";
-	                   if (this._ondirectionchange) this._ondirectionchange(this._ctx.dir);
-	                   return this;
-	               },
-
-	               desc: function () {
-	                   return this.reverse();
-	               },
-
-	               eachKey: function (cb) {
-	                   var ctx = this._ctx;
-	                   ctx.keysOnly = !ctx.isMatch;
-	                   return this.each(function (val, cursor) {
-	                       cb(cursor.key, cursor);
-	                   });
-	               },
-
-	               eachUniqueKey: function (cb) {
-	                   this._ctx.unique = "unique";
-	                   return this.eachKey(cb);
-	               },
-
-	               eachPrimaryKey: function (cb) {
-	                   var ctx = this._ctx;
-	                   ctx.keysOnly = !ctx.isMatch;
-	                   return this.each(function (val, cursor) {
-	                       cb(cursor.primaryKey, cursor);
-	                   });
-	               },
-
-	               keys: function (cb) {
-	                   var ctx = this._ctx;
-	                   ctx.keysOnly = !ctx.isMatch;
-	                   var a = [];
-	                   return this.each(function (item, cursor) {
-	                       a.push(cursor.key);
-	                   }).then(function () {
-	                       return a;
-	                   }).then(cb);
-	               },
-
-	               primaryKeys: function (cb) {
-	                   var ctx = this._ctx;
-	                   if (hasGetAll && ctx.dir === 'next' && isPlainKeyRange(ctx, true) && ctx.limit > 0) {
-	                       // Special optimation if we could use IDBObjectStore.getAllKeys() or
-	                       // IDBKeyRange.getAllKeys():
-	                       return this._read(function (resolve, reject, idbstore) {
-	                           var idxOrStore = getIndexOrStore(ctx, idbstore);
-	                           var req = ctx.limit < Infinity ? idxOrStore.getAllKeys(ctx.range, ctx.limit) : idxOrStore.getAllKeys(ctx.range);
-	                           req.onerror = eventRejectHandler(reject);
-	                           req.onsuccess = eventSuccessHandler(resolve);
-	                       }).then(cb);
-	                   }
-	                   ctx.keysOnly = !ctx.isMatch;
-	                   var a = [];
-	                   return this.each(function (item, cursor) {
-	                       a.push(cursor.primaryKey);
-	                   }).then(function () {
-	                       return a;
-	                   }).then(cb);
-	               },
-
-	               uniqueKeys: function (cb) {
-	                   this._ctx.unique = "unique";
-	                   return this.keys(cb);
-	               },
-
-	               firstKey: function (cb) {
-	                   return this.limit(1).keys(function (a) {
-	                       return a[0];
-	                   }).then(cb);
-	               },
-
-	               lastKey: function (cb) {
-	                   return this.reverse().firstKey(cb);
-	               },
-
-	               distinct: function () {
-	                   var ctx = this._ctx,
-	                       idx = ctx.index && ctx.table.schema.idxByName[ctx.index];
-	                   if (!idx || !idx.multi) return this; // distinct() only makes differencies on multiEntry indexes.
-	                   var set = {};
-	                   addFilter(this._ctx, function (cursor) {
-	                       var strKey = cursor.primaryKey.toString(); // Converts any Date to String, String to String, Number to String and Array to comma-separated string
-	                       var found = hasOwn(set, strKey);
-	                       set[strKey] = true;
-	                       return !found;
-	                   });
-	                   return this;
-	               }
-	           };
-	       });
-
-	       //
-	       //
-	       // WriteableCollection Class
-	       //
-	       //
-	       function WriteableCollection() {
-	           Collection.apply(this, arguments);
-	       }
-
-	       derive(WriteableCollection).from(Collection).extend({
-
-	           //
-	           // WriteableCollection Public Methods
-	           //
-
-	           modify: function (changes) {
-	               var self = this,
-	                   ctx = this._ctx,
-	                   hook = ctx.table.hook,
-	                   updatingHook = hook.updating.fire,
-	                   deletingHook = hook.deleting.fire;
-
-	               fake && typeof changes === 'function' && changes.call({ value: ctx.table.schema.instanceTemplate }, ctx.table.schema.instanceTemplate);
-
-	               return this._write(function (resolve, reject, idbstore, trans) {
-	                   var modifyer;
-	                   if (typeof changes === 'function') {
-	                       // Changes is a function that may update, add or delete propterties or even require a deletion the object itself (delete this.item)
-	                       if (updatingHook === nop && deletingHook === nop) {
-	                           // Noone cares about what is being changed. Just let the modifier function be the given argument as is.
-	                           modifyer = changes;
-	                       } else {
-	                           // People want to know exactly what is being modified or deleted.
-	                           // Let modifyer be a proxy function that finds out what changes the caller is actually doing
-	                           // and call the hooks accordingly!
-	                           modifyer = function (item) {
-	                               var origItem = deepClone(item); // Clone the item first so we can compare laters.
-	                               if (changes.call(this, item, this) === false) return false; // Call the real modifyer function (If it returns false explicitely, it means it dont want to modify anyting on this object)
-	                               if (!hasOwn(this, "value")) {
-	                                   // The real modifyer function requests a deletion of the object. Inform the deletingHook that a deletion is taking place.
-	                                   deletingHook.call(this, this.primKey, item, trans);
-	                               } else {
-	                                   // No deletion. Check what was changed
-	                                   var objectDiff = getObjectDiff(origItem, this.value);
-	                                   var additionalChanges = updatingHook.call(this, objectDiff, this.primKey, origItem, trans);
-	                                   if (additionalChanges) {
-	                                       // Hook want to apply additional modifications. Make sure to fullfill the will of the hook.
-	                                       item = this.value;
-	                                       keys(additionalChanges).forEach(function (keyPath) {
-	                                           setByKeyPath(item, keyPath, additionalChanges[keyPath]); // Adding {keyPath: undefined} means that the keyPath should be deleted. Handled by setByKeyPath
-	                                       });
-	                                   }
-	                               }
-	                           };
-	                       }
-	                   } else if (updatingHook === nop) {
-	                           // changes is a set of {keyPath: value} and no one is listening to the updating hook.
-	                           var keyPaths = keys(changes);
-	                           var numKeys = keyPaths.length;
-	                           modifyer = function (item) {
-	                               var anythingModified = false;
-	                               for (var i = 0; i < numKeys; ++i) {
-	                                   var keyPath = keyPaths[i],
-	                                       val = changes[keyPath];
-	                                   if (getByKeyPath(item, keyPath) !== val) {
-	                                       setByKeyPath(item, keyPath, val); // Adding {keyPath: undefined} means that the keyPath should be deleted. Handled by setByKeyPath
-	                                       anythingModified = true;
-	                                   }
-	                               }
-	                               return anythingModified;
-	                           };
-	                       } else {
-	                           // changes is a set of {keyPath: value} and people are listening to the updating hook so we need to call it and
-	                           // allow it to add additional modifications to make.
-	                           var origChanges = changes;
-	                           changes = shallowClone(origChanges); // Let's work with a clone of the changes keyPath/value set so that we can restore it in case a hook extends it.
-	                           modifyer = function (item) {
-	                               var anythingModified = false;
-	                               var additionalChanges = updatingHook.call(this, changes, this.primKey, deepClone(item), trans);
-	                               if (additionalChanges) extend(changes, additionalChanges);
-	                               keys(changes).forEach(function (keyPath) {
-	                                   var val = changes[keyPath];
-	                                   if (getByKeyPath(item, keyPath) !== val) {
-	                                       setByKeyPath(item, keyPath, val);
-	                                       anythingModified = true;
-	                                   }
-	                               });
-	                               if (additionalChanges) changes = shallowClone(origChanges); // Restore original changes for next iteration
-	                               return anythingModified;
-	                           };
-	                       }
-
-	                   var count = 0;
-	                   var successCount = 0;
-	                   var iterationComplete = false;
-	                   var failures = [];
-	                   var failKeys = [];
-	                   var currentKey = null;
-
-	                   function modifyItem(item, cursor) {
-	                       currentKey = cursor.primaryKey;
-	                       var thisContext = {
-	                           primKey: cursor.primaryKey,
-	                           value: item,
-	                           onsuccess: null,
-	                           onerror: null
-	                       };
-
-	                       function onerror(e) {
-	                           failures.push(e);
-	                           failKeys.push(thisContext.primKey);
-	                           checkFinished();
-	                           return true; // Catch these errors and let a final rejection decide whether or not to abort entire transaction
-	                       }
-
-	                       if (modifyer.call(thisContext, item, thisContext) !== false) {
-	                           // If a callback explicitely returns false, do not perform the update!
-	                           var bDelete = !hasOwn(thisContext, "value");
-	                           ++count;
-	                           tryCatch(function () {
-	                               var req = bDelete ? cursor.delete() : cursor.update(thisContext.value);
-	                               req._hookCtx = thisContext;
-	                               req.onerror = hookedEventRejectHandler(onerror);
-	                               req.onsuccess = hookedEventSuccessHandler(function () {
-	                                   ++successCount;
-	                                   checkFinished();
-	                               });
-	                           }, onerror);
-	                       } else if (thisContext.onsuccess) {
-	                           // Hook will expect either onerror or onsuccess to always be called!
-	                           thisContext.onsuccess(thisContext.value);
-	                       }
-	                   }
-
-	                   function doReject(e) {
-	                       if (e) {
-	                           failures.push(e);
-	                           failKeys.push(currentKey);
-	                       }
-	                       return reject(new ModifyError("Error modifying one or more objects", failures, successCount, failKeys));
-	                   }
-
-	                   function checkFinished() {
-	                       if (iterationComplete && successCount + failures.length === count) {
-	                           if (failures.length > 0) doReject();else resolve(successCount);
-	                       }
-	                   }
-	                   self.clone().raw()._iterate(modifyItem, function () {
-	                       iterationComplete = true;
-	                       checkFinished();
-	                   }, doReject, idbstore);
-	               });
-	           },
-
-	           'delete': function () {
-	               var _this4 = this;
-
-	               var ctx = this._ctx,
-	                   range = ctx.range,
-	                   deletingHook = ctx.table.hook.deleting.fire,
-	                   hasDeleteHook = deletingHook !== nop;
-	               if (!hasDeleteHook && isPlainKeyRange(ctx) && (ctx.isPrimKey && !hangsOnDeleteLargeKeyRange || !range)) // if no range, we'll use clear().
-	                   {
-	                       // May use IDBObjectStore.delete(IDBKeyRange) in this case (Issue #208)
-	                       // For chromium, this is the way most optimized version.
-	                       // For IE/Edge, this could hang the indexedDB engine and make operating system instable
-	                       // (https://gist.github.com/dfahlander/5a39328f029de18222cf2125d56c38f7)
-	                       return this._write(function (resolve, reject, idbstore) {
-	                           // Our API contract is to return a count of deleted items, so we have to count() before delete().
-	                           var onerror = eventRejectHandler(reject),
-	                               countReq = range ? idbstore.count(range) : idbstore.count();
-	                           countReq.onerror = onerror;
-	                           countReq.onsuccess = function () {
-	                               var count = countReq.result;
-	                               tryCatch(function () {
-	                                   var delReq = range ? idbstore.delete(range) : idbstore.clear();
-	                                   delReq.onerror = onerror;
-	                                   delReq.onsuccess = function () {
-	                                       return resolve(count);
-	                                   };
-	                               }, function (err) {
-	                                   return reject(err);
-	                               });
-	                           };
-	                       });
-	                   }
-
-	               // Default version to use when collection is not a vanilla IDBKeyRange on the primary key.
-	               // Divide into chunks to not starve RAM.
-	               // If has delete hook, we will have to collect not just keys but also objects, so it will use
-	               // more memory and need lower chunk size.
-	               var CHUNKSIZE = hasDeleteHook ? 2000 : 10000;
-
-	               return this._write(function (resolve, reject, idbstore, trans) {
-	                   var totalCount = 0;
-	                   // Clone collection and change its table and set a limit of CHUNKSIZE on the cloned Collection instance.
-	                   var collection = _this4.clone({
-	                       keysOnly: !ctx.isMatch && !hasDeleteHook }) // load just keys (unless filter() or and() or deleteHook has subscribers)
-	                   .distinct() // In case multiEntry is used, never delete same key twice because resulting count
-	                   // would become larger than actual delete count.
-	                   .limit(CHUNKSIZE).raw(); // Don't filter through reading-hooks (like mapped classes etc)
-
-	                   var keysOrTuples = [];
-
-	                   // We're gonna do things on as many chunks that are needed.
-	                   // Use recursion of nextChunk function:
-	                   var nextChunk = function () {
-	                       return collection.each(hasDeleteHook ? function (val, cursor) {
-	                           // Somebody subscribes to hook('deleting'). Collect all primary keys and their values,
-	                           // so that the hook can be called with its values in bulkDelete().
-	                           keysOrTuples.push([cursor.primaryKey, cursor.value]);
-	                       } : function (val, cursor) {
-	                           // No one subscribes to hook('deleting'). Collect only primary keys:
-	                           keysOrTuples.push(cursor.primaryKey);
-	                       }).then(function () {
-	                           // Chromium deletes faster when doing it in sort order.
-	                           hasDeleteHook ? keysOrTuples.sort(function (a, b) {
-	                               return ascending(a[0], b[0]);
-	                           }) : keysOrTuples.sort(ascending);
-	                           return bulkDelete(idbstore, trans, keysOrTuples, hasDeleteHook, deletingHook);
-	                       }).then(function () {
-	                           var count = keysOrTuples.length;
-	                           totalCount += count;
-	                           keysOrTuples = [];
-	                           return count < CHUNKSIZE ? totalCount : nextChunk();
-	                       });
-	                   };
-
-	                   resolve(nextChunk());
-	               });
-	           }
-	       });
-
-	       //
-	       //
-	       //
-	       // ------------------------- Help functions ---------------------------
-	       //
-	       //
-	       //
-
-	       function lowerVersionFirst(a, b) {
-	           return a._cfg.version - b._cfg.version;
-	       }
-
-	       function setApiOnPlace(objs, tableNames, mode, dbschema) {
-	           tableNames.forEach(function (tableName) {
-	               var tableInstance = db._tableFactory(mode, dbschema[tableName]);
-	               objs.forEach(function (obj) {
-	                   tableName in obj || (obj[tableName] = tableInstance);
-	               });
-	           });
-	       }
-
-	       function removeTablesApi(objs) {
-	           objs.forEach(function (obj) {
-	               for (var key in obj) {
-	                   if (obj[key] instanceof Table) delete obj[key];
-	               }
-	           });
-	       }
-
-	       function iterate(req, filter, fn, resolve, reject, valueMapper) {
-
-	           // Apply valueMapper (hook('reading') or mappped class)
-	           var mappedFn = valueMapper ? function (x, c, a) {
-	               return fn(valueMapper(x), c, a);
-	           } : fn;
-	           // Wrap fn with PSD and microtick stuff from Promise.
-	           var wrappedFn = wrap(mappedFn, reject);
-
-	           if (!req.onerror) req.onerror = eventRejectHandler(reject);
-	           if (filter) {
-	               req.onsuccess = trycatcher(function filter_record() {
-	                   var cursor = req.result;
-	                   if (cursor) {
-	                       var c = function () {
-	                           cursor.continue();
-	                       };
-	                       if (filter(cursor, function (advancer) {
-	                           c = advancer;
-	                       }, resolve, reject)) wrappedFn(cursor.value, cursor, function (advancer) {
-	                           c = advancer;
-	                       });
-	                       c();
-	                   } else {
-	                       resolve();
-	                   }
-	               }, reject);
-	           } else {
-	               req.onsuccess = trycatcher(function filter_record() {
-	                   var cursor = req.result;
-	                   if (cursor) {
-	                       var c = function () {
-	                           cursor.continue();
-	                       };
-	                       wrappedFn(cursor.value, cursor, function (advancer) {
-	                           c = advancer;
-	                       });
-	                       c();
-	                   } else {
-	                       resolve();
-	                   }
-	               }, reject);
-	           }
-	       }
-
-	       function parseIndexSyntax(indexes) {
-	           /// <param name="indexes" type="String"></param>
-	           /// <returns type="Array" elementType="IndexSpec"></returns>
-	           var rv = [];
-	           indexes.split(',').forEach(function (index) {
-	               index = index.trim();
-	               var name = index.replace(/([&*]|\+\+)/g, ""); // Remove "&", "++" and "*"
-	               // Let keyPath of "[a+b]" be ["a","b"]:
-	               var keyPath = /^\[/.test(name) ? name.match(/^\[(.*)\]$/)[1].split('+') : name;
-
-	               rv.push(new IndexSpec(name, keyPath || null, /\&/.test(index), /\*/.test(index), /\+\+/.test(index), isArray(keyPath), /\./.test(index)));
-	           });
-	           return rv;
-	       }
-
-	       function cmp(key1, key2) {
-	           return indexedDB.cmp(key1, key2);
-	       }
-
-	       function min(a, b) {
-	           return cmp(a, b) < 0 ? a : b;
-	       }
-
-	       function max(a, b) {
-	           return cmp(a, b) > 0 ? a : b;
-	       }
-
-	       function ascending(a, b) {
-	           return indexedDB.cmp(a, b);
-	       }
-
-	       function descending(a, b) {
-	           return indexedDB.cmp(b, a);
-	       }
-
-	       function simpleCompare(a, b) {
-	           return a < b ? -1 : a === b ? 0 : 1;
-	       }
-
-	       function simpleCompareReverse(a, b) {
-	           return a > b ? -1 : a === b ? 0 : 1;
-	       }
-
-	       function combine(filter1, filter2) {
-	           return filter1 ? filter2 ? function () {
-	               return filter1.apply(this, arguments) && filter2.apply(this, arguments);
-	           } : filter1 : filter2;
-	       }
-
-	       function readGlobalSchema() {
-	           db.verno = idbdb.version / 10;
-	           db._dbSchema = globalSchema = {};
-	           dbStoreNames = slice(idbdb.objectStoreNames, 0);
-	           if (dbStoreNames.length === 0) return; // Database contains no stores.
-	           var trans = idbdb.transaction(safariMultiStoreFix(dbStoreNames), 'readonly');
-	           dbStoreNames.forEach(function (storeName) {
-	               var store = trans.objectStore(storeName),
-	                   keyPath = store.keyPath,
-	                   dotted = keyPath && typeof keyPath === 'string' && keyPath.indexOf('.') !== -1;
-	               var primKey = new IndexSpec(keyPath, keyPath || "", false, false, !!store.autoIncrement, keyPath && typeof keyPath !== 'string', dotted);
-	               var indexes = [];
-	               for (var j = 0; j < store.indexNames.length; ++j) {
-	                   var idbindex = store.index(store.indexNames[j]);
-	                   keyPath = idbindex.keyPath;
-	                   dotted = keyPath && typeof keyPath === 'string' && keyPath.indexOf('.') !== -1;
-	                   var index = new IndexSpec(idbindex.name, keyPath, !!idbindex.unique, !!idbindex.multiEntry, false, keyPath && typeof keyPath !== 'string', dotted);
-	                   indexes.push(index);
-	               }
-	               globalSchema[storeName] = new TableSchema(storeName, primKey, indexes, {});
-	           });
-	           setApiOnPlace([allTables, Transaction.prototype], keys(globalSchema), READWRITE, globalSchema);
-	       }
-
-	       function adjustToExistingIndexNames(schema, idbtrans) {
-	           /// <summary>
-	           /// Issue #30 Problem with existing db - adjust to existing index names when migrating from non-dexie db
-	           /// </summary>
-	           /// <param name="schema" type="Object">Map between name and TableSchema</param>
-	           /// <param name="idbtrans" type="IDBTransaction"></param>
-	           var storeNames = idbtrans.db.objectStoreNames;
-	           for (var i = 0; i < storeNames.length; ++i) {
-	               var storeName = storeNames[i];
-	               var store = idbtrans.objectStore(storeName);
-	               hasGetAll = 'getAll' in store;
-	               for (var j = 0; j < store.indexNames.length; ++j) {
-	                   var indexName = store.indexNames[j];
-	                   var keyPath = store.index(indexName).keyPath;
-	                   var dexieName = typeof keyPath === 'string' ? keyPath : "[" + slice(keyPath).join('+') + "]";
-	                   if (schema[storeName]) {
-	                       var indexSpec = schema[storeName].idxByName[dexieName];
-	                       if (indexSpec) indexSpec.name = indexName;
-	                   }
-	               }
-	           }
-	       }
-
-	       function fireOnBlocked(ev) {
-	           db.on("blocked").fire(ev);
-	           // Workaround (not fully*) for missing "versionchange" event in IE,Edge and Safari:
-	           connections.filter(function (c) {
-	               return c.name === db.name && c !== db && !c._vcFired;
-	           }).map(function (c) {
-	               return c.on("versionchange").fire(ev);
-	           });
-	       }
-
-	       extend(this, {
-	           Collection: Collection,
-	           Table: Table,
-	           Transaction: Transaction,
-	           Version: Version,
-	           WhereClause: WhereClause,
-	           WriteableCollection: WriteableCollection,
-	           WriteableTable: WriteableTable
-	       });
-
-	       init();
-
-	       addons.forEach(function (fn) {
-	           fn(db);
-	       });
-	   }
-
-	   var fakeAutoComplete = function () {}; // Will never be changed. We just fake for the IDE that we change it (see doFakeAutoComplete())
-	   var fake = false; // Will never be changed. We just fake for the IDE that we change it (see doFakeAutoComplete())
-
-	   function parseType(type) {
-	       if (typeof type === 'function') {
-	           return new type();
-	       } else if (isArray(type)) {
-	           return [parseType(type[0])];
-	       } else if (type && typeof type === 'object') {
-	           var rv = {};
-	           applyStructure(rv, type);
-	           return rv;
-	       } else {
-	           return type;
-	       }
-	   }
-
-	   function applyStructure(obj, structure) {
-	       keys(structure).forEach(function (member) {
-	           var value = parseType(structure[member]);
-	           obj[member] = value;
-	       });
-	       return obj;
-	   }
-
-	   function eventSuccessHandler(done) {
-	       return function (ev) {
-	           done(ev.target.result);
-	       };
-	   }
-
-	   function hookedEventSuccessHandler(resolve) {
-	       // wrap() is needed when calling hooks because the rare scenario of:
-	       //  * hook does a db operation that fails immediately (IDB throws exception)
-	       //    For calling db operations on correct transaction, wrap makes sure to set PSD correctly.
-	       //    wrap() will also execute in a virtual tick.
-	       //  * If not wrapped in a virtual tick, direct exception will launch a new physical tick.
-	       //  * If this was the last event in the bulk, the promise will resolve after a physical tick
-	       //    and the transaction will have committed already.
-	       // If no hook, the virtual tick will be executed in the reject()/resolve of the final promise,
-	       // because it is always marked with _lib = true when created using Transaction._promise().
-	       return wrap(function (event) {
-	           var req = event.target,
-	               result = req.result,
-	               ctx = req._hookCtx,
-	               // Contains the hook error handler. Put here instead of closure to boost performance.
-	           hookSuccessHandler = ctx && ctx.onsuccess;
-	           hookSuccessHandler && hookSuccessHandler(result);
-	           resolve && resolve(result);
-	       }, resolve);
-	   }
-
-	   function eventRejectHandler(reject) {
-	       return function (event) {
-	           preventDefault(event);
-	           reject(event.target.error);
-	           return false;
-	       };
-	   }
-
-	   function hookedEventRejectHandler(reject) {
-	       return wrap(function (event) {
-	           // See comment on hookedEventSuccessHandler() why wrap() is needed only when supporting hooks.
-
-	           var req = event.target,
-	               err = req.error,
-	               ctx = req._hookCtx,
-	               // Contains the hook error handler. Put here instead of closure to boost performance.
-	           hookErrorHandler = ctx && ctx.onerror;
-	           hookErrorHandler && hookErrorHandler(err);
-	           preventDefault(event);
-	           reject(err);
-	           return false;
-	       });
-	   }
-
-	   function preventDefault(event) {
-	       if (event.stopPropagation) // IndexedDBShim doesnt support this on Safari 8 and below.
-	           event.stopPropagation();
-	       if (event.preventDefault) // IndexedDBShim doesnt support this on Safari 8 and below.
-	           event.preventDefault();
-	   }
-
-	   function globalDatabaseList(cb) {
-	       var val,
-	           localStorage = Dexie.dependencies.localStorage;
-	       if (!localStorage) return cb([]); // Envs without localStorage support
-	       try {
-	           val = JSON.parse(localStorage.getItem('Dexie.DatabaseNames') || "[]");
-	       } catch (e) {
-	           val = [];
-	       }
-	       if (cb(val)) {
-	           localStorage.setItem('Dexie.DatabaseNames', JSON.stringify(val));
-	       }
-	   }
-
-	   function awaitIterator(iterator) {
-	       var callNext = function (result) {
-	           return iterator.next(result);
-	       },
-	           doThrow = function (error) {
-	           return iterator.throw(error);
-	       },
-	           onSuccess = step(callNext),
-	           onError = step(doThrow);
-
-	       function step(getNext) {
-	           return function (val) {
-	               var next = getNext(val),
-	                   value = next.value;
-
-	               return next.done ? value : !value || typeof value.then !== 'function' ? isArray(value) ? Promise.all(value).then(onSuccess, onError) : onSuccess(value) : value.then(onSuccess, onError);
-	           };
-	       }
-
-	       return step(callNext)();
-	   }
-
-	   //
-	   // IndexSpec struct
-	   //
-	   function IndexSpec(name, keyPath, unique, multi, auto, compound, dotted) {
-	       /// <param name="name" type="String"></param>
-	       /// <param name="keyPath" type="String"></param>
-	       /// <param name="unique" type="Boolean"></param>
-	       /// <param name="multi" type="Boolean"></param>
-	       /// <param name="auto" type="Boolean"></param>
-	       /// <param name="compound" type="Boolean"></param>
-	       /// <param name="dotted" type="Boolean"></param>
-	       this.name = name;
-	       this.keyPath = keyPath;
-	       this.unique = unique;
-	       this.multi = multi;
-	       this.auto = auto;
-	       this.compound = compound;
-	       this.dotted = dotted;
-	       var keyPathSrc = typeof keyPath === 'string' ? keyPath : keyPath && '[' + [].join.call(keyPath, '+') + ']';
-	       this.src = (unique ? '&' : '') + (multi ? '*' : '') + (auto ? "++" : "") + keyPathSrc;
-	   }
-
-	   //
-	   // TableSchema struct
-	   //
-	   function TableSchema(name, primKey, indexes, instanceTemplate) {
-	       /// <param name="name" type="String"></param>
-	       /// <param name="primKey" type="IndexSpec"></param>
-	       /// <param name="indexes" type="Array" elementType="IndexSpec"></param>
-	       /// <param name="instanceTemplate" type="Object"></param>
-	       this.name = name;
-	       this.primKey = primKey || new IndexSpec();
-	       this.indexes = indexes || [new IndexSpec()];
-	       this.instanceTemplate = instanceTemplate;
-	       this.mappedClass = null;
-	       this.idxByName = arrayToObject(indexes, function (index) {
-	           return [index.name, index];
-	       });
-	   }
-
-	   // Used in when defining dependencies later...
-	   // (If IndexedDBShim is loaded, prefer it before standard indexedDB)
-	   var idbshim = _global.idbModules && _global.idbModules.shimIndexedDB ? _global.idbModules : {};
-
-	   function safariMultiStoreFix(storeNames) {
-	       return storeNames.length === 1 ? storeNames[0] : storeNames;
-	   }
-
-	   function getNativeGetDatabaseNamesFn(indexedDB) {
-	       var fn = indexedDB && (indexedDB.getDatabaseNames || indexedDB.webkitGetDatabaseNames);
-	       return fn && fn.bind(indexedDB);
-	   }
-
-	   // Export Error classes
-	   props(Dexie, fullNameExceptions); // Dexie.XXXError = class XXXError {...};
-
-	   //
-	   // Static methods and properties
-	   //
-	   props(Dexie, {
-
-	       //
-	       // Static delete() method.
-	       //
-	       delete: function (databaseName) {
-	           var db = new Dexie(databaseName),
-	               promise = db.delete();
-	           promise.onblocked = function (fn) {
-	               db.on("blocked", fn);
-	               return this;
-	           };
-	           return promise;
-	       },
-
-	       //
-	       // Static exists() method.
-	       //
-	       exists: function (name) {
-	           return new Dexie(name).open().then(function (db) {
-	               db.close();
-	               return true;
-	           }).catch(Dexie.NoSuchDatabaseError, function () {
-	               return false;
-	           });
-	       },
-
-	       //
-	       // Static method for retrieving a list of all existing databases at current host.
-	       //
-	       getDatabaseNames: function (cb) {
-	           return new Promise(function (resolve, reject) {
-	               var getDatabaseNames = getNativeGetDatabaseNamesFn(indexedDB);
-	               if (getDatabaseNames) {
-	                   // In case getDatabaseNames() becomes standard, let's prepare to support it:
-	                   var req = getDatabaseNames();
-	                   req.onsuccess = function (event) {
-	                       resolve(slice(event.target.result, 0)); // Converst DOMStringList to Array<String>
-	                   };
-	                   req.onerror = eventRejectHandler(reject);
-	               } else {
-	                   globalDatabaseList(function (val) {
-	                       resolve(val);
-	                       return false;
-	                   });
-	               }
-	           }).then(cb);
-	       },
-
-	       defineClass: function (structure) {
-	           /// <summary>
-	           ///     Create a javascript constructor based on given template for which properties to expect in the class.
-	           ///     Any property that is a constructor function will act as a type. So {name: String} will be equal to {name: new String()}.
-	           /// </summary>
-	           /// <param name="structure">Helps IDE code completion by knowing the members that objects contain and not just the indexes. Also
-	           /// know what type each member has. Example: {name: String, emailAddresses: [String], properties: {shoeSize: Number}}</param>
-
-	           // Default constructor able to copy given properties into this object.
-	           function Class(properties) {
-	               /// <param name="properties" type="Object" optional="true">Properties to initialize object with.
-	               /// </param>
-	               properties ? extend(this, properties) : fake && applyStructure(this, structure);
-	           }
-	           return Class;
-	       },
-
-	       applyStructure: applyStructure,
-
-	       ignoreTransaction: function (scopeFunc) {
-	           // In case caller is within a transaction but needs to create a separate transaction.
-	           // Example of usage:
-	           //
-	           // Let's say we have a logger function in our app. Other application-logic should be unaware of the
-	           // logger function and not need to include the 'logentries' table in all transaction it performs.
-	           // The logging should always be done in a separate transaction and not be dependant on the current
-	           // running transaction context. Then you could use Dexie.ignoreTransaction() to run code that starts a new transaction.
-	           //
-	           //     Dexie.ignoreTransaction(function() {
-	           //         db.logentries.add(newLogEntry);
-	           //     });
-	           //
-	           // Unless using Dexie.ignoreTransaction(), the above example would try to reuse the current transaction
-	           // in current Promise-scope.
-	           //
-	           // An alternative to Dexie.ignoreTransaction() would be setImmediate() or setTimeout(). The reason we still provide an
-	           // API for this because
-	           //  1) The intention of writing the statement could be unclear if using setImmediate() or setTimeout().
-	           //  2) setTimeout() would wait unnescessary until firing. This is however not the case with setImmediate().
-	           //  3) setImmediate() is not supported in the ES standard.
-	           //  4) You might want to keep other PSD state that was set in a parent PSD, such as PSD.letThrough.
-	           return PSD.trans ? usePSD(PSD.transless, scopeFunc) : // Use the closest parent that was non-transactional.
-	           scopeFunc(); // No need to change scope because there is no ongoing transaction.
-	       },
-
-	       vip: function (fn) {
-	           // To be used by subscribers to the on('ready') event.
-	           // This will let caller through to access DB even when it is blocked while the db.ready() subscribers are firing.
-	           // This would have worked automatically if we were certain that the Provider was using Dexie.Promise for all asyncronic operations. The promise PSD
-	           // from the provider.connect() call would then be derived all the way to when provider would call localDatabase.applyChanges(). But since
-	           // the provider more likely is using non-promise async APIs or other thenable implementations, we cannot assume that.
-	           // Note that this method is only useful for on('ready') subscribers that is returning a Promise from the event. If not using vip()
-	           // the database could deadlock since it wont open until the returned Promise is resolved, and any non-VIPed operation started by
-	           // the caller will not resolve until database is opened.
-	           return newScope(function () {
-	               PSD.letThrough = true; // Make sure we are let through if still blocking db due to onready is firing.
-	               return fn();
-	           });
-	       },
-
-	       async: function (generatorFn) {
-	           return function () {
-	               try {
-	                   var rv = awaitIterator(generatorFn.apply(this, arguments));
-	                   if (!rv || typeof rv.then !== 'function') return Promise.resolve(rv);
-	                   return rv;
-	               } catch (e) {
-	                   return rejection(e);
-	               }
-	           };
-	       },
-
-	       spawn: function (generatorFn, args, thiz) {
-	           try {
-	               var rv = awaitIterator(generatorFn.apply(thiz, args || []));
-	               if (!rv || typeof rv.then !== 'function') return Promise.resolve(rv);
-	               return rv;
-	           } catch (e) {
-	               return rejection(e);
-	           }
-	       },
-
-	       // Dexie.currentTransaction property
-	       currentTransaction: {
-	           get: function () {
-	               return PSD.trans || null;
-	           }
-	       },
-
-	       // Export our Promise implementation since it can be handy as a standalone Promise implementation
-	       Promise: Promise,
-
-	       // Dexie.debug proptery:
-	       // Dexie.debug = false
-	       // Dexie.debug = true
-	       // Dexie.debug = "dexie" - don't hide dexie's stack frames.
-	       debug: {
-	           get: function () {
-	               return debug;
-	           },
-	           set: function (value) {
-	               setDebug(value, value === 'dexie' ? function () {
-	                   return true;
-	               } : dexieStackFrameFilter);
-	           }
-	       },
-
-	       // Export our derive/extend/override methodology
-	       derive: derive,
-	       extend: extend,
-	       props: props,
-	       override: override,
-	       // Export our Events() function - can be handy as a toolkit
-	       Events: Events,
-	       events: Events, // Backward compatible lowercase version. Deprecate.
-	       // Utilities
-	       getByKeyPath: getByKeyPath,
-	       setByKeyPath: setByKeyPath,
-	       delByKeyPath: delByKeyPath,
-	       shallowClone: shallowClone,
-	       deepClone: deepClone,
-	       getObjectDiff: getObjectDiff,
-	       asap: asap,
-	       maxKey: maxKey,
-	       // Addon registry
-	       addons: [],
-	       // Global DB connection list
-	       connections: connections,
-
-	       MultiModifyError: exceptions.Modify, // Backward compatibility 0.9.8. Deprecate.
-	       errnames: errnames,
-
-	       // Export other static classes
-	       IndexSpec: IndexSpec,
-	       TableSchema: TableSchema,
-
-	       //
-	       // Dependencies
-	       //
-	       // These will automatically work in browsers with indexedDB support, or where an indexedDB polyfill has been included.
-	       //
-	       // In node.js, however, these properties must be set "manually" before instansiating a new Dexie().
-	       // For node.js, you need to require indexeddb-js or similar and then set these deps.
-	       //
-	       dependencies: {
-	           // Required:
-	           indexedDB: idbshim.shimIndexedDB || _global.indexedDB || _global.mozIndexedDB || _global.webkitIndexedDB || _global.msIndexedDB,
-	           IDBKeyRange: idbshim.IDBKeyRange || _global.IDBKeyRange || _global.webkitIDBKeyRange
-	       },
-
-	       // API Version Number: Type Number, make sure to always set a version number that can be comparable correctly. Example: 0.9, 0.91, 0.92, 1.0, 1.01, 1.1, 1.2, 1.21, etc.
-	       semVer: DEXIE_VERSION,
-	       version: DEXIE_VERSION.split('.').map(function (n) {
-	           return parseInt(n);
-	       }).reduce(function (p, c, i) {
-	           return p + c / Math.pow(10, i * 2);
-	       }),
-	       fakeAutoComplete: fakeAutoComplete,
-
-	       // https://github.com/dfahlander/Dexie.js/issues/186
-	       // typescript compiler tsc in mode ts-->es5 & commonJS, will expect require() to return
-	       // x.default. Workaround: Set Dexie.default = Dexie.
-	       default: Dexie
-	   });
-
-	   tryCatch(function () {
-	       // Optional dependencies
-	       // localStorage
-	       Dexie.dependencies.localStorage = (typeof chrome !== "undefined" && chrome !== null ? chrome.storage : void 0) != null ? null : _global.localStorage;
-	   });
-
-	   // Map DOMErrors and DOMExceptions to corresponding Dexie errors. May change in Dexie v2.0.
-	   Promise.rejectionMapper = mapError;
-
-	   // Fool IDE to improve autocomplete. Tested with Visual Studio 2013 and 2015.
-	   doFakeAutoComplete(function () {
-	       Dexie.fakeAutoComplete = fakeAutoComplete = doFakeAutoComplete;
-	       Dexie.fake = fake = true;
-	   });
-
-	   return Dexie;
-
-	}));
-	//# sourceMappingURL=dexie.js.map
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(585).setImmediate))
+	// may use plugin
+	//https://github.com/nolanlawson/relational-pouch
+	//https://github.com/nolanlawson/pouchdb-find
 
 /***/ },
-/* 585 */
+/* 607 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(3).nextTick;
-	var apply = Function.prototype.apply;
-	var slice = Array.prototype.slice;
-	var immediateIds = {};
-	var nextImmediateId = 0;
+	/* WEBPACK VAR INJECTION */(function(process, global) {'use strict';
 
-	// DOM APIs, for completeness
+	function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-	exports.setTimeout = function() {
-	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-	};
-	exports.setInterval = function() {
-	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-	};
-	exports.clearTimeout =
-	exports.clearInterval = function(timeout) { timeout.close(); };
+	var jsExtend = __webpack_require__(608);
+	var debug = _interopDefault(__webpack_require__(609));
+	var inherits = _interopDefault(__webpack_require__(612));
+	var lie = _interopDefault(__webpack_require__(613));
+	var events = __webpack_require__(615);
+	var getArguments = _interopDefault(__webpack_require__(616));
+	var scopedEval = _interopDefault(__webpack_require__(617));
+	var Md5 = _interopDefault(__webpack_require__(618));
+	var vuvuzela = _interopDefault(__webpack_require__(619));
+	var PromisePool = _interopDefault(__webpack_require__(620));
 
-	function Timeout(id, clearFn) {
-	  this._id = id;
-	  this._clearFn = clearFn;
+	/* istanbul ignore next */
+	var PouchPromise = typeof Promise === 'function' ? Promise : lie;
+
+	// based on https://github.com/montagejs/collections
+	function mangle(key) {
+	  return '$' + key;
 	}
-	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
-	Timeout.prototype.close = function() {
-	  this._clearFn.call(window, this._id);
+	function unmangle(key) {
+	  return key.substring(1);
+	}
+	function _Map() {
+	  this.store = {};
+	}
+	_Map.prototype.get = function (key) {
+	  var mangled = mangle(key);
+	  return this.store[mangled];
 	};
-
-	// Does not start the time, just sets up the members needed.
-	exports.enroll = function(item, msecs) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = msecs;
+	_Map.prototype.set = function (key, value) {
+	  var mangled = mangle(key);
+	  this.store[mangled] = value;
+	  return true;
 	};
-
-	exports.unenroll = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = -1;
+	_Map.prototype.has = function (key) {
+	  var mangled = mangle(key);
+	  return mangled in this.store;
 	};
-
-	exports._unrefActive = exports.active = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-
-	  var msecs = item._idleTimeout;
-	  if (msecs >= 0) {
-	    item._idleTimeoutId = setTimeout(function onTimeout() {
-	      if (item._onTimeout)
-	        item._onTimeout();
-	    }, msecs);
+	_Map.prototype.delete = function (key) {
+	  var mangled = mangle(key);
+	  var res = mangled in this.store;
+	  delete this.store[mangled];
+	  return res;
+	};
+	_Map.prototype.forEach = function (cb) {
+	  var keys = Object.keys(this.store);
+	  for (var i = 0, len = keys.length; i < len; i++) {
+	    var key = keys[i];
+	    var value = this.store[key];
+	    key = unmangle(key);
+	    cb(value, key);
 	  }
 	};
 
-	// That's not how node.js implements it but the exposed api is the same.
-	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
-	  var id = nextImmediateId++;
-	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+	function _Set(array) {
+	  this.store = new _Map();
 
-	  immediateIds[id] = true;
+	  // init with an array
+	  if (array && Array.isArray(array)) {
+	    for (var i = 0, len = array.length; i < len; i++) {
+	      this.add(array[i]);
+	    }
+	  }
+	}
+	_Set.prototype.add = function (key) {
+	  return this.store.set(key, true);
+	};
+	_Set.prototype.has = function (key) {
+	  return this.store.has(key);
+	};
 
-	  nextTick(function onNextTick() {
-	    if (immediateIds[id]) {
-	      // fn.call() is faster so we optimize for the common use-case
-	      // @see http://jsperf.com/call-apply-segu
-	      if (args) {
-	        fn.apply(null, args);
-	      } else {
-	        fn.call(null);
+	function isBinaryObject(object) {
+	  return (typeof ArrayBuffer !== 'undefined' && object instanceof ArrayBuffer) ||
+	    (typeof Blob !== 'undefined' && object instanceof Blob);
+	}
+
+	function cloneArrayBuffer(buff) {
+	  if (typeof buff.slice === 'function') {
+	    return buff.slice(0);
+	  }
+	  // IE10-11 slice() polyfill
+	  var target = new ArrayBuffer(buff.byteLength);
+	  var targetArray = new Uint8Array(target);
+	  var sourceArray = new Uint8Array(buff);
+	  targetArray.set(sourceArray);
+	  return target;
+	}
+
+	function cloneBinaryObject(object) {
+	  if (object instanceof ArrayBuffer) {
+	    return cloneArrayBuffer(object);
+	  }
+	  var size = object.size;
+	  var type = object.type;
+	  // Blob
+	  if (typeof object.slice === 'function') {
+	    return object.slice(0, size, type);
+	  }
+	  // PhantomJS slice() replacement
+	  return object.webkitSlice(0, size, type);
+	}
+
+	// most of this is borrowed from lodash.isPlainObject:
+	// https://github.com/fis-components/lodash.isplainobject/
+	// blob/29c358140a74f252aeb08c9eb28bef86f2217d4a/index.js
+
+	var funcToString = Function.prototype.toString;
+	var objectCtorString = funcToString.call(Object);
+
+	function isPlainObject(value) {
+	  var proto = Object.getPrototypeOf(value);
+	  /* istanbul ignore if */
+	  if (proto === null) { // not sure when this happens, but I guess it can
+	    return true;
+	  }
+	  var Ctor = proto.constructor;
+	  return (typeof Ctor == 'function' &&
+	    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
+	}
+
+	function clone(object) {
+	  var newObject;
+	  var i;
+	  var len;
+
+	  if (!object || typeof object !== 'object') {
+	    return object;
+	  }
+
+	  if (Array.isArray(object)) {
+	    newObject = [];
+	    for (i = 0, len = object.length; i < len; i++) {
+	      newObject[i] = clone(object[i]);
+	    }
+	    return newObject;
+	  }
+
+	  // special case: to avoid inconsistencies between IndexedDB
+	  // and other backends, we automatically stringify Dates
+	  if (object instanceof Date) {
+	    return object.toISOString();
+	  }
+
+	  if (isBinaryObject(object)) {
+	    return cloneBinaryObject(object);
+	  }
+
+	  if (!isPlainObject(object)) {
+	    return object; // don't clone objects like Workers
+	  }
+
+	  newObject = {};
+	  for (i in object) {
+	    /* istanbul ignore else */
+	    if (Object.prototype.hasOwnProperty.call(object, i)) {
+	      var value = clone(object[i]);
+	      if (typeof value !== 'undefined') {
+	        newObject[i] = value;
 	      }
-	      // Prevent ids from leaking
-	      exports.clearImmediate(id);
+	    }
+	  }
+	  return newObject;
+	}
+
+	function once(fun) {
+	  var called = false;
+	  return getArguments(function (args) {
+	    /* istanbul ignore if */
+	    if (called) {
+	      // this is a smoke test and should never actually happen
+	      throw new Error('once called more than once');
+	    } else {
+	      called = true;
+	      fun.apply(this, args);
+	    }
+	  });
+	}
+
+	function toPromise(func) {
+	  //create the function we will be returning
+	  return getArguments(function (args) {
+	    // Clone arguments
+	    args = clone(args);
+	    var self = this;
+	    var tempCB =
+	      (typeof args[args.length - 1] === 'function') ? args.pop() : false;
+	    // if the last argument is a function, assume its a callback
+	    var usedCB;
+	    if (tempCB) {
+	      // if it was a callback, create a new callback which calls it,
+	      // but do so async so we don't trap any errors
+	      usedCB = function (err, resp) {
+	        process.nextTick(function () {
+	          tempCB(err, resp);
+	        });
+	      };
+	    }
+	    var promise = new PouchPromise(function (fulfill, reject) {
+	      var resp;
+	      try {
+	        var callback = once(function (err, mesg) {
+	          if (err) {
+	            reject(err);
+	          } else {
+	            fulfill(mesg);
+	          }
+	        });
+	        // create a callback for this invocation
+	        // apply the function in the orig context
+	        args.push(callback);
+	        resp = func.apply(self, args);
+	        if (resp && typeof resp.then === 'function') {
+	          fulfill(resp);
+	        }
+	      } catch (e) {
+	        reject(e);
+	      }
+	    });
+	    // if there is a callback, call it back
+	    if (usedCB) {
+	      promise.then(function (result) {
+	        usedCB(null, result);
+	      }, usedCB);
+	    }
+	    return promise;
+	  });
+	}
+
+	var log = debug('pouchdb:api');
+
+	function adapterFun(name, callback) {
+	  function logApiCall(self, name, args) {
+	    /* istanbul ignore if */
+	    if (log.enabled) {
+	      var logArgs = [self.name, name];
+	      for (var i = 0; i < args.length - 1; i++) {
+	        logArgs.push(args[i]);
+	      }
+	      log.apply(null, logArgs);
+
+	      // override the callback itself to log the response
+	      var origCallback = args[args.length - 1];
+	      args[args.length - 1] = function (err, res) {
+	        var responseArgs = [self.name, name];
+	        responseArgs = responseArgs.concat(
+	          err ? ['error', err] : ['success', res]
+	        );
+	        log.apply(null, responseArgs);
+	        origCallback(err, res);
+	      };
+	    }
+	  }
+
+	  return toPromise(getArguments(function (args) {
+	    if (this._closed) {
+	      return PouchPromise.reject(new Error('database is closed'));
+	    }
+	    if (this._destroyed) {
+	      return PouchPromise.reject(new Error('database is destroyed'));
+	    }
+	    var self = this;
+	    logApiCall(self, name, args);
+	    if (!this.taskqueue.isReady) {
+	      return new PouchPromise(function (fulfill, reject) {
+	        self.taskqueue.addTask(function (failed) {
+	          if (failed) {
+	            reject(failed);
+	          } else {
+	            fulfill(self[name].apply(self, args));
+	          }
+	        });
+	      });
+	    }
+	    return callback.apply(this, args);
+	  }));
+	}
+
+	// like underscore/lodash _.pick()
+	function pick(obj, arr) {
+	  var res = {};
+	  for (var i = 0, len = arr.length; i < len; i++) {
+	    var prop = arr[i];
+	    if (prop in obj) {
+	      res[prop] = obj[prop];
+	    }
+	  }
+	  return res;
+	}
+
+	// Most browsers throttle concurrent requests at 6, so it's silly
+	// to shim _bulk_get by trying to launch potentially hundreds of requests
+	// and then letting the majority time out. We can handle this ourselves.
+	var MAX_NUM_CONCURRENT_REQUESTS = 6;
+
+	function identityFunction(x) {
+	  return x;
+	}
+
+	function formatResultForOpenRevsGet(result) {
+	  return [{
+	    ok: result
+	  }];
+	}
+
+	// shim for P/CouchDB adapters that don't directly implement _bulk_get
+	function bulkGet(db, opts, callback) {
+	  var requests = opts.docs;
+
+	  // consolidate into one request per doc if possible
+	  var requestsById = {};
+	  requests.forEach(function (request) {
+	    if (request.id in requestsById) {
+	      requestsById[request.id].push(request);
+	    } else {
+	      requestsById[request.id] = [request];
 	    }
 	  });
 
-	  return id;
+	  var numDocs = Object.keys(requestsById).length;
+	  var numDone = 0;
+	  var perDocResults = new Array(numDocs);
+
+	  function collapseResultsAndFinish() {
+	    var results = [];
+	    perDocResults.forEach(function (res) {
+	      res.docs.forEach(function (info) {
+	        results.push({
+	          id: res.id,
+	          docs: [info]
+	        });
+	      });
+	    });
+	    callback(null, {results: results});
+	  }
+
+	  function checkDone() {
+	    if (++numDone === numDocs) {
+	      collapseResultsAndFinish();
+	    }
+	  }
+
+	  function gotResult(docIndex, id, docs) {
+	    perDocResults[docIndex] = {id: id, docs: docs};
+	    checkDone();
+	  }
+
+	  var allRequests = Object.keys(requestsById);
+
+	  var i = 0;
+
+	  function nextBatch() {
+
+	    if (i >= allRequests.length) {
+	      return;
+	    }
+
+	    var upTo = Math.min(i + MAX_NUM_CONCURRENT_REQUESTS, allRequests.length);
+	    var batch = allRequests.slice(i, upTo);
+	    processBatch(batch, i);
+	    i += batch.length;
+	  }
+
+	  function processBatch(batch, offset) {
+	    batch.forEach(function (docId, j) {
+	      var docIdx = offset + j;
+	      var docRequests = requestsById[docId];
+
+	      // just use the first request as the "template"
+	      // TODO: The _bulk_get API allows for more subtle use cases than this,
+	      // but for now it is unlikely that there will be a mix of different
+	      // "atts_since" or "attachments" in the same request, since it's just
+	      // replicate.js that is using this for the moment.
+	      // Also, atts_since is aspirational, since we don't support it yet.
+	      var docOpts = pick(docRequests[0], ['atts_since', 'attachments']);
+	      docOpts.open_revs = docRequests.map(function (request) {
+	        // rev is optional, open_revs disallowed
+	        return request.rev;
+	      });
+
+	      // remove falsey / undefined revisions
+	      docOpts.open_revs = docOpts.open_revs.filter(identityFunction);
+
+	      var formatResult = identityFunction;
+
+	      if (docOpts.open_revs.length === 0) {
+	        delete docOpts.open_revs;
+
+	        // when fetching only the "winning" leaf,
+	        // transform the result so it looks like an open_revs
+	        // request
+	        formatResult = formatResultForOpenRevsGet;
+	      }
+
+	      // globally-supplied options
+	      ['revs', 'attachments', 'binary', 'ajax'].forEach(function (param) {
+	        if (param in opts) {
+	          docOpts[param] = opts[param];
+	        }
+	      });
+	      db.get(docId, docOpts, function (err, res) {
+	        var result;
+	        /* istanbul ignore if */
+	        if (err) {
+	          result = [{error: err}];
+	        } else {
+	          result = formatResult(res);
+	        }
+	        gotResult(docIdx, docId, result);
+	        nextBatch();
+	      });
+	    });
+	  }
+
+	  nextBatch();
+
+	}
+
+	function isChromeApp() {
+	  return (typeof chrome !== "undefined" &&
+	    typeof chrome.storage !== "undefined" &&
+	    typeof chrome.storage.local !== "undefined");
+	}
+
+	var hasLocal;
+
+	if (isChromeApp()) {
+	  hasLocal = false;
+	} else {
+	  try {
+	    localStorage.setItem('_pouch_check_localstorage', 1);
+	    hasLocal = !!localStorage.getItem('_pouch_check_localstorage');
+	  } catch (e) {
+	    hasLocal = false;
+	  }
+	}
+
+	function hasLocalStorage() {
+	  return hasLocal;
+	}
+
+	inherits(Changes$1, events.EventEmitter);
+
+	/* istanbul ignore next */
+	function attachBrowserEvents(self) {
+	  if (isChromeApp()) {
+	    chrome.storage.onChanged.addListener(function (e) {
+	      // make sure it's event addressed to us
+	      if (e.db_name != null) {
+	        //object only has oldValue, newValue members
+	        self.emit(e.dbName.newValue);
+	      }
+	    });
+	  } else if (hasLocalStorage()) {
+	    if (typeof addEventListener !== 'undefined') {
+	      addEventListener("storage", function (e) {
+	        self.emit(e.key);
+	      });
+	    } else { // old IE
+	      window.attachEvent("storage", function (e) {
+	        self.emit(e.key);
+	      });
+	    }
+	  }
+	}
+
+	function Changes$1() {
+	  events.EventEmitter.call(this);
+	  this._listeners = {};
+
+	  attachBrowserEvents(this);
+	}
+	Changes$1.prototype.addListener = function (dbName, id, db, opts) {
+	  /* istanbul ignore if */
+	  if (this._listeners[id]) {
+	    return;
+	  }
+	  var self = this;
+	  var inprogress = false;
+	  function eventFunction() {
+	    /* istanbul ignore if */
+	    if (!self._listeners[id]) {
+	      return;
+	    }
+	    if (inprogress) {
+	      inprogress = 'waiting';
+	      return;
+	    }
+	    inprogress = true;
+	    var changesOpts = pick(opts, [
+	      'style', 'include_docs', 'attachments', 'conflicts', 'filter',
+	      'doc_ids', 'view', 'since', 'query_params', 'binary'
+	    ]);
+
+	    /* istanbul ignore next */
+	    function onError() {
+	      inprogress = false;
+	    }
+
+	    db.changes(changesOpts).on('change', function (c) {
+	      if (c.seq > opts.since && !opts.cancelled) {
+	        opts.since = c.seq;
+	        opts.onChange(c);
+	      }
+	    }).on('complete', function () {
+	      if (inprogress === 'waiting') {
+	        setTimeout(function (){
+	          eventFunction();
+	        },0);
+	      }
+	      inprogress = false;
+	    }).on('error', onError);
+	  }
+	  this._listeners[id] = eventFunction;
+	  this.on(dbName, eventFunction);
 	};
 
-	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
-	  delete immediateIds[id];
+	Changes$1.prototype.removeListener = function (dbName, id) {
+	  /* istanbul ignore if */
+	  if (!(id in this._listeners)) {
+	    return;
+	  }
+	  events.EventEmitter.prototype.removeListener.call(this, dbName,
+	    this._listeners[id]);
+	  delete this._listeners[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(585).setImmediate, __webpack_require__(585).clearImmediate))
+
+
+	/* istanbul ignore next */
+	Changes$1.prototype.notifyLocalWindows = function (dbName) {
+	  //do a useless change on a storage thing
+	  //in order to get other windows's listeners to activate
+	  if (isChromeApp()) {
+	    chrome.storage.local.set({dbName: dbName});
+	  } else if (hasLocalStorage()) {
+	    localStorage[dbName] = (localStorage[dbName] === "a") ? "b" : "a";
+	  }
+	};
+
+	Changes$1.prototype.notify = function (dbName) {
+	  this.emit(dbName);
+	  this.notifyLocalWindows(dbName);
+	};
+
+	function guardedConsole(method) {
+	  /* istanbul ignore else */
+	  if (console !== 'undefined' && method in console) {
+	    var args = Array.prototype.slice.call(arguments, 1);
+	    console[method].apply(console, args);
+	  }
+	}
+
+	function randomNumber(min, max) {
+	  var maxTimeout = 600000; // Hard-coded default of 10 minutes
+	  min = parseInt(min, 10) || 0;
+	  max = parseInt(max, 10);
+	  if (max !== max || max <= min) {
+	    max = (min || 1) << 1; //doubling
+	  } else {
+	    max = max + 1;
+	  }
+	  // In order to not exceed maxTimeout, pick a random value between half of maxTimeout and maxTimeout
+	  if(max > maxTimeout) {
+	    min = maxTimeout >> 1; // divide by two
+	    max = maxTimeout;
+	  }
+	  var ratio = Math.random();
+	  var range = max - min;
+
+	  return ~~(range * ratio + min); // ~~ coerces to an int, but fast.
+	}
+
+	function defaultBackOff(min) {
+	  var max = 0;
+	  if (!min) {
+	    max = 2000;
+	  }
+	  return randomNumber(min, max);
+	}
+
+	// designed to give info to browser users, who are disturbed
+	// when they see http errors in the console
+	function explainError(status, str) {
+	  guardedConsole('info', 'The above ' + status + ' is totally normal. ' + str);
+	}
+
+	inherits(PouchError, Error);
+
+	function PouchError(opts) {
+	  Error.call(this, opts.reason);
+	  this.status = opts.status;
+	  this.name = opts.error;
+	  this.message = opts.reason;
+	  this.error = true;
+	}
+
+	PouchError.prototype.toString = function () {
+	  return JSON.stringify({
+	    status: this.status,
+	    name: this.name,
+	    message: this.message,
+	    reason: this.reason
+	  });
+	};
+
+	var UNAUTHORIZED = new PouchError({
+	  status: 401,
+	  error: 'unauthorized',
+	  reason: "Name or password is incorrect."
+	});
+
+	var MISSING_BULK_DOCS = new PouchError({
+	  status: 400,
+	  error: 'bad_request',
+	  reason: "Missing JSON list of 'docs'"
+	});
+
+	var MISSING_DOC = new PouchError({
+	  status: 404,
+	  error: 'not_found',
+	  reason: 'missing'
+	});
+
+	var REV_CONFLICT = new PouchError({
+	  status: 409,
+	  error: 'conflict',
+	  reason: 'Document update conflict'
+	});
+
+	var INVALID_ID = new PouchError({
+	  status: 400,
+	  error: 'bad_request',
+	  reason: '_id field must contain a string'
+	});
+
+	var MISSING_ID = new PouchError({
+	  status: 412,
+	  error: 'missing_id',
+	  reason: '_id is required for puts'
+	});
+
+	var RESERVED_ID = new PouchError({
+	  status: 400,
+	  error: 'bad_request',
+	  reason: 'Only reserved document ids may start with underscore.'
+	});
+
+	var NOT_OPEN = new PouchError({
+	  status: 412,
+	  error: 'precondition_failed',
+	  reason: 'Database not open'
+	});
+
+	var UNKNOWN_ERROR = new PouchError({
+	  status: 500,
+	  error: 'unknown_error',
+	  reason: 'Database encountered an unknown error'
+	});
+
+	var BAD_ARG = new PouchError({
+	  status: 500,
+	  error: 'badarg',
+	  reason: 'Some query argument is invalid'
+	});
+
+	var INVALID_REQUEST = new PouchError({
+	  status: 400,
+	  error: 'invalid_request',
+	  reason: 'Request was invalid'
+	});
+
+	var QUERY_PARSE_ERROR = new PouchError({
+	  status: 400,
+	  error: 'query_parse_error',
+	  reason: 'Some query parameter is invalid'
+	});
+
+	var DOC_VALIDATION = new PouchError({
+	  status: 500,
+	  error: 'doc_validation',
+	  reason: 'Bad special document member'
+	});
+
+	var BAD_REQUEST = new PouchError({
+	  status: 400,
+	  error: 'bad_request',
+	  reason: 'Something wrong with the request'
+	});
+
+	var NOT_AN_OBJECT = new PouchError({
+	  status: 400,
+	  error: 'bad_request',
+	  reason: 'Document must be a JSON object'
+	});
+
+	var DB_MISSING = new PouchError({
+	  status: 404,
+	  error: 'not_found',
+	  reason: 'Database not found'
+	});
+
+	var IDB_ERROR = new PouchError({
+	  status: 500,
+	  error: 'indexed_db_went_bad',
+	  reason: 'unknown'
+	});
+
+	var WSQ_ERROR = new PouchError({
+	  status: 500,
+	  error: 'web_sql_went_bad',
+	  reason: 'unknown'
+	});
+
+	var LDB_ERROR = new PouchError({
+	  status: 500,
+	  error: 'levelDB_went_went_bad',
+	  reason: 'unknown'
+	});
+
+	var FORBIDDEN = new PouchError({
+	  status: 403,
+	  error: 'forbidden',
+	  reason: 'Forbidden by design doc validate_doc_update function'
+	});
+
+	var INVALID_REV = new PouchError({
+	  status: 400,
+	  error: 'bad_request',
+	  reason: 'Invalid rev format'
+	});
+
+	var FILE_EXISTS = new PouchError({
+	  status: 412,
+	  error: 'file_exists',
+	  reason: 'The database could not be created, the file already exists.'
+	});
+
+	var MISSING_STUB = new PouchError({
+	  status: 412,
+	  error: 'missing_stub'
+	});
+
+	var INVALID_URL = new PouchError({
+	  status: 413,
+	  error: 'invalid_url',
+	  reason: 'Provided URL is invalid'
+	});
+
+	function createError(error, reason) {
+	  function CustomPouchError(reason) {
+	    // inherit error properties from our parent error manually
+	    // so as to allow proper JSON parsing.
+	    /* jshint ignore:start */
+	    for (var p in error) {
+	      if (typeof error[p] !== 'function') {
+	        this[p] = error[p];
+	      }
+	    }
+	    /* jshint ignore:end */
+	    if (reason !== undefined) {
+	      this.reason = reason;
+	    }
+	  }
+	  CustomPouchError.prototype = PouchError.prototype;
+	  return new CustomPouchError(reason);
+	}
+
+	function generateErrorFromResponse(err) {
+
+	  if (typeof err !== 'object') {
+	    var data = err;
+	    err = UNKNOWN_ERROR;
+	    err.data = data;
+	  }
+
+	  if ('error' in err && err.error === 'conflict') {
+	    err.name = 'conflict';
+	    err.status = 409;
+	  }
+
+	  if (!('name' in err)) {
+	    err.name = err.error || 'unknown';
+	  }
+
+	  if (!('status' in err)) {
+	    err.status = 500;
+	  }
+
+	  if (!('message' in err)) {
+	    err.message = err.message || err.reason;
+	  }
+
+	  return err;
+	}
+
+	function tryFilter(filter, doc, req) {
+	  try {
+	    return !filter(doc, req);
+	  } catch (err) {
+	    var msg = 'Filter function threw: ' + err.toString();
+	    return createError(BAD_REQUEST, msg);
+	  }
+	}
+
+	function filterChange(opts) {
+	  var req = {};
+	  var hasFilter = opts.filter && typeof opts.filter === 'function';
+	  req.query = opts.query_params;
+
+	  return function filter(change) {
+	    if (!change.doc) {
+	      // CSG sends events on the changes feed that don't have documents,
+	      // this hack makes a whole lot of existing code robust.
+	      change.doc = {};
+	    }
+
+	    var filterReturn = hasFilter && tryFilter(opts.filter, change.doc, req);
+
+	    if (typeof filterReturn === 'object') {
+	      return filterReturn;
+	    }
+
+	    if (filterReturn) {
+	      return false;
+	    }
+
+	    if (!opts.include_docs) {
+	      delete change.doc;
+	    } else if (!opts.attachments) {
+	      for (var att in change.doc._attachments) {
+	        /* istanbul ignore else */
+	        if (change.doc._attachments.hasOwnProperty(att)) {
+	          change.doc._attachments[att].stub = true;
+	        }
+	      }
+	    }
+	    return true;
+	  };
+	}
+
+	function flatten(arrs) {
+	  var res = [];
+	  for (var i = 0, len = arrs.length; i < len; i++) {
+	    res = res.concat(arrs[i]);
+	  }
+	  return res;
+	}
+
+	// Determine id an ID is valid
+	//   - invalid IDs begin with an underescore that does not begin '_design' or
+	//     '_local'
+	//   - any other string value is a valid id
+	// Returns the specific error object for each case
+	function invalidIdError(id) {
+	  var err;
+	  if (!id) {
+	    err = createError(MISSING_ID);
+	  } else if (typeof id !== 'string') {
+	    err = createError(INVALID_ID);
+	  } else if (/^_/.test(id) && !(/^_(design|local)/).test(id)) {
+	    err = createError(RESERVED_ID);
+	  }
+	  if (err) {
+	    throw err;
+	  }
+	}
+
+	function listenerCount(ee, type) {
+	  return 'listenerCount' in ee ? ee.listenerCount(type) :
+	                                 events.EventEmitter.listenerCount(ee, type);
+	}
+
+	function parseDesignDocFunctionName(s) {
+	  if (!s) {
+	    return null;
+	  }
+	  var parts = s.split('/');
+	  if (parts.length === 2) {
+	    return parts;
+	  }
+	  if (parts.length === 1) {
+	    return [s, s];
+	  }
+	  return null;
+	}
+
+	function normalizeDesignDocFunctionName(s) {
+	  var normalized = parseDesignDocFunctionName(s);
+	  return normalized ? normalized.join('/') : null;
+	}
+
+	// originally parseUri 1.2.2, now patched by us
+	// (c) Steven Levithan <stevenlevithan.com>
+	// MIT License
+	var keys = ["source", "protocol", "authority", "userInfo", "user", "password",
+	    "host", "port", "relative", "path", "directory", "file", "query", "anchor"];
+	var qName ="queryKey";
+	var qParser = /(?:^|&)([^&=]*)=?([^&]*)/g;
+
+	// use the "loose" parser
+	/* jshint maxlen: false */
+	var parser = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+	function parseUri(str) {
+	  var m = parser.exec(str);
+	  var uri = {};
+	  var i = 14;
+
+	  while (i--) {
+	    var key = keys[i];
+	    var value = m[i] || "";
+	    var encoded = ['user', 'password'].indexOf(key) !== -1;
+	    uri[key] = encoded ? decodeURIComponent(value) : value;
+	  }
+
+	  uri[qName] = {};
+	  uri[keys[12]].replace(qParser, function ($0, $1, $2) {
+	    if ($1) {
+	      uri[qName][$1] = $2;
+	    }
+	  });
+
+	  return uri;
+	}
+
+	// this is essentially the "update sugar" function from daleharvey/pouchdb#1388
+	// the diffFun tells us what delta to apply to the doc.  it either returns
+	// the doc, or false if it doesn't need to do an update after all
+	function upsert(db, docId, diffFun) {
+	  return new PouchPromise(function (fulfill, reject) {
+	    db.get(docId, function (err, doc) {
+	      if (err) {
+	        /* istanbul ignore next */
+	        if (err.status !== 404) {
+	          return reject(err);
+	        }
+	        doc = {};
+	      }
+
+	      // the user might change the _rev, so save it for posterity
+	      var docRev = doc._rev;
+	      var newDoc = diffFun(doc);
+
+	      if (!newDoc) {
+	        // if the diffFun returns falsy, we short-circuit as
+	        // an optimization
+	        return fulfill({updated: false, rev: docRev});
+	      }
+
+	      // users aren't allowed to modify these values,
+	      // so reset them here
+	      newDoc._id = docId;
+	      newDoc._rev = docRev;
+	      fulfill(tryAndPut(db, newDoc, diffFun));
+	    });
+	  });
+	}
+
+	function tryAndPut(db, doc, diffFun) {
+	  return db.put(doc).then(function (res) {
+	    return {
+	      updated: true,
+	      rev: res.rev
+	    };
+	  }, function (err) {
+	    /* istanbul ignore next */
+	    if (err.status !== 409) {
+	      throw err;
+	    }
+	    return upsert(db, doc._id, diffFun);
+	  });
+	}
+
+	// BEGIN Math.uuid.js
+
+	/*!
+	Math.uuid.js (v1.4)
+	http://www.broofa.com
+	mailto:robert@broofa.com
+
+	Copyright (c) 2010 Robert Kieffer
+	Dual licensed under the MIT and GPL licenses.
+	*/
+
+	/*
+	 * Generate a random uuid.
+	 *
+	 * USAGE: Math.uuid(length, radix)
+	 *   length - the desired number of characters
+	 *   radix  - the number of allowable values for each character.
+	 *
+	 * EXAMPLES:
+	 *   // No arguments  - returns RFC4122, version 4 ID
+	 *   >>> Math.uuid()
+	 *   "92329D39-6F5C-4520-ABFC-AAB64544E172"
+	 *
+	 *   // One argument - returns ID of the specified length
+	 *   >>> Math.uuid(15)     // 15 character ID (default base=62)
+	 *   "VcydxgltxrVZSTV"
+	 *
+	 *   // Two arguments - returns ID of the specified length, and radix. 
+	 *   // (Radix must be <= 62)
+	 *   >>> Math.uuid(8, 2)  // 8 character ID (base=2)
+	 *   "01001010"
+	 *   >>> Math.uuid(8, 10) // 8 character ID (base=10)
+	 *   "47473046"
+	 *   >>> Math.uuid(8, 16) // 8 character ID (base=16)
+	 *   "098F4D35"
+	 */
+	var chars = (
+	  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+	  'abcdefghijklmnopqrstuvwxyz'
+	).split('');
+	function getValue(radix) {
+	  return 0 | Math.random() * radix;
+	}
+	function uuid(len, radix) {
+	  radix = radix || chars.length;
+	  var out = '';
+	  var i = -1;
+
+	  if (len) {
+	    // Compact form
+	    while (++i < len) {
+	      out += chars[getValue(radix)];
+	    }
+	    return out;
+	  }
+	    // rfc4122, version 4 form
+	    // Fill in random data.  At i==19 set the high bits of clock sequence as
+	    // per rfc4122, sec. 4.1.5
+	  while (++i < 36) {
+	    switch (i) {
+	      case 8:
+	      case 13:
+	      case 18:
+	      case 23:
+	        out += '-';
+	        break;
+	      case 19:
+	        out += chars[(getValue(16) & 0x3) | 0x8];
+	        break;
+	      default:
+	        out += chars[getValue(16)];
+	    }
+	  }
+
+	  return out;
+	}
+
+	// We fetch all leafs of the revision tree, and sort them based on tree length
+	// and whether they were deleted, undeleted documents with the longest revision
+	// tree (most edits) win
+	// The final sort algorithm is slightly documented in a sidebar here:
+	// http://guide.couchdb.org/draft/conflicts.html
+	function winningRev(metadata) {
+	  var winningId;
+	  var winningPos;
+	  var winningDeleted;
+	  var toVisit = metadata.rev_tree.slice();
+	  var node;
+	  while ((node = toVisit.pop())) {
+	    var tree = node.ids;
+	    var branches = tree[2];
+	    var pos = node.pos;
+	    if (branches.length) { // non-leaf
+	      for (var i = 0, len = branches.length; i < len; i++) {
+	        toVisit.push({pos: pos + 1, ids: branches[i]});
+	      }
+	      continue;
+	    }
+	    var deleted = !!tree[1].deleted;
+	    var id = tree[0];
+	    // sort by deleted, then pos, then id
+	    if (!winningId || (winningDeleted !== deleted ? winningDeleted :
+	        winningPos !== pos ? winningPos < pos : winningId < id)) {
+	      winningId = id;
+	      winningPos = pos;
+	      winningDeleted = deleted;
+	    }
+	  }
+
+	  return winningPos + '-' + winningId;
+	}
+
+	// Pretty much all below can be combined into a higher order function to
+	// traverse revisions
+	// The return value from the callback will be passed as context to all
+	// children of that node
+	function traverseRevTree(revs, callback) {
+	  var toVisit = revs.slice();
+
+	  var node;
+	  while ((node = toVisit.pop())) {
+	    var pos = node.pos;
+	    var tree = node.ids;
+	    var branches = tree[2];
+	    var newCtx =
+	      callback(branches.length === 0, pos, tree[0], node.ctx, tree[1]);
+	    for (var i = 0, len = branches.length; i < len; i++) {
+	      toVisit.push({pos: pos + 1, ids: branches[i], ctx: newCtx});
+	    }
+	  }
+	}
+
+	function sortByPos(a, b) {
+	  return a.pos - b.pos;
+	}
+
+	function collectLeaves(revs) {
+	  var leaves = [];
+	  traverseRevTree(revs, function (isLeaf, pos, id, acc, opts) {
+	    if (isLeaf) {
+	      leaves.push({rev: pos + "-" + id, pos: pos, opts: opts});
+	    }
+	  });
+	  leaves.sort(sortByPos).reverse();
+	  for (var i = 0, len = leaves.length; i < len; i++) {
+	    delete leaves[i].pos;
+	  }
+	  return leaves;
+	}
+
+	// returns revs of all conflicts that is leaves such that
+	// 1. are not deleted and
+	// 2. are different than winning revision
+	function collectConflicts(metadata) {
+	  var win = winningRev(metadata);
+	  var leaves = collectLeaves(metadata.rev_tree);
+	  var conflicts = [];
+	  for (var i = 0, len = leaves.length; i < len; i++) {
+	    var leaf = leaves[i];
+	    if (leaf.rev !== win && !leaf.opts.deleted) {
+	      conflicts.push(leaf.rev);
+	    }
+	  }
+	  return conflicts;
+	}
+
+	// compact a tree by marking its non-leafs as missing,
+	// and return a list of revs to delete
+	function compactTree(metadata) {
+	  var revs = [];
+	  traverseRevTree(metadata.rev_tree, function (isLeaf, pos,
+	                                               revHash, ctx, opts) {
+	    if (opts.status === 'available' && !isLeaf) {
+	      revs.push(pos + '-' + revHash);
+	      opts.status = 'missing';
+	    }
+	  });
+	  return revs;
+	}
+
+	// build up a list of all the paths to the leafs in this revision tree
+	function rootToLeaf(revs) {
+	  var paths = [];
+	  var toVisit = revs.slice();
+	  var node;
+	  while ((node = toVisit.pop())) {
+	    var pos = node.pos;
+	    var tree = node.ids;
+	    var id = tree[0];
+	    var opts = tree[1];
+	    var branches = tree[2];
+	    var isLeaf = branches.length === 0;
+
+	    var history = node.history ? node.history.slice() : [];
+	    history.push({id: id, opts: opts});
+	    if (isLeaf) {
+	      paths.push({pos: (pos + 1 - history.length), ids: history});
+	    }
+	    for (var i = 0, len = branches.length; i < len; i++) {
+	      toVisit.push({pos: pos + 1, ids: branches[i], history: history});
+	    }
+	  }
+	  return paths.reverse();
+	}
+
+	// for a better overview of what this is doing, read:
+	// https://github.com/apache/couchdb-couch/blob/master/src/couch_key_tree.erl
+	//
+	// But for a quick intro, CouchDB uses a revision tree to store a documents
+	// history, A -> B -> C, when a document has conflicts, that is a branch in the
+	// tree, A -> (B1 | B2 -> C), We store these as a nested array in the format
+	//
+	// KeyTree = [Path ... ]
+	// Path = {pos: position_from_root, ids: Tree}
+	// Tree = [Key, Opts, [Tree, ...]], in particular single node: [Key, []]
+
+	function sortByPos$1(a, b) {
+	  return a.pos - b.pos;
+	}
+
+	// classic binary search
+	function binarySearch(arr, item, comparator) {
+	  var low = 0;
+	  var high = arr.length;
+	  var mid;
+	  while (low < high) {
+	    mid = (low + high) >>> 1;
+	    if (comparator(arr[mid], item) < 0) {
+	      low = mid + 1;
+	    } else {
+	      high = mid;
+	    }
+	  }
+	  return low;
+	}
+
+	// assuming the arr is sorted, insert the item in the proper place
+	function insertSorted(arr, item, comparator) {
+	  var idx = binarySearch(arr, item, comparator);
+	  arr.splice(idx, 0, item);
+	}
+
+	// Turn a path as a flat array into a tree with a single branch.
+	// If any should be stemmed from the beginning of the array, that's passed
+	// in as the second argument
+	function pathToTree(path, numStemmed) {
+	  var root;
+	  var leaf;
+	  for (var i = numStemmed, len = path.length; i < len; i++) {
+	    var node = path[i];
+	    var currentLeaf = [node.id, node.opts, []];
+	    if (leaf) {
+	      leaf[2].push(currentLeaf);
+	      leaf = currentLeaf;
+	    } else {
+	      root = leaf = currentLeaf;
+	    }
+	  }
+	  return root;
+	}
+
+	// compare the IDs of two trees
+	function compareTree(a, b) {
+	  return a[0] < b[0] ? -1 : 1;
+	}
+
+	// Merge two trees together
+	// The roots of tree1 and tree2 must be the same revision
+	function mergeTree(in_tree1, in_tree2) {
+	  var queue = [{tree1: in_tree1, tree2: in_tree2}];
+	  var conflicts = false;
+	  while (queue.length > 0) {
+	    var item = queue.pop();
+	    var tree1 = item.tree1;
+	    var tree2 = item.tree2;
+
+	    if (tree1[1].status || tree2[1].status) {
+	      tree1[1].status =
+	        (tree1[1].status ===  'available' ||
+	        tree2[1].status === 'available') ? 'available' : 'missing';
+	    }
+
+	    for (var i = 0; i < tree2[2].length; i++) {
+	      if (!tree1[2][0]) {
+	        conflicts = 'new_leaf';
+	        tree1[2][0] = tree2[2][i];
+	        continue;
+	      }
+
+	      var merged = false;
+	      for (var j = 0; j < tree1[2].length; j++) {
+	        if (tree1[2][j][0] === tree2[2][i][0]) {
+	          queue.push({tree1: tree1[2][j], tree2: tree2[2][i]});
+	          merged = true;
+	        }
+	      }
+	      if (!merged) {
+	        conflicts = 'new_branch';
+	        insertSorted(tree1[2], tree2[2][i], compareTree);
+	      }
+	    }
+	  }
+	  return {conflicts: conflicts, tree: in_tree1};
+	}
+
+	function doMerge(tree, path, dontExpand) {
+	  var restree = [];
+	  var conflicts = false;
+	  var merged = false;
+	  var res;
+
+	  if (!tree.length) {
+	    return {tree: [path], conflicts: 'new_leaf'};
+	  }
+
+	  for (var i = 0, len = tree.length; i < len; i++) {
+	    var branch = tree[i];
+	    if (branch.pos === path.pos && branch.ids[0] === path.ids[0]) {
+	      // Paths start at the same position and have the same root, so they need
+	      // merged
+	      res = mergeTree(branch.ids, path.ids);
+	      restree.push({pos: branch.pos, ids: res.tree});
+	      conflicts = conflicts || res.conflicts;
+	      merged = true;
+	    } else if (dontExpand !== true) {
+	      // The paths start at a different position, take the earliest path and
+	      // traverse up until it as at the same point from root as the path we
+	      // want to merge.  If the keys match we return the longer path with the
+	      // other merged After stemming we dont want to expand the trees
+
+	      var t1 = branch.pos < path.pos ? branch : path;
+	      var t2 = branch.pos < path.pos ? path : branch;
+	      var diff = t2.pos - t1.pos;
+
+	      var candidateParents = [];
+
+	      var trees = [];
+	      trees.push({ids: t1.ids, diff: diff, parent: null, parentIdx: null});
+	      while (trees.length > 0) {
+	        var item = trees.pop();
+	        if (item.diff === 0) {
+	          if (item.ids[0] === t2.ids[0]) {
+	            candidateParents.push(item);
+	          }
+	          continue;
+	        }
+	        var elements = item.ids[2];
+	        for (var j = 0, elementsLen = elements.length; j < elementsLen; j++) {
+	          trees.push({
+	            ids: elements[j],
+	            diff: item.diff - 1,
+	            parent: item.ids,
+	            parentIdx: j
+	          });
+	        }
+	      }
+
+	      var el = candidateParents[0];
+
+	      if (!el) {
+	        restree.push(branch);
+	      } else {
+	        res = mergeTree(el.ids, t2.ids);
+	        el.parent[2][el.parentIdx] = res.tree;
+	        restree.push({pos: t1.pos, ids: t1.ids});
+	        conflicts = conflicts || res.conflicts;
+	        merged = true;
+	      }
+	    } else {
+	      restree.push(branch);
+	    }
+	  }
+
+	  // We didnt find
+	  if (!merged) {
+	    restree.push(path);
+	  }
+
+	  restree.sort(sortByPos$1);
+
+	  return {
+	    tree: restree,
+	    conflicts: conflicts || 'internal_node'
+	  };
+	}
+
+	// To ensure we dont grow the revision tree infinitely, we stem old revisions
+	function stem(tree, depth) {
+	  // First we break out the tree into a complete list of root to leaf paths
+	  var paths = rootToLeaf(tree);
+	  var maybeStem = {};
+
+	  var result;
+	  for (var i = 0, len = paths.length; i < len; i++) {
+	    // Then for each path, we cut off the start of the path based on the
+	    // `depth` to stem to, and generate a new set of flat trees
+	    var path = paths[i];
+	    var stemmed = path.ids;
+	    var numStemmed = Math.max(0, stemmed.length - depth);
+	    var stemmedNode = {
+	      pos: path.pos + numStemmed,
+	      ids: pathToTree(stemmed, numStemmed)
+	    };
+
+	    for (var s = 0; s < numStemmed; s++) {
+	      var rev = (path.pos + s) + '-' + stemmed[s].id;
+	      maybeStem[rev] = true;
+	    }
+
+	    // Then we remerge all those flat trees together, ensuring that we dont
+	    // connect trees that would go beyond the depth limit
+	    if (result) {
+	      result = doMerge(result, stemmedNode, true).tree;
+	    } else {
+	      result = [stemmedNode];
+	    }
+	  }
+
+	  traverseRevTree(result, function (isLeaf, pos, revHash) {
+	    // some revisions may have been removed in a branch but not in another
+	    delete maybeStem[pos + '-' + revHash];
+	  });
+
+	  return {
+	    tree: result,
+	    revs: Object.keys(maybeStem)
+	  };
+	}
+
+	function merge(tree, path, depth) {
+	  var newTree = doMerge(tree, path);
+	  var stemmed = stem(newTree.tree, depth);
+	  return {
+	    tree: stemmed.tree,
+	    stemmedRevs: stemmed.revs,
+	    conflicts: newTree.conflicts
+	  };
+	}
+
+	// return true if a rev exists in the rev tree, false otherwise
+	function revExists(revs, rev) {
+	  var toVisit = revs.slice();
+	  var splitRev = rev.split('-');
+	  var targetPos = parseInt(splitRev[0], 10);
+	  var targetId = splitRev[1];
+
+	  var node;
+	  while ((node = toVisit.pop())) {
+	    if (node.pos === targetPos && node.ids[0] === targetId) {
+	      return true;
+	    }
+	    var branches = node.ids[2];
+	    for (var i = 0, len = branches.length; i < len; i++) {
+	      toVisit.push({pos: node.pos + 1, ids: branches[i]});
+	    }
+	  }
+	  return false;
+	}
+
+	function getTrees(node) {
+	  return node.ids;
+	}
+
+	// check if a specific revision of a doc has been deleted
+	//  - metadata: the metadata object from the doc store
+	//  - rev: (optional) the revision to check. defaults to winning revision
+	function isDeleted(metadata, rev) {
+	  if (!rev) {
+	    rev = winningRev(metadata);
+	  }
+	  var id = rev.substring(rev.indexOf('-') + 1);
+	  var toVisit = metadata.rev_tree.map(getTrees);
+
+	  var tree;
+	  while ((tree = toVisit.pop())) {
+	    if (tree[0] === id) {
+	      return !!tree[1].deleted;
+	    }
+	    toVisit = toVisit.concat(tree[2]);
+	  }
+	}
+
+	function isLocalId(id) {
+	  return (/^_local/).test(id);
+	}
+
+	function evalFilter(input) {
+	  return scopedEval('"use strict";\nreturn ' + input + ';', {});
+	}
+
+	function evalView(input) {
+	  var code = [
+	    'return function(doc) {',
+	    '  "use strict";',
+	    '  var emitted = false;',
+	    '  var emit = function (a, b) {',
+	    '    emitted = true;',
+	    '  };',
+	    '  var view = ' + input + ';',
+	    '  view(doc);',
+	    '  if (emitted) {',
+	    '    return true;',
+	    '  }',
+	    '};'
+	  ].join('\n');
+
+	  return scopedEval(code, {});
+	}
+
+	inherits(Changes, events.EventEmitter);
+
+	function tryCatchInChangeListener(self, change) {
+	  // isolate try/catches to avoid V8 deoptimizations
+	  try {
+	    self.emit('change', change);
+	  } catch (e) {
+	    guardedConsole('error', 'Error in .on("change", function):', e);
+	  }
+	}
+
+	function Changes(db, opts, callback) {
+	  events.EventEmitter.call(this);
+	  var self = this;
+	  this.db = db;
+	  opts = opts ? clone(opts) : {};
+	  var complete = opts.complete = once(function (err, resp) {
+	    if (err) {
+	      if (listenerCount(self, 'error') > 0) {
+	        self.emit('error', err);
+	      }
+	    } else {
+	      self.emit('complete', resp);
+	    }
+	    self.removeAllListeners();
+	    db.removeListener('destroyed', onDestroy);
+	  });
+	  if (callback) {
+	    self.on('complete', function (resp) {
+	      callback(null, resp);
+	    });
+	    self.on('error', callback);
+	  }
+	  function onDestroy() {
+	    self.cancel();
+	  }
+	  db.once('destroyed', onDestroy);
+
+	  opts.onChange = function (change) {
+	    /* istanbul ignore if */
+	    if (opts.isCancelled) {
+	      return;
+	    }
+	    tryCatchInChangeListener(self, change);
+	  };
+
+	  var promise = new PouchPromise(function (fulfill, reject) {
+	    opts.complete = function (err, res) {
+	      if (err) {
+	        reject(err);
+	      } else {
+	        fulfill(res);
+	      }
+	    };
+	  });
+	  self.once('cancel', function () {
+	    db.removeListener('destroyed', onDestroy);
+	    opts.complete(null, {status: 'cancelled'});
+	  });
+	  this.then = promise.then.bind(promise);
+	  this['catch'] = promise['catch'].bind(promise);
+	  this.then(function (result) {
+	    complete(null, result);
+	  }, complete);
+
+
+
+	  if (!db.taskqueue.isReady) {
+	    db.taskqueue.addTask(function (failed) {
+	      if (failed) {
+	        opts.complete(failed);
+	      } else if (self.isCancelled) {
+	        self.emit('cancel');
+	      } else {
+	        self.doChanges(opts);
+	      }
+	    });
+	  } else {
+	    self.doChanges(opts);
+	  }
+	}
+	Changes.prototype.cancel = function () {
+	  this.isCancelled = true;
+	  if (this.db.taskqueue.isReady) {
+	    this.emit('cancel');
+	  }
+	};
+	function processChange(doc, metadata, opts) {
+	  var changeList = [{rev: doc._rev}];
+	  if (opts.style === 'all_docs') {
+	    changeList = collectLeaves(metadata.rev_tree)
+	    .map(function (x) { return {rev: x.rev}; });
+	  }
+	  var change = {
+	    id: metadata.id,
+	    changes: changeList,
+	    doc: doc
+	  };
+
+	  if (isDeleted(metadata, doc._rev)) {
+	    change.deleted = true;
+	  }
+	  if (opts.conflicts) {
+	    change.doc._conflicts = collectConflicts(metadata);
+	    if (!change.doc._conflicts.length) {
+	      delete change.doc._conflicts;
+	    }
+	  }
+	  return change;
+	}
+
+	Changes.prototype.doChanges = function (opts) {
+	  var self = this;
+	  var callback = opts.complete;
+
+	  opts = clone(opts);
+	  if ('live' in opts && !('continuous' in opts)) {
+	    opts.continuous = opts.live;
+	  }
+	  opts.processChange = processChange;
+
+	  if (opts.since === 'latest') {
+	    opts.since = 'now';
+	  }
+	  if (!opts.since) {
+	    opts.since = 0;
+	  }
+	  if (opts.since === 'now') {
+	    this.db.info().then(function (info) {
+	      /* istanbul ignore if */
+	      if (self.isCancelled) {
+	        callback(null, {status: 'cancelled'});
+	        return;
+	      }
+	      opts.since = info.update_seq;
+	      self.doChanges(opts);
+	    }, callback);
+	    return;
+	  }
+
+
+	  if (opts.view && !opts.filter) {
+	    opts.filter = '_view';
+	  }
+
+	  if (opts.filter && typeof opts.filter === 'string') {
+	    if (opts.filter === '_view') {
+	      opts.view = normalizeDesignDocFunctionName(opts.view);
+	    } else {
+	      opts.filter = normalizeDesignDocFunctionName(opts.filter);
+	    }
+
+	    if (this.db.type() !== 'http' && !opts.doc_ids) {
+	      return this.filterChanges(opts);
+	    }
+	  }
+
+	  if (!('descending' in opts)) {
+	    opts.descending = false;
+	  }
+
+	  // 0 and 1 should return 1 document
+	  opts.limit = opts.limit === 0 ? 1 : opts.limit;
+	  opts.complete = callback;
+	  var newPromise = this.db._changes(opts);
+	  /* istanbul ignore else */
+	  if (newPromise && typeof newPromise.cancel === 'function') {
+	    var cancel = self.cancel;
+	    self.cancel = getArguments(function (args) {
+	      newPromise.cancel();
+	      cancel.apply(this, args);
+	    });
+	  }
+	};
+
+	Changes.prototype.filterChanges = function (opts) {
+	  var self = this;
+	  var callback = opts.complete;
+	  if (opts.filter === '_view') {
+	    if (!opts.view || typeof opts.view !== 'string') {
+	      var err = createError(BAD_REQUEST,
+	        '`view` filter parameter not found or invalid.');
+	      return callback(err);
+	    }
+	    // fetch a view from a design doc, make it behave like a filter
+	    var viewName = parseDesignDocFunctionName(opts.view);
+	    this.db.get('_design/' + viewName[0], function (err, ddoc) {
+	      /* istanbul ignore if */
+	      if (self.isCancelled) {
+	        return callback(null, {status: 'cancelled'});
+	      }
+	      /* istanbul ignore next */
+	      if (err) {
+	        return callback(generateErrorFromResponse(err));
+	      }
+	      var mapFun = ddoc && ddoc.views && ddoc.views[viewName[1]] &&
+	        ddoc.views[viewName[1]].map;
+	      if (!mapFun) {
+	        return callback(createError(MISSING_DOC,
+	          (ddoc.views ? 'missing json key: ' + viewName[1] :
+	            'missing json key: views')));
+	      }
+	      opts.filter = evalView(mapFun);
+	      self.doChanges(opts);
+	    });
+	  } else {
+	    // fetch a filter from a design doc
+	    var filterName = parseDesignDocFunctionName(opts.filter);
+	    if (!filterName) {
+	      return self.doChanges(opts);
+	    }
+	    this.db.get('_design/' + filterName[0], function (err, ddoc) {
+	      /* istanbul ignore if */
+	      if (self.isCancelled) {
+	        return callback(null, {status: 'cancelled'});
+	      }
+	      /* istanbul ignore next */
+	      if (err) {
+	        return callback(generateErrorFromResponse(err));
+	      }
+	      var filterFun = ddoc && ddoc.filters && ddoc.filters[filterName[1]];
+	      if (!filterFun) {
+	        return callback(createError(MISSING_DOC,
+	          ((ddoc && ddoc.filters) ? 'missing json key: ' + filterName[1]
+	            : 'missing json key: filters')));
+	      }
+	      opts.filter = evalFilter(filterFun);
+	      self.doChanges(opts);
+	    });
+	  }
+	};
+
+	/*
+	 * A generic pouch adapter
+	 */
+
+	function compare(left, right) {
+	  return left < right ? -1 : left > right ? 1 : 0;
+	}
+
+	// returns first element of arr satisfying callback predicate
+	function arrayFirst(arr, callback) {
+	  for (var i = 0; i < arr.length; i++) {
+	    if (callback(arr[i], i) === true) {
+	      return arr[i];
+	    }
+	  }
+	}
+
+	// Wrapper for functions that call the bulkdocs api with a single doc,
+	// if the first result is an error, return an error
+	function yankError(callback) {
+	  return function (err, results) {
+	    if (err || (results[0] && results[0].error)) {
+	      callback(err || results[0]);
+	    } else {
+	      callback(null, results.length ? results[0]  : results);
+	    }
+	  };
+	}
+
+	// clean docs given to us by the user
+	function cleanDocs(docs) {
+	  for (var i = 0; i < docs.length; i++) {
+	    var doc = docs[i];
+	    if (doc._deleted) {
+	      delete doc._attachments; // ignore atts for deleted docs
+	    } else if (doc._attachments) {
+	      // filter out extraneous keys from _attachments
+	      var atts = Object.keys(doc._attachments);
+	      for (var j = 0; j < atts.length; j++) {
+	        var att = atts[j];
+	        doc._attachments[att] = pick(doc._attachments[att],
+	          ['data', 'digest', 'content_type', 'length', 'revpos', 'stub']);
+	      }
+	    }
+	  }
+	}
+
+	// compare two docs, first by _id then by _rev
+	function compareByIdThenRev(a, b) {
+	  var idCompare = compare(a._id, b._id);
+	  if (idCompare !== 0) {
+	    return idCompare;
+	  }
+	  var aStart = a._revisions ? a._revisions.start : 0;
+	  var bStart = b._revisions ? b._revisions.start : 0;
+	  return compare(aStart, bStart);
+	}
+
+	// for every node in a revision tree computes its distance from the closest
+	// leaf
+	function computeHeight(revs) {
+	  var height = {};
+	  var edges = [];
+	  traverseRevTree(revs, function (isLeaf, pos, id, prnt) {
+	    var rev = pos + "-" + id;
+	    if (isLeaf) {
+	      height[rev] = 0;
+	    }
+	    if (prnt !== undefined) {
+	      edges.push({from: prnt, to: rev});
+	    }
+	    return rev;
+	  });
+
+	  edges.reverse();
+	  edges.forEach(function (edge) {
+	    if (height[edge.from] === undefined) {
+	      height[edge.from] = 1 + height[edge.to];
+	    } else {
+	      height[edge.from] = Math.min(height[edge.from], 1 + height[edge.to]);
+	    }
+	  });
+	  return height;
+	}
+
+	function allDocsKeysQuery(api, opts, callback) {
+	  var keys =  ('limit' in opts) ?
+	      opts.keys.slice(opts.skip, opts.limit + opts.skip) :
+	      (opts.skip > 0) ? opts.keys.slice(opts.skip) : opts.keys;
+	  if (opts.descending) {
+	    keys.reverse();
+	  }
+	  if (!keys.length) {
+	    return api._allDocs({limit: 0}, callback);
+	  }
+	  var finalResults = {
+	    offset: opts.skip
+	  };
+	  return PouchPromise.all(keys.map(function (key) {
+	    var subOpts = jsExtend.extend({key: key, deleted: 'ok'}, opts);
+	    ['limit', 'skip', 'keys'].forEach(function (optKey) {
+	      delete subOpts[optKey];
+	    });
+	    return new PouchPromise(function (resolve, reject) {
+	      api._allDocs(subOpts, function (err, res) {
+	        /* istanbul ignore if */
+	        if (err) {
+	          return reject(err);
+	        }
+	        finalResults.total_rows = res.total_rows;
+	        resolve(res.rows[0] || {key: key, error: 'not_found'});
+	      });
+	    });
+	  })).then(function (results) {
+	    finalResults.rows = results;
+	    return finalResults;
+	  });
+	}
+
+	// all compaction is done in a queue, to avoid attaching
+	// too many listeners at once
+	function doNextCompaction(self) {
+	  var task = self._compactionQueue[0];
+	  var opts = task.opts;
+	  var callback = task.callback;
+	  self.get('_local/compaction').catch(function () {
+	    return false;
+	  }).then(function (doc) {
+	    if (doc && doc.last_seq) {
+	      opts.last_seq = doc.last_seq;
+	    }
+	    self._compact(opts, function (err, res) {
+	      /* istanbul ignore if */
+	      if (err) {
+	        callback(err);
+	      } else {
+	        callback(null, res);
+	      }
+	      process.nextTick(function () {
+	        self._compactionQueue.shift();
+	        if (self._compactionQueue.length) {
+	          doNextCompaction(self);
+	        }
+	      });
+	    });
+	  });
+	}
+
+	function attachmentNameError(name) {
+	  if (name.charAt(0) === '_') {
+	    return name + 'is not a valid attachment name, attachment ' +
+	      'names cannot start with \'_\'';
+	  }
+	  return false;
+	}
+
+	inherits(AbstractPouchDB, events.EventEmitter);
+
+	function AbstractPouchDB() {
+	  events.EventEmitter.call(this);
+	}
+
+	AbstractPouchDB.prototype.post =
+	  adapterFun('post', function (doc, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+	  if (typeof doc !== 'object' || Array.isArray(doc)) {
+	    return callback(createError(NOT_AN_OBJECT));
+	  }
+	  this.bulkDocs({docs: [doc]}, opts, yankError(callback));
+	});
+
+	AbstractPouchDB.prototype.put = adapterFun('put', function (doc, opts, cb) {
+	  if (typeof opts === 'function') {
+	    cb = opts;
+	    opts = {};
+	  }
+	  if (typeof doc !== 'object' || Array.isArray(doc)) {
+	    return cb(createError(NOT_AN_OBJECT));
+	  }
+	  invalidIdError(doc._id);
+	  if (isLocalId(doc._id) && typeof this._putLocal === 'function') {
+	    if (doc._deleted) {
+	      return this._removeLocal(doc, cb);
+	    } else {
+	      return this._putLocal(doc, cb);
+	    }
+	  }
+	  if (typeof this._put === 'function' && opts.new_edits !== false) {
+	    this._put(doc, opts, cb);
+	  } else {
+	    this.bulkDocs({docs: [doc]}, opts, yankError(cb));
+	  }
+	});
+
+	AbstractPouchDB.prototype.putAttachment =
+	  adapterFun('putAttachment', function (docId, attachmentId, rev,
+	                                              blob, type) {
+	  var api = this;
+	  if (typeof type === 'function') {
+	    type = blob;
+	    blob = rev;
+	    rev = null;
+	  }
+	  // Lets fix in https://github.com/pouchdb/pouchdb/issues/3267
+	  /* istanbul ignore if */
+	  if (typeof type === 'undefined') {
+	    type = blob;
+	    blob = rev;
+	    rev = null;
+	  }
+
+	  function createAttachment(doc) {
+	    var prevrevpos = '_rev' in doc ? parseInt(doc._rev, 10) : 0;
+	    doc._attachments = doc._attachments || {};
+	    doc._attachments[attachmentId] = {
+	      content_type: type,
+	      data: blob,
+	      revpos: ++prevrevpos
+	    };
+	    return api.put(doc);
+	  }
+
+	  return api.get(docId).then(function (doc) {
+	    if (doc._rev !== rev) {
+	      throw createError(REV_CONFLICT);
+	    }
+
+	    return createAttachment(doc);
+	  }, function (err) {
+	     // create new doc
+	    /* istanbul ignore else */
+	    if (err.reason === MISSING_DOC.message) {
+	      return createAttachment({_id: docId});
+	    } else {
+	      throw err;
+	    }
+	  });
+	});
+
+	AbstractPouchDB.prototype.removeAttachment =
+	  adapterFun('removeAttachment', function (docId, attachmentId, rev,
+	                                                 callback) {
+	  var self = this;
+	  self.get(docId, function (err, obj) {
+	    /* istanbul ignore if */
+	    if (err) {
+	      callback(err);
+	      return;
+	    }
+	    if (obj._rev !== rev) {
+	      callback(createError(REV_CONFLICT));
+	      return;
+	    }
+	    /* istanbul ignore if */
+	    if (!obj._attachments) {
+	      return callback();
+	    }
+	    delete obj._attachments[attachmentId];
+	    if (Object.keys(obj._attachments).length === 0) {
+	      delete obj._attachments;
+	    }
+	    self.put(obj, callback);
+	  });
+	});
+
+	AbstractPouchDB.prototype.remove =
+	  adapterFun('remove', function (docOrId, optsOrRev, opts, callback) {
+	  var doc;
+	  if (typeof optsOrRev === 'string') {
+	    // id, rev, opts, callback style
+	    doc = {
+	      _id: docOrId,
+	      _rev: optsOrRev
+	    };
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	  } else {
+	    // doc, opts, callback style
+	    doc = docOrId;
+	    if (typeof optsOrRev === 'function') {
+	      callback = optsOrRev;
+	      opts = {};
+	    } else {
+	      callback = opts;
+	      opts = optsOrRev;
+	    }
+	  }
+	  opts = opts || {};
+	  opts.was_delete = true;
+	  var newDoc = {_id: doc._id, _rev: (doc._rev || opts.rev)};
+	  newDoc._deleted = true;
+	  if (isLocalId(newDoc._id) && typeof this._removeLocal === 'function') {
+	    return this._removeLocal(doc, callback);
+	  }
+	  this.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
+	});
+
+	AbstractPouchDB.prototype.revsDiff =
+	  adapterFun('revsDiff', function (req, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+	  var ids = Object.keys(req);
+
+	  if (!ids.length) {
+	    return callback(null, {});
+	  }
+
+	  var count = 0;
+	  var missing = new _Map();
+
+	  function addToMissing(id, revId) {
+	    if (!missing.has(id)) {
+	      missing.set(id, {missing: []});
+	    }
+	    missing.get(id).missing.push(revId);
+	  }
+
+	  function processDoc(id, rev_tree) {
+	    // Is this fast enough? Maybe we should switch to a set simulated by a map
+	    var missingForId = req[id].slice(0);
+	    traverseRevTree(rev_tree, function (isLeaf, pos, revHash, ctx,
+	      opts) {
+	        var rev = pos + '-' + revHash;
+	        var idx = missingForId.indexOf(rev);
+	        if (idx === -1) {
+	          return;
+	        }
+
+	        missingForId.splice(idx, 1);
+	        /* istanbul ignore if */
+	        if (opts.status !== 'available') {
+	          addToMissing(id, rev);
+	        }
+	      });
+
+	    // Traversing the tree is synchronous, so now `missingForId` contains
+	    // revisions that were not found in the tree
+	    missingForId.forEach(function (rev) {
+	      addToMissing(id, rev);
+	    });
+	  }
+
+	  ids.map(function (id) {
+	    this._getRevisionTree(id, function (err, rev_tree) {
+	      if (err && err.status === 404 && err.message === 'missing') {
+	        missing.set(id, {missing: req[id]});
+	      } else if (err) {
+	        /* istanbul ignore next */
+	        return callback(err);
+	      } else {
+	        processDoc(id, rev_tree);
+	      }
+
+	      if (++count === ids.length) {
+	        // convert LazyMap to object
+	        var missingObj = {};
+	        missing.forEach(function (value, key) {
+	          missingObj[key] = value;
+	        });
+	        return callback(null, missingObj);
+	      }
+	    });
+	  }, this);
+	});
+
+	// _bulk_get API for faster replication, as described in
+	// https://github.com/apache/couchdb-chttpd/pull/33
+	// At the "abstract" level, it will just run multiple get()s in
+	// parallel, because this isn't much of a performance cost
+	// for local databases (except the cost of multiple transactions, which is
+	// small). The http adapter overrides this in order
+	// to do a more efficient single HTTP request.
+	AbstractPouchDB.prototype.bulkGet =
+	  adapterFun('bulkGet', function (opts, callback) {
+	  bulkGet(this, opts, callback);
+	});
+
+	// compact one document and fire callback
+	// by compacting we mean removing all revisions which
+	// are further from the leaf in revision tree than max_height
+	AbstractPouchDB.prototype.compactDocument =
+	  adapterFun('compactDocument', function (docId, maxHeight, callback) {
+	  var self = this;
+	  this._getRevisionTree(docId, function (err, revTree) {
+	    /* istanbul ignore if */
+	    if (err) {
+	      return callback(err);
+	    }
+	    var height = computeHeight(revTree);
+	    var candidates = [];
+	    var revs = [];
+	    Object.keys(height).forEach(function (rev) {
+	      if (height[rev] > maxHeight) {
+	        candidates.push(rev);
+	      }
+	    });
+
+	    traverseRevTree(revTree, function (isLeaf, pos, revHash, ctx, opts) {
+	      var rev = pos + '-' + revHash;
+	      if (opts.status === 'available' && candidates.indexOf(rev) !== -1) {
+	        revs.push(rev);
+	      }
+	    });
+	    self._doCompaction(docId, revs, callback);
+	  });
+	});
+
+	// compact the whole database using single document
+	// compaction
+	AbstractPouchDB.prototype.compact =
+	  adapterFun('compact', function (opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+
+	  var self = this;
+	  opts = opts || {};
+
+	  self._compactionQueue = self._compactionQueue || [];
+	  self._compactionQueue.push({opts: opts, callback: callback});
+	  if (self._compactionQueue.length === 1) {
+	    doNextCompaction(self);
+	  }
+	});
+	AbstractPouchDB.prototype._compact = function (opts, callback) {
+	  var self = this;
+	  var changesOpts = {
+	    return_docs: false,
+	    last_seq: opts.last_seq || 0
+	  };
+	  var promises = [];
+
+	  function onChange(row) {
+	    promises.push(self.compactDocument(row.id, 0));
+	  }
+	  function onComplete(resp) {
+	    var lastSeq = resp.last_seq;
+	    PouchPromise.all(promises).then(function () {
+	      return upsert(self, '_local/compaction', function deltaFunc(doc) {
+	        if (!doc.last_seq || doc.last_seq < lastSeq) {
+	          doc.last_seq = lastSeq;
+	          return doc;
+	        }
+	        return false; // somebody else got here first, don't update
+	      });
+	    }).then(function () {
+	      callback(null, {ok: true});
+	    }).catch(callback);
+	  }
+	  self.changes(changesOpts)
+	    .on('change', onChange)
+	    .on('complete', onComplete)
+	    .on('error', callback);
+	};
+
+	/* Begin api wrappers. Specific functionality to storage belongs in the
+	   _[method] */
+	AbstractPouchDB.prototype.get = adapterFun('get', function (id, opts, cb) {
+	  if (typeof opts === 'function') {
+	    cb = opts;
+	    opts = {};
+	  }
+	  if (typeof id !== 'string') {
+	    return cb(createError(INVALID_ID));
+	  }
+	  if (isLocalId(id) && typeof this._getLocal === 'function') {
+	    return this._getLocal(id, cb);
+	  }
+	  var leaves = [], self = this;
+
+	  function finishOpenRevs() {
+	    var result = [];
+	    var count = leaves.length;
+	    /* istanbul ignore if */
+	    if (!count) {
+	      return cb(null, result);
+	    }
+	    // order with open_revs is unspecified
+	    leaves.forEach(function (leaf) {
+	      self.get(id, {
+	        rev: leaf,
+	        revs: opts.revs,
+	        attachments: opts.attachments
+	      }, function (err, doc) {
+	        if (!err) {
+	          result.push({ok: doc});
+	        } else {
+	          result.push({missing: leaf});
+	        }
+	        count--;
+	        if (!count) {
+	          cb(null, result);
+	        }
+	      });
+	    });
+	  }
+
+	  if (opts.open_revs) {
+	    if (opts.open_revs === "all") {
+	      this._getRevisionTree(id, function (err, rev_tree) {
+	        if (err) {
+	          return cb(err);
+	        }
+	        leaves = collectLeaves(rev_tree).map(function (leaf) {
+	          return leaf.rev;
+	        });
+	        finishOpenRevs();
+	      });
+	    } else {
+	      if (Array.isArray(opts.open_revs)) {
+	        leaves = opts.open_revs;
+	        for (var i = 0; i < leaves.length; i++) {
+	          var l = leaves[i];
+	          // looks like it's the only thing couchdb checks
+	          if (!(typeof (l) === "string" && /^\d+-/.test(l))) {
+	            return cb(createError(INVALID_REV));
+	          }
+	        }
+	        finishOpenRevs();
+	      } else {
+	        return cb(createError(UNKNOWN_ERROR, 'function_clause'));
+	      }
+	    }
+	    return; // open_revs does not like other options
+	  }
+
+	  return this._get(id, opts, function (err, result) {
+	    if (err) {
+	      return cb(err);
+	    }
+
+	    var doc = result.doc;
+	    var metadata = result.metadata;
+	    var ctx = result.ctx;
+
+	    if (opts.conflicts) {
+	      var conflicts = collectConflicts(metadata);
+	      if (conflicts.length) {
+	        doc._conflicts = conflicts;
+	      }
+	    }
+
+	    if (isDeleted(metadata, doc._rev)) {
+	      doc._deleted = true;
+	    }
+
+	    if (opts.revs || opts.revs_info) {
+	      var paths = rootToLeaf(metadata.rev_tree);
+	      var path = arrayFirst(paths, function (arr) {
+	        return arr.ids.map(function (x) { return x.id; })
+	          .indexOf(doc._rev.split('-')[1]) !== -1;
+	      });
+
+	      var indexOfRev = path.ids.map(function (x) {return x.id; })
+	        .indexOf(doc._rev.split('-')[1]) + 1;
+	      var howMany = path.ids.length - indexOfRev;
+	      path.ids.splice(indexOfRev, howMany);
+	      path.ids.reverse();
+
+	      if (opts.revs) {
+	        doc._revisions = {
+	          start: (path.pos + path.ids.length) - 1,
+	          ids: path.ids.map(function (rev) {
+	            return rev.id;
+	          })
+	        };
+	      }
+	      if (opts.revs_info) {
+	        var pos =  path.pos + path.ids.length;
+	        doc._revs_info = path.ids.map(function (rev) {
+	          pos--;
+	          return {
+	            rev: pos + '-' + rev.id,
+	            status: rev.opts.status
+	          };
+	        });
+	      }
+	    }
+
+	    if (opts.attachments && doc._attachments) {
+	      var attachments = doc._attachments;
+	      var count = Object.keys(attachments).length;
+	      if (count === 0) {
+	        return cb(null, doc);
+	      }
+	      Object.keys(attachments).forEach(function (key) {
+	        this._getAttachment(doc._id, key, attachments[key], {
+	          // Previously the revision handling was done in adapter.js
+	          // getAttachment, however since idb-next doesnt we need to
+	          // pass the rev through
+	          rev: doc._rev,
+	          binary: opts.binary,
+	          ctx: ctx
+	        }, function (err, data) {
+	          var att = doc._attachments[key];
+	          att.data = data;
+	          delete att.stub;
+	          delete att.length;
+	          if (!--count) {
+	            cb(null, doc);
+	          }
+	        });
+	      }, self);
+	    } else {
+	      if (doc._attachments) {
+	        for (var key in doc._attachments) {
+	          /* istanbul ignore else */
+	          if (doc._attachments.hasOwnProperty(key)) {
+	            doc._attachments[key].stub = true;
+	          }
+	        }
+	      }
+	      cb(null, doc);
+	    }
+	  });
+	});
+
+	// TODO: I dont like this, it forces an extra read for every
+	// attachment read and enforces a confusing api between
+	// adapter.js and the adapter implementation
+	AbstractPouchDB.prototype.getAttachment =
+	  adapterFun('getAttachment', function (docId, attachmentId, opts, callback) {
+	  var self = this;
+	  if (opts instanceof Function) {
+	    callback = opts;
+	    opts = {};
+	  }
+	  this._get(docId, opts, function (err, res) {
+	    if (err) {
+	      return callback(err);
+	    }
+	    if (res.doc._attachments && res.doc._attachments[attachmentId]) {
+	      opts.ctx = res.ctx;
+	      opts.binary = true;
+	      self._getAttachment(docId, attachmentId,
+	                          res.doc._attachments[attachmentId], opts, callback);
+	    } else {
+	      return callback(createError(MISSING_DOC));
+	    }
+	  });
+	});
+
+	AbstractPouchDB.prototype.allDocs =
+	  adapterFun('allDocs', function (opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+	  opts.skip = typeof opts.skip !== 'undefined' ? opts.skip : 0;
+	  if (opts.start_key) {
+	    opts.startkey = opts.start_key;
+	  }
+	  if (opts.end_key) {
+	    opts.endkey = opts.end_key;
+	  }
+	  if ('keys' in opts) {
+	    if (!Array.isArray(opts.keys)) {
+	      return callback(new TypeError('options.keys must be an array'));
+	    }
+	    var incompatibleOpt =
+	      ['startkey', 'endkey', 'key'].filter(function (incompatibleOpt) {
+	      return incompatibleOpt in opts;
+	    })[0];
+	    if (incompatibleOpt) {
+	      callback(createError(QUERY_PARSE_ERROR,
+	        'Query parameter `' + incompatibleOpt +
+	        '` is not compatible with multi-get'
+	      ));
+	      return;
+	    }
+	    if (this.type() !== 'http') {
+	      return allDocsKeysQuery(this, opts, callback);
+	    }
+	  }
+
+	  return this._allDocs(opts, callback);
+	});
+
+	AbstractPouchDB.prototype.changes = function (opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+	  return new Changes(this, opts, callback);
+	};
+
+	AbstractPouchDB.prototype.close = adapterFun('close', function (callback) {
+	  this._closed = true;
+	  return this._close(callback);
+	});
+
+	AbstractPouchDB.prototype.info = adapterFun('info', function (callback) {
+	  var self = this;
+	  this._info(function (err, info) {
+	    if (err) {
+	      return callback(err);
+	    }
+	    // assume we know better than the adapter, unless it informs us
+	    info.db_name = info.db_name || self.name;
+	    info.auto_compaction = !!(self.auto_compaction && self.type() !== 'http');
+	    info.adapter = self.type();
+	    callback(null, info);
+	  });
+	});
+
+	AbstractPouchDB.prototype.id = adapterFun('id', function (callback) {
+	  return this._id(callback);
+	});
+
+	/* istanbul ignore next */
+	AbstractPouchDB.prototype.type = function () {
+	  return (typeof this._type === 'function') ? this._type() : this.adapter;
+	};
+
+	AbstractPouchDB.prototype.bulkDocs =
+	  adapterFun('bulkDocs', function (req, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+
+	  opts = opts || {};
+
+	  if (Array.isArray(req)) {
+	    req = {
+	      docs: req
+	    };
+	  }
+
+	  if (!req || !req.docs || !Array.isArray(req.docs)) {
+	    return callback(createError(MISSING_BULK_DOCS));
+	  }
+
+	  for (var i = 0; i < req.docs.length; ++i) {
+	    if (typeof req.docs[i] !== 'object' || Array.isArray(req.docs[i])) {
+	      return callback(createError(NOT_AN_OBJECT));
+	    }
+	  }
+
+	  var attachmentError;
+	  req.docs.forEach(function (doc) {
+	    if (doc._attachments) {
+	      Object.keys(doc._attachments).forEach(function (name) {
+	        attachmentError = attachmentError || attachmentNameError(name);
+	      });
+	    }
+	  });
+
+	  if (attachmentError) {
+	    return callback(createError(BAD_REQUEST, attachmentError));
+	  }
+
+	  if (!('new_edits' in opts)) {
+	    if ('new_edits' in req) {
+	      opts.new_edits = req.new_edits;
+	    } else {
+	      opts.new_edits = true;
+	    }
+	  }
+
+	  if (!opts.new_edits && this.type() !== 'http') {
+	    // ensure revisions of the same doc are sorted, so that
+	    // the local adapter processes them correctly (#2935)
+	    req.docs.sort(compareByIdThenRev);
+	  }
+
+	  cleanDocs(req.docs);
+
+	  return this._bulkDocs(req, opts, function (err, res) {
+	    if (err) {
+	      return callback(err);
+	    }
+	    if (!opts.new_edits) {
+	      // this is what couch does when new_edits is false
+	      res = res.filter(function (x) {
+	        return x.error;
+	      });
+	    }
+	    callback(null, res);
+	  });
+	});
+
+	AbstractPouchDB.prototype.registerDependentDatabase =
+	  adapterFun('registerDependentDatabase', function (dependentDb,
+	                                                          callback) {
+	  var depDB = new this.constructor(dependentDb, this.__opts);
+
+	  function diffFun(doc) {
+	    doc.dependentDbs = doc.dependentDbs || {};
+	    if (doc.dependentDbs[dependentDb]) {
+	      return false; // no update required
+	    }
+	    doc.dependentDbs[dependentDb] = true;
+	    return doc;
+	  }
+	  upsert(this, '_local/_pouch_dependentDbs', diffFun)
+	    .then(function () {
+	      callback(null, {db: depDB});
+	    }).catch(callback);
+	});
+
+	AbstractPouchDB.prototype.destroy =
+	  adapterFun('destroy', function (opts, callback) {
+
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+
+	  var self = this;
+	  var usePrefix = 'use_prefix' in self ? self.use_prefix : true;
+
+	  function destroyDb() {
+	    // call destroy method of the particular adaptor
+	    self._destroy(opts, function (err, resp) {
+	      if (err) {
+	        return callback(err);
+	      }
+	      self._destroyed = true;
+	      self.emit('destroyed');
+	      callback(null, resp || { 'ok': true });
+	    });
+	  }
+
+	  if (self.type() === 'http') {
+	    // no need to check for dependent DBs if it's a remote DB
+	    return destroyDb();
+	  }
+
+	  self.get('_local/_pouch_dependentDbs', function (err, localDoc) {
+	    if (err) {
+	      /* istanbul ignore if */
+	      if (err.status !== 404) {
+	        return callback(err);
+	      } else { // no dependencies
+	        return destroyDb();
+	      }
+	    }
+	    var dependentDbs = localDoc.dependentDbs;
+	    var PouchDB = self.constructor;
+	    var deletedMap = Object.keys(dependentDbs).map(function (name) {
+	      // use_prefix is only false in the browser
+	      /* istanbul ignore next */
+	      var trueName = usePrefix ?
+	        name.replace(new RegExp('^' + PouchDB.prefix), '') : name;
+	      return new PouchDB(trueName, self.__opts).destroy();
+	    });
+	    PouchPromise.all(deletedMap).then(destroyDb, callback);
+	  });
+	});
+
+	function TaskQueue() {
+	  this.isReady = false;
+	  this.failed = false;
+	  this.queue = [];
+	}
+
+	TaskQueue.prototype.execute = function () {
+	  var fun;
+	  if (this.failed) {
+	    while ((fun = this.queue.shift())) {
+	      fun(this.failed);
+	    }
+	  } else {
+	    while ((fun = this.queue.shift())) {
+	      fun();
+	    }
+	  }
+	};
+
+	TaskQueue.prototype.fail = function (err) {
+	  this.failed = err;
+	  this.execute();
+	};
+
+	TaskQueue.prototype.ready = function (db) {
+	  this.isReady = true;
+	  this.db = db;
+	  this.execute();
+	};
+
+	TaskQueue.prototype.addTask = function (fun) {
+	  this.queue.push(fun);
+	  if (this.failed) {
+	    this.execute();
+	  }
+	};
+
+	function parseAdapter(name, opts) {
+	  var match = name.match(/([a-z\-]*):\/\/(.*)/);
+	  if (match) {
+	    // the http adapter expects the fully qualified name
+	    name = /http(s?)/.test(match[1]) ? match[1] + '://' + match[2] : match[2];
+	    return {name: name, adapter: match[1]};
+	  }
+
+	  // check for browsers that have been upgraded from websql-only to websql+idb
+	  var skipIdb = 'idb' in PouchDB.adapters && 'websql' in PouchDB.adapters &&
+	    hasLocalStorage() &&
+	    localStorage['_pouch__websqldb_' + PouchDB.prefix + name];
+
+	  var adapterName;
+
+	  if (opts.adapter) {
+	    adapterName = opts.adapter;
+	  } else if (typeof opts !== 'undefined' && opts.db) {
+	    adapterName = 'leveldb';
+	  } else { // automatically determine adapter
+	    for (var i = 0; i < PouchDB.preferredAdapters.length; ++i) {
+	      adapterName = PouchDB.preferredAdapters[i];
+	      /* istanbul ignore if */
+	      if (skipIdb && adapterName === 'idb') {
+	        // log it, because this can be confusing during development
+	        guardedConsole('log', 'PouchDB is downgrading "' + name + '" to WebSQL to' +
+	          ' avoid data loss, because it was already opened with WebSQL.');
+	        continue; // keep using websql to avoid user data loss
+	      }
+	      break;
+	    }
+	  }
+
+	  var adapter = PouchDB.adapters[adapterName];
+
+	  // if adapter is invalid, then an error will be thrown later
+	  var usePrefix = (adapter && 'use_prefix' in adapter) ?
+	    adapter.use_prefix : true;
+
+	  return {
+	    name: usePrefix ? (PouchDB.prefix + name) : name,
+	    adapter: adapterName
+	  };
+	}
+
+	// OK, so here's the deal. Consider this code:
+	//     var db1 = new PouchDB('foo');
+	//     var db2 = new PouchDB('foo');
+	//     db1.destroy();
+	// ^ these two both need to emit 'destroyed' events,
+	// as well as the PouchDB constructor itself.
+	// So we have one db object (whichever one got destroy() called on it)
+	// responsible for emitting the initial event, which then gets emitted
+	// by the constructor, which then broadcasts it to any other dbs
+	// that may have been created with the same name.
+	function prepareForDestruction(self) {
+
+	  var destructionListeners = self.constructor._destructionListeners;
+
+	  function onDestroyed() {
+	    self.constructor.emit('destroyed', self.name);
+	  }
+
+	  function onConstructorDestroyed() {
+	    self.removeListener('destroyed', onDestroyed);
+	    self.emit('destroyed', self);
+	  }
+
+	  self.once('destroyed', onDestroyed);
+
+	  // in setup.js, the constructor is primed to listen for destroy events
+	  if (!destructionListeners.has(self.name)) {
+	    destructionListeners.set(self.name, []);
+	  }
+	  destructionListeners.get(self.name).push(onConstructorDestroyed);
+	}
+
+	inherits(PouchDB, AbstractPouchDB);
+	function PouchDB(name, opts) {
+	  // In Node our test suite only tests this for PouchAlt unfortunately
+	  /* istanbul ignore if */
+	  if (!(this instanceof PouchDB)) {
+	    return new PouchDB(name, opts);
+	  }
+
+	  var self = this;
+	  opts = opts || {};
+
+	  if (name && typeof name === 'object') {
+	    opts = name;
+	    name = opts.name;
+	    delete opts.name;
+	  }
+
+	  this.__opts = opts = clone(opts);
+
+	  self.auto_compaction = opts.auto_compaction;
+	  self.prefix = PouchDB.prefix;
+
+	  if (typeof name !== 'string') {
+	    throw new Error('Missing/invalid DB name');
+	  }
+
+	  var prefixedName = (opts.prefix || '') + name;
+	  var backend = parseAdapter(prefixedName, opts);
+
+	  opts.name = backend.name;
+	  opts.adapter = opts.adapter || backend.adapter;
+
+	  self.name = name;
+	  self._adapter = opts.adapter;
+	  debug('pouchdb:adapter')('Picked adapter: ' + opts.adapter);
+
+	  if (!PouchDB.adapters[opts.adapter] ||
+	      !PouchDB.adapters[opts.adapter].valid()) {
+	    throw new Error('Invalid Adapter: ' + opts.adapter);
+	  }
+
+	  AbstractPouchDB.call(self);
+	  self.taskqueue = new TaskQueue();
+
+	  self.adapter = opts.adapter;
+
+	  PouchDB.adapters[opts.adapter].call(self, opts, function (err) {
+	    if (err) {
+	      return self.taskqueue.fail(err);
+	    }
+	    prepareForDestruction(self);
+
+	    self.emit('created', self);
+	    PouchDB.emit('created', self.name);
+	    self.taskqueue.ready(self);
+	  });
+
+	}
+
+	PouchDB.debug = debug;
+
+	PouchDB.adapters = {};
+	PouchDB.preferredAdapters = [];
+
+	PouchDB.prefix = '_pouch_';
+
+	var eventEmitter = new events.EventEmitter();
+
+	function setUpEventEmitter(Pouch) {
+	  Object.keys(events.EventEmitter.prototype).forEach(function (key) {
+	    if (typeof events.EventEmitter.prototype[key] === 'function') {
+	      Pouch[key] = eventEmitter[key].bind(eventEmitter);
+	    }
+	  });
+
+	  // these are created in constructor.js, and allow us to notify each DB with
+	  // the same name that it was destroyed, via the constructor object
+	  var destructListeners = Pouch._destructionListeners = new _Map();
+	  Pouch.on('destroyed', function onConstructorDestroyed(name) {
+	    destructListeners.get(name).forEach(function (callback) {
+	      callback();
+	    });
+	    destructListeners.delete(name);
+	  });
+	}
+
+	setUpEventEmitter(PouchDB);
+
+	PouchDB.adapter = function (id, obj, addToPreferredAdapters) {
+	  /* istanbul ignore else */
+	  if (obj.valid()) {
+	    PouchDB.adapters[id] = obj;
+	    if (addToPreferredAdapters) {
+	      PouchDB.preferredAdapters.push(id);
+	    }
+	  }
+	};
+
+	PouchDB.plugin = function (obj) {
+	  if (typeof obj === 'function') { // function style for plugins
+	    obj(PouchDB);
+	  } else if (typeof obj !== 'object' || Object.keys(obj).length === 0){
+	    throw new Error('Invalid plugin: object passed in is empty or not an object');
+	  } else {
+	    Object.keys(obj).forEach(function (id) { // object style for plugins
+	      PouchDB.prototype[id] = obj[id];
+	    });
+	  }
+	  return PouchDB;
+	};
+
+	PouchDB.defaults = function (defaultOpts) {
+	  function PouchAlt(name, opts) {
+	    if (!(this instanceof PouchAlt)) {
+	      return new PouchAlt(name, opts);
+	    }
+
+	    opts = opts || {};
+
+	    if (name && typeof name === 'object') {
+	      opts = name;
+	      name = opts.name;
+	      delete opts.name;
+	    }
+
+	    opts = jsExtend.extend({}, defaultOpts, opts);
+	    PouchDB.call(this, name, opts);
+	  }
+
+	  inherits(PouchAlt, PouchDB);
+
+	  PouchAlt.preferredAdapters = PouchDB.preferredAdapters.slice();
+	  Object.keys(PouchDB).forEach(function (key) {
+	    if (!(key in PouchAlt)) {
+	      PouchAlt[key] = PouchDB[key];
+	    }
+	  });
+
+	  return PouchAlt;
+	};
+
+	// managed automatically by set-version.js
+	var version = "6.0.6";
+
+	PouchDB.version = version;
+
+	function toObject(array) {
+	  return array.reduce(function (obj, item) {
+	    obj[item] = true;
+	    return obj;
+	  }, {});
+	}
+	// List of top level reserved words for doc
+	var reservedWords = toObject([
+	  '_id',
+	  '_rev',
+	  '_attachments',
+	  '_deleted',
+	  '_revisions',
+	  '_revs_info',
+	  '_conflicts',
+	  '_deleted_conflicts',
+	  '_local_seq',
+	  '_rev_tree',
+	  //replication documents
+	  '_replication_id',
+	  '_replication_state',
+	  '_replication_state_time',
+	  '_replication_state_reason',
+	  '_replication_stats',
+	  // Specific to Couchbase Sync Gateway
+	  '_removed'
+	]);
+
+	// List of reserved words that should end up the document
+	var dataWords = toObject([
+	  '_attachments',
+	  //replication documents
+	  '_replication_id',
+	  '_replication_state',
+	  '_replication_state_time',
+	  '_replication_state_reason',
+	  '_replication_stats'
+	]);
+
+	function parseRevisionInfo(rev) {
+	  if (!/^\d+\-./.test(rev)) {
+	    return createError(INVALID_REV);
+	  }
+	  var idx = rev.indexOf('-');
+	  var left = rev.substring(0, idx);
+	  var right = rev.substring(idx + 1);
+	  return {
+	    prefix: parseInt(left, 10),
+	    id: right
+	  };
+	}
+
+	function makeRevTreeFromRevisions(revisions, opts) {
+	  var pos = revisions.start - revisions.ids.length + 1;
+
+	  var revisionIds = revisions.ids;
+	  var ids = [revisionIds[0], opts, []];
+
+	  for (var i = 1, len = revisionIds.length; i < len; i++) {
+	    ids = [revisionIds[i], {status: 'missing'}, [ids]];
+	  }
+
+	  return [{
+	    pos: pos,
+	    ids: ids
+	  }];
+	}
+
+	// Preprocess documents, parse their revisions, assign an id and a
+	// revision for new writes that are missing them, etc
+	function parseDoc(doc, newEdits) {
+
+	  var nRevNum;
+	  var newRevId;
+	  var revInfo;
+	  var opts = {status: 'available'};
+	  if (doc._deleted) {
+	    opts.deleted = true;
+	  }
+
+	  if (newEdits) {
+	    if (!doc._id) {
+	      doc._id = uuid();
+	    }
+	    newRevId = uuid(32, 16).toLowerCase();
+	    if (doc._rev) {
+	      revInfo = parseRevisionInfo(doc._rev);
+	      if (revInfo.error) {
+	        return revInfo;
+	      }
+	      doc._rev_tree = [{
+	        pos: revInfo.prefix,
+	        ids: [revInfo.id, {status: 'missing'}, [[newRevId, opts, []]]]
+	      }];
+	      nRevNum = revInfo.prefix + 1;
+	    } else {
+	      doc._rev_tree = [{
+	        pos: 1,
+	        ids : [newRevId, opts, []]
+	      }];
+	      nRevNum = 1;
+	    }
+	  } else {
+	    if (doc._revisions) {
+	      doc._rev_tree = makeRevTreeFromRevisions(doc._revisions, opts);
+	      nRevNum = doc._revisions.start;
+	      newRevId = doc._revisions.ids[0];
+	    }
+	    if (!doc._rev_tree) {
+	      revInfo = parseRevisionInfo(doc._rev);
+	      if (revInfo.error) {
+	        return revInfo;
+	      }
+	      nRevNum = revInfo.prefix;
+	      newRevId = revInfo.id;
+	      doc._rev_tree = [{
+	        pos: nRevNum,
+	        ids: [newRevId, opts, []]
+	      }];
+	    }
+	  }
+
+	  invalidIdError(doc._id);
+
+	  doc._rev = nRevNum + '-' + newRevId;
+
+	  var result = {metadata : {}, data : {}};
+	  for (var key in doc) {
+	    /* istanbul ignore else */
+	    if (Object.prototype.hasOwnProperty.call(doc, key)) {
+	      var specialKey = key[0] === '_';
+	      if (specialKey && !reservedWords[key]) {
+	        var error = createError(DOC_VALIDATION, key);
+	        error.message = DOC_VALIDATION.message + ': ' + key;
+	        throw error;
+	      } else if (specialKey && !dataWords[key]) {
+	        result.metadata[key.slice(1)] = doc[key];
+	      } else {
+	        result.data[key] = doc[key];
+	      }
+	    }
+	  }
+	  return result;
+	}
+
+	var atob$1 = function (str) {
+	  return atob(str);
+	};
+
+	var btoa$1 = function (str) {
+	  return btoa(str);
+	};
+
+	// Abstracts constructing a Blob object, so it also works in older
+	// browsers that don't support the native Blob constructor (e.g.
+	// old QtWebKit versions, Android < 4.4).
+	function createBlob(parts, properties) {
+	  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
+	  parts = parts || [];
+	  properties = properties || {};
+	  try {
+	    return new Blob(parts, properties);
+	  } catch (e) {
+	    if (e.name !== "TypeError") {
+	      throw e;
+	    }
+	    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+	                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
+	                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
+	                  WebKitBlobBuilder;
+	    var builder = new Builder();
+	    for (var i = 0; i < parts.length; i += 1) {
+	      builder.append(parts[i]);
+	    }
+	    return builder.getBlob(properties.type);
+	  }
+	}
+
+	// From http://stackoverflow.com/questions/14967647/ (continues on next line)
+	// encode-decode-image-with-base64-breaks-image (2013-04-21)
+	function binaryStringToArrayBuffer(bin) {
+	  var length = bin.length;
+	  var buf = new ArrayBuffer(length);
+	  var arr = new Uint8Array(buf);
+	  for (var i = 0; i < length; i++) {
+	    arr[i] = bin.charCodeAt(i);
+	  }
+	  return buf;
+	}
+
+	function binStringToBluffer(binString, type) {
+	  return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
+	}
+
+	function b64ToBluffer(b64, type) {
+	  return binStringToBluffer(atob$1(b64), type);
+	}
+
+	//Can't find original post, but this is close
+	//http://stackoverflow.com/questions/6965107/ (continues on next line)
+	//converting-between-strings-and-arraybuffers
+	function arrayBufferToBinaryString(buffer) {
+	  var binary = '';
+	  var bytes = new Uint8Array(buffer);
+	  var length = bytes.byteLength;
+	  for (var i = 0; i < length; i++) {
+	    binary += String.fromCharCode(bytes[i]);
+	  }
+	  return binary;
+	}
+
+	// shim for browsers that don't support it
+	function readAsBinaryString(blob, callback) {
+	  if (typeof FileReader === 'undefined') {
+	    // fix for Firefox in a web worker
+	    // https://bugzilla.mozilla.org/show_bug.cgi?id=901097
+	    return callback(arrayBufferToBinaryString(
+	      new FileReaderSync().readAsArrayBuffer(blob)));
+	  }
+
+	  var reader = new FileReader();
+	  var hasBinaryString = typeof reader.readAsBinaryString === 'function';
+	  reader.onloadend = function (e) {
+	    var result = e.target.result || '';
+	    if (hasBinaryString) {
+	      return callback(result);
+	    }
+	    callback(arrayBufferToBinaryString(result));
+	  };
+	  if (hasBinaryString) {
+	    reader.readAsBinaryString(blob);
+	  } else {
+	    reader.readAsArrayBuffer(blob);
+	  }
+	}
+
+	function blobToBinaryString(blobOrBuffer, callback) {
+	  readAsBinaryString(blobOrBuffer, function (bin) {
+	    callback(bin);
+	  });
+	}
+
+	function blobToBase64(blobOrBuffer, callback) {
+	  blobToBinaryString(blobOrBuffer, function (base64) {
+	    callback(btoa$1(base64));
+	  });
+	}
+
+	// simplified API. universal browser support is assumed
+	function readAsArrayBuffer(blob, callback) {
+	  if (typeof FileReader === 'undefined') {
+	    // fix for Firefox in a web worker:
+	    // https://bugzilla.mozilla.org/show_bug.cgi?id=901097
+	    return callback(new FileReaderSync().readAsArrayBuffer(blob));
+	  }
+
+	  var reader = new FileReader();
+	  reader.onloadend = function (e) {
+	    var result = e.target.result || new ArrayBuffer(0);
+	    callback(result);
+	  };
+	  reader.readAsArrayBuffer(blob);
+	}
+
+	var setImmediateShim = global.setImmediate || global.setTimeout;
+	var MD5_CHUNK_SIZE = 32768;
+
+	function rawToBase64(raw) {
+	  return btoa$1(raw);
+	}
+
+	function sliceBlob(blob, start, end) {
+	  if (blob.webkitSlice) {
+	    return blob.webkitSlice(start, end);
+	  }
+	  return blob.slice(start, end);
+	}
+
+	function appendBlob(buffer, blob, start, end, callback) {
+	  if (start > 0 || end < blob.size) {
+	    // only slice blob if we really need to
+	    blob = sliceBlob(blob, start, end);
+	  }
+	  readAsArrayBuffer(blob, function (arrayBuffer) {
+	    buffer.append(arrayBuffer);
+	    callback();
+	  });
+	}
+
+	function appendString(buffer, string, start, end, callback) {
+	  if (start > 0 || end < string.length) {
+	    // only create a substring if we really need to
+	    string = string.substring(start, end);
+	  }
+	  buffer.appendBinary(string);
+	  callback();
+	}
+
+	function binaryMd5(data, callback) {
+	  var inputIsString = typeof data === 'string';
+	  var len = inputIsString ? data.length : data.size;
+	  var chunkSize = Math.min(MD5_CHUNK_SIZE, len);
+	  var chunks = Math.ceil(len / chunkSize);
+	  var currentChunk = 0;
+	  var buffer = inputIsString ? new Md5() : new Md5.ArrayBuffer();
+
+	  var append = inputIsString ? appendString : appendBlob;
+
+	  function next() {
+	    setImmediateShim(loadNextChunk);
+	  }
+
+	  function done() {
+	    var raw = buffer.end(true);
+	    var base64 = rawToBase64(raw);
+	    callback(base64);
+	    buffer.destroy();
+	  }
+
+	  function loadNextChunk() {
+	    var start = currentChunk * chunkSize;
+	    var end = start + chunkSize;
+	    currentChunk++;
+	    if (currentChunk < chunks) {
+	      append(buffer, data, start, end, next);
+	    } else {
+	      append(buffer, data, start, end, done);
+	    }
+	  }
+	  loadNextChunk();
+	}
+
+	function stringMd5(string) {
+	  return Md5.hash(string);
+	}
+
+	function parseBase64(data) {
+	  try {
+	    return atob$1(data);
+	  } catch (e) {
+	    var err = createError(BAD_ARG,
+	      'Attachment is not a valid base64 string');
+	    return {error: err};
+	  }
+	}
+
+	function preprocessString(att, blobType, callback) {
+	  var asBinary = parseBase64(att.data);
+	  if (asBinary.error) {
+	    return callback(asBinary.error);
+	  }
+
+	  att.length = asBinary.length;
+	  if (blobType === 'blob') {
+	    att.data = binStringToBluffer(asBinary, att.content_type);
+	  } else if (blobType === 'base64') {
+	    att.data = btoa$1(asBinary);
+	  } else { // binary
+	    att.data = asBinary;
+	  }
+	  binaryMd5(asBinary, function (result) {
+	    att.digest = 'md5-' + result;
+	    callback();
+	  });
+	}
+
+	function preprocessBlob(att, blobType, callback) {
+	  binaryMd5(att.data, function (md5) {
+	    att.digest = 'md5-' + md5;
+	    // size is for blobs (browser), length is for buffers (node)
+	    att.length = att.data.size || att.data.length || 0;
+	    if (blobType === 'binary') {
+	      blobToBinaryString(att.data, function (binString) {
+	        att.data = binString;
+	        callback();
+	      });
+	    } else if (blobType === 'base64') {
+	      blobToBase64(att.data, function (b64) {
+	        att.data = b64;
+	        callback();
+	      });
+	    } else {
+	      callback();
+	    }
+	  });
+	}
+
+	function preprocessAttachment(att, blobType, callback) {
+	  if (att.stub) {
+	    return callback();
+	  }
+	  if (typeof att.data === 'string') { // input is a base64 string
+	    preprocessString(att, blobType, callback);
+	  } else { // input is a blob
+	    preprocessBlob(att, blobType, callback);
+	  }
+	}
+
+	function preprocessAttachments(docInfos, blobType, callback) {
+
+	  if (!docInfos.length) {
+	    return callback();
+	  }
+
+	  var docv = 0;
+	  var overallErr;
+
+	  docInfos.forEach(function (docInfo) {
+	    var attachments = docInfo.data && docInfo.data._attachments ?
+	      Object.keys(docInfo.data._attachments) : [];
+	    var recv = 0;
+
+	    if (!attachments.length) {
+	      return done();
+	    }
+
+	    function processedAttachment(err) {
+	      overallErr = err;
+	      recv++;
+	      if (recv === attachments.length) {
+	        done();
+	      }
+	    }
+
+	    for (var key in docInfo.data._attachments) {
+	      if (docInfo.data._attachments.hasOwnProperty(key)) {
+	        preprocessAttachment(docInfo.data._attachments[key],
+	          blobType, processedAttachment);
+	      }
+	    }
+	  });
+
+	  function done() {
+	    docv++;
+	    if (docInfos.length === docv) {
+	      if (overallErr) {
+	        callback(overallErr);
+	      } else {
+	        callback();
+	      }
+	    }
+	  }
+	}
+
+	function updateDoc(revLimit, prev, docInfo, results,
+	                   i, cb, writeDoc, newEdits) {
+
+	  if (revExists(prev.rev_tree, docInfo.metadata.rev)) {
+	    results[i] = docInfo;
+	    return cb();
+	  }
+
+	  // sometimes this is pre-calculated. historically not always
+	  var previousWinningRev = prev.winningRev || winningRev(prev);
+	  var previouslyDeleted = 'deleted' in prev ? prev.deleted :
+	    isDeleted(prev, previousWinningRev);
+	  var deleted = 'deleted' in docInfo.metadata ? docInfo.metadata.deleted :
+	    isDeleted(docInfo.metadata);
+	  var isRoot = /^1-/.test(docInfo.metadata.rev);
+
+	  if (previouslyDeleted && !deleted && newEdits && isRoot) {
+	    var newDoc = docInfo.data;
+	    newDoc._rev = previousWinningRev;
+	    newDoc._id = docInfo.metadata.id;
+	    docInfo = parseDoc(newDoc, newEdits);
+	  }
+
+	  var merged = merge(prev.rev_tree, docInfo.metadata.rev_tree[0], revLimit);
+
+	  var inConflict = newEdits && (((previouslyDeleted && deleted) ||
+	    (!previouslyDeleted && merged.conflicts !== 'new_leaf') ||
+	    (previouslyDeleted && !deleted && merged.conflicts === 'new_branch')));
+
+	  if (inConflict) {
+	    var err = createError(REV_CONFLICT);
+	    results[i] = err;
+	    return cb();
+	  }
+
+	  var newRev = docInfo.metadata.rev;
+	  docInfo.metadata.rev_tree = merged.tree;
+	  docInfo.stemmedRevs = merged.stemmedRevs || [];
+	  /* istanbul ignore else */
+	  if (prev.rev_map) {
+	    docInfo.metadata.rev_map = prev.rev_map; // used only by leveldb
+	  }
+
+	  // recalculate
+	  var winningRev$$ = winningRev(docInfo.metadata);
+	  var winningRevIsDeleted = isDeleted(docInfo.metadata, winningRev$$);
+
+	  // calculate the total number of documents that were added/removed,
+	  // from the perspective of total_rows/doc_count
+	  var delta = (previouslyDeleted === winningRevIsDeleted) ? 0 :
+	    previouslyDeleted < winningRevIsDeleted ? -1 : 1;
+
+	  var newRevIsDeleted;
+	  if (newRev === winningRev$$) {
+	    // if the new rev is the same as the winning rev, we can reuse that value
+	    newRevIsDeleted = winningRevIsDeleted;
+	  } else {
+	    // if they're not the same, then we need to recalculate
+	    newRevIsDeleted = isDeleted(docInfo.metadata, newRev);
+	  }
+
+	  writeDoc(docInfo, winningRev$$, winningRevIsDeleted, newRevIsDeleted,
+	    true, delta, i, cb);
+	}
+
+	function rootIsMissing(docInfo) {
+	  return docInfo.metadata.rev_tree[0].ids[1].status === 'missing';
+	}
+
+	function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
+	                     writeDoc, opts, overallCallback) {
+
+	  // Default to 1000 locally
+	  revLimit = revLimit || 1000;
+
+	  function insertDoc(docInfo, resultsIdx, callback) {
+	    // Cant insert new deleted documents
+	    var winningRev$$ = winningRev(docInfo.metadata);
+	    var deleted = isDeleted(docInfo.metadata, winningRev$$);
+	    if ('was_delete' in opts && deleted) {
+	      results[resultsIdx] = createError(MISSING_DOC, 'deleted');
+	      return callback();
+	    }
+
+	    // 4712 - detect whether a new document was inserted with a _rev
+	    var inConflict = newEdits && rootIsMissing(docInfo);
+
+	    if (inConflict) {
+	      var err = createError(REV_CONFLICT);
+	      results[resultsIdx] = err;
+	      return callback();
+	    }
+
+	    var delta = deleted ? 0 : 1;
+
+	    writeDoc(docInfo, winningRev$$, deleted, deleted, false,
+	      delta, resultsIdx, callback);
+	  }
+
+	  var newEdits = opts.new_edits;
+	  var idsToDocs = new _Map();
+
+	  var docsDone = 0;
+	  var docsToDo = docInfos.length;
+
+	  function checkAllDocsDone() {
+	    if (++docsDone === docsToDo && overallCallback) {
+	      overallCallback();
+	    }
+	  }
+
+	  docInfos.forEach(function (currentDoc, resultsIdx) {
+
+	    if (currentDoc._id && isLocalId(currentDoc._id)) {
+	      var fun = currentDoc._deleted ? '_removeLocal' : '_putLocal';
+	      api[fun](currentDoc, {ctx: tx}, function (err, res) {
+	        results[resultsIdx] = err || res;
+	        checkAllDocsDone();
+	      });
+	      return;
+	    }
+
+	    var id = currentDoc.metadata.id;
+	    if (idsToDocs.has(id)) {
+	      docsToDo--; // duplicate
+	      idsToDocs.get(id).push([currentDoc, resultsIdx]);
+	    } else {
+	      idsToDocs.set(id, [[currentDoc, resultsIdx]]);
+	    }
+	  });
+
+	  // in the case of new_edits, the user can provide multiple docs
+	  // with the same id. these need to be processed sequentially
+	  idsToDocs.forEach(function (docs, id) {
+	    var numDone = 0;
+
+	    function docWritten() {
+	      if (++numDone < docs.length) {
+	        nextDoc();
+	      } else {
+	        checkAllDocsDone();
+	      }
+	    }
+	    function nextDoc() {
+	      var value = docs[numDone];
+	      var currentDoc = value[0];
+	      var resultsIdx = value[1];
+
+	      if (fetchedDocs.has(id)) {
+	        updateDoc(revLimit, fetchedDocs.get(id), currentDoc, results,
+	          resultsIdx, docWritten, writeDoc, newEdits);
+	      } else {
+	        // Ensure stemming applies to new writes as well
+	        var merged = merge([], currentDoc.metadata.rev_tree[0], revLimit);
+	        currentDoc.metadata.rev_tree = merged.tree;
+	        currentDoc.stemmedRevs = merged.stemmedRevs || [];
+	        insertDoc(currentDoc, resultsIdx, docWritten);
+	      }
+	    }
+	    nextDoc();
+	  });
+	}
+
+	// IndexedDB requires a versioned database structure, so we use the
+	// version here to manage migrations.
+	var ADAPTER_VERSION = 5;
+
+	// The object stores created for each database
+	// DOC_STORE stores the document meta data, its revision history and state
+	// Keyed by document id
+	var DOC_STORE = 'document-store';
+	// BY_SEQ_STORE stores a particular version of a document, keyed by its
+	// sequence id
+	var BY_SEQ_STORE = 'by-sequence';
+	// Where we store attachments
+	var ATTACH_STORE = 'attach-store';
+	// Where we store many-to-many relations
+	// between attachment digests and seqs
+	var ATTACH_AND_SEQ_STORE = 'attach-seq-store';
+
+	// Where we store database-wide meta data in a single record
+	// keyed by id: META_STORE
+	var META_STORE = 'meta-store';
+	// Where we store local documents
+	var LOCAL_STORE = 'local-store';
+	// Where we detect blob support
+	var DETECT_BLOB_SUPPORT_STORE = 'detect-blob-support';
+
+	function slowJsonParse(str) {
+	  try {
+	    return JSON.parse(str);
+	  } catch (e) {
+	    /* istanbul ignore next */
+	    return vuvuzela.parse(str);
+	  }
+	}
+
+	function safeJsonParse(str) {
+	  // try/catch is deoptimized in V8, leading to slower
+	  // times than we'd like to have. Most documents are _not_
+	  // huge, and do not require a slower code path just to parse them.
+	  // We can be pretty sure that a document under 50000 characters
+	  // will not be so deeply nested as to throw a stack overflow error
+	  // (depends on the engine and available memory, though, so this is
+	  // just a hunch). 50000 was chosen based on the average length
+	  // of this string in our test suite, to try to find a number that covers
+	  // most of our test cases (26 over this size, 26378 under it).
+	  if (str.length < 50000) {
+	    return JSON.parse(str);
+	  }
+	  return slowJsonParse(str);
+	}
+
+	function safeJsonStringify(json) {
+	  try {
+	    return JSON.stringify(json);
+	  } catch (e) {
+	    /* istanbul ignore next */
+	    return vuvuzela.stringify(json);
+	  }
+	}
+
+	function tryCode(fun, that, args, PouchDB) {
+	  try {
+	    fun.apply(that, args);
+	  } catch (err) {
+	    // Shouldn't happen, but in some odd cases
+	    // IndexedDB implementations might throw a sync
+	    // error, in which case this will at least log it.
+	    PouchDB.emit('error', err);
+	  }
+	}
+
+	var taskQueue = {
+	  running: false,
+	  queue: []
+	};
+
+	function applyNext(PouchDB) {
+	  if (taskQueue.running || !taskQueue.queue.length) {
+	    return;
+	  }
+	  taskQueue.running = true;
+	  var item = taskQueue.queue.shift();
+	  item.action(function (err, res) {
+	    tryCode(item.callback, this, [err, res], PouchDB);
+	    taskQueue.running = false;
+	    process.nextTick(function () {
+	      applyNext(PouchDB);
+	    });
+	  });
+	}
+
+	function idbError(callback) {
+	  return function (evt) {
+	    var message = 'unknown_error';
+	    if (evt.target && evt.target.error) {
+	      message = evt.target.error.name || evt.target.error.message;
+	    }
+	    callback(createError(IDB_ERROR, message, evt.type));
+	  };
+	}
+
+	// Unfortunately, the metadata has to be stringified
+	// when it is put into the database, because otherwise
+	// IndexedDB can throw errors for deeply-nested objects.
+	// Originally we just used JSON.parse/JSON.stringify; now
+	// we use this custom vuvuzela library that avoids recursion.
+	// If we could do it all over again, we'd probably use a
+	// format for the revision trees other than JSON.
+	function encodeMetadata(metadata, winningRev, deleted) {
+	  return {
+	    data: safeJsonStringify(metadata),
+	    winningRev: winningRev,
+	    deletedOrLocal: deleted ? '1' : '0',
+	    seq: metadata.seq, // highest seq for this doc
+	    id: metadata.id
+	  };
+	}
+
+	function decodeMetadata(storedObject) {
+	  if (!storedObject) {
+	    return null;
+	  }
+	  var metadata = safeJsonParse(storedObject.data);
+	  metadata.winningRev = storedObject.winningRev;
+	  metadata.deleted = storedObject.deletedOrLocal === '1';
+	  metadata.seq = storedObject.seq;
+	  return metadata;
+	}
+
+	// read the doc back out from the database. we don't store the
+	// _id or _rev because we already have _doc_id_rev.
+	function decodeDoc(doc) {
+	  if (!doc) {
+	    return doc;
+	  }
+	  var idx = doc._doc_id_rev.lastIndexOf(':');
+	  doc._id = doc._doc_id_rev.substring(0, idx - 1);
+	  doc._rev = doc._doc_id_rev.substring(idx + 1);
+	  delete doc._doc_id_rev;
+	  return doc;
+	}
+
+	// Read a blob from the database, encoding as necessary
+	// and translating from base64 if the IDB doesn't support
+	// native Blobs
+	function readBlobData(body, type, asBlob, callback) {
+	  if (asBlob) {
+	    if (!body) {
+	      callback(createBlob([''], {type: type}));
+	    } else if (typeof body !== 'string') { // we have blob support
+	      callback(body);
+	    } else { // no blob support
+	      callback(b64ToBluffer(body, type));
+	    }
+	  } else { // as base64 string
+	    if (!body) {
+	      callback('');
+	    } else if (typeof body !== 'string') { // we have blob support
+	      readAsBinaryString(body, function (binary) {
+	        callback(btoa$1(binary));
+	      });
+	    } else { // no blob support
+	      callback(body);
+	    }
+	  }
+	}
+
+	function fetchAttachmentsIfNecessary(doc, opts, txn, cb) {
+	  var attachments = Object.keys(doc._attachments || {});
+	  if (!attachments.length) {
+	    return cb && cb();
+	  }
+	  var numDone = 0;
+
+	  function checkDone() {
+	    if (++numDone === attachments.length && cb) {
+	      cb();
+	    }
+	  }
+
+	  function fetchAttachment(doc, att) {
+	    var attObj = doc._attachments[att];
+	    var digest = attObj.digest;
+	    var req = txn.objectStore(ATTACH_STORE).get(digest);
+	    req.onsuccess = function (e) {
+	      attObj.body = e.target.result.body;
+	      checkDone();
+	    };
+	  }
+
+	  attachments.forEach(function (att) {
+	    if (opts.attachments && opts.include_docs) {
+	      fetchAttachment(doc, att);
+	    } else {
+	      doc._attachments[att].stub = true;
+	      checkDone();
+	    }
+	  });
+	}
+
+	// IDB-specific postprocessing necessary because
+	// we don't know whether we stored a true Blob or
+	// a base64-encoded string, and if it's a Blob it
+	// needs to be read outside of the transaction context
+	function postProcessAttachments(results, asBlob) {
+	  return PouchPromise.all(results.map(function (row) {
+	    if (row.doc && row.doc._attachments) {
+	      var attNames = Object.keys(row.doc._attachments);
+	      return PouchPromise.all(attNames.map(function (att) {
+	        var attObj = row.doc._attachments[att];
+	        if (!('body' in attObj)) { // already processed
+	          return;
+	        }
+	        var body = attObj.body;
+	        var type = attObj.content_type;
+	        return new PouchPromise(function (resolve) {
+	          readBlobData(body, type, asBlob, function (data) {
+	            row.doc._attachments[att] = jsExtend.extend(
+	              pick(attObj, ['digest', 'content_type']),
+	              {data: data}
+	            );
+	            resolve();
+	          });
+	        });
+	      }));
+	    }
+	  }));
+	}
+
+	function compactRevs(revs, docId, txn) {
+
+	  var possiblyOrphanedDigests = [];
+	  var seqStore = txn.objectStore(BY_SEQ_STORE);
+	  var attStore = txn.objectStore(ATTACH_STORE);
+	  var attAndSeqStore = txn.objectStore(ATTACH_AND_SEQ_STORE);
+	  var count = revs.length;
+
+	  function checkDone() {
+	    count--;
+	    if (!count) { // done processing all revs
+	      deleteOrphanedAttachments();
+	    }
+	  }
+
+	  function deleteOrphanedAttachments() {
+	    if (!possiblyOrphanedDigests.length) {
+	      return;
+	    }
+	    possiblyOrphanedDigests.forEach(function (digest) {
+	      var countReq = attAndSeqStore.index('digestSeq').count(
+	        IDBKeyRange.bound(
+	          digest + '::', digest + '::\uffff', false, false));
+	      countReq.onsuccess = function (e) {
+	        var count = e.target.result;
+	        if (!count) {
+	          // orphaned
+	          attStore.delete(digest);
+	        }
+	      };
+	    });
+	  }
+
+	  revs.forEach(function (rev) {
+	    var index = seqStore.index('_doc_id_rev');
+	    var key = docId + "::" + rev;
+	    index.getKey(key).onsuccess = function (e) {
+	      var seq = e.target.result;
+	      if (typeof seq !== 'number') {
+	        return checkDone();
+	      }
+	      seqStore.delete(seq);
+
+	      var cursor = attAndSeqStore.index('seq')
+	        .openCursor(IDBKeyRange.only(seq));
+
+	      cursor.onsuccess = function (event) {
+	        var cursor = event.target.result;
+	        if (cursor) {
+	          var digest = cursor.value.digestSeq.split('::')[0];
+	          possiblyOrphanedDigests.push(digest);
+	          attAndSeqStore.delete(cursor.primaryKey);
+	          cursor.continue();
+	        } else { // done
+	          checkDone();
+	        }
+	      };
+	    };
+	  });
+	}
+
+	function openTransactionSafely(idb, stores, mode) {
+	  try {
+	    return {
+	      txn: idb.transaction(stores, mode)
+	    };
+	  } catch (err) {
+	    return {
+	      error: err
+	    };
+	  }
+	}
+
+	function idbBulkDocs(dbOpts, req, opts, api, idb, idbChanges, callback) {
+	  var docInfos = req.docs;
+	  var txn;
+	  var docStore;
+	  var bySeqStore;
+	  var attachStore;
+	  var attachAndSeqStore;
+	  var docInfoError;
+	  var docCountDelta = 0;
+
+	  for (var i = 0, len = docInfos.length; i < len; i++) {
+	    var doc = docInfos[i];
+	    if (doc._id && isLocalId(doc._id)) {
+	      continue;
+	    }
+	    doc = docInfos[i] = parseDoc(doc, opts.new_edits);
+	    if (doc.error && !docInfoError) {
+	      docInfoError = doc;
+	    }
+	  }
+
+	  if (docInfoError) {
+	    return callback(docInfoError);
+	  }
+
+	  var results = new Array(docInfos.length);
+	  var fetchedDocs = new _Map();
+	  var preconditionErrored = false;
+	  var blobType = api._meta.blobSupport ? 'blob' : 'base64';
+
+	  preprocessAttachments(docInfos, blobType, function (err) {
+	    if (err) {
+	      return callback(err);
+	    }
+	    startTransaction();
+	  });
+
+	  function startTransaction() {
+
+	    var stores = [
+	      DOC_STORE, BY_SEQ_STORE,
+	      ATTACH_STORE,
+	      LOCAL_STORE, ATTACH_AND_SEQ_STORE
+	    ];
+	    var txnResult = openTransactionSafely(idb, stores, 'readwrite');
+	    if (txnResult.error) {
+	      return callback(txnResult.error);
+	    }
+	    txn = txnResult.txn;
+	    txn.onabort = idbError(callback);
+	    txn.ontimeout = idbError(callback);
+	    txn.oncomplete = complete;
+	    docStore = txn.objectStore(DOC_STORE);
+	    bySeqStore = txn.objectStore(BY_SEQ_STORE);
+	    attachStore = txn.objectStore(ATTACH_STORE);
+	    attachAndSeqStore = txn.objectStore(ATTACH_AND_SEQ_STORE);
+
+	    verifyAttachments(function (err) {
+	      if (err) {
+	        preconditionErrored = true;
+	        return callback(err);
+	      }
+	      fetchExistingDocs();
+	    });
+	  }
+
+	  function idbProcessDocs() {
+	    processDocs(dbOpts.revs_limit, docInfos, api, fetchedDocs,
+	                txn, results, writeDoc, opts);
+	  }
+
+	  function fetchExistingDocs() {
+
+	    if (!docInfos.length) {
+	      return;
+	    }
+
+	    var numFetched = 0;
+
+	    function checkDone() {
+	      if (++numFetched === docInfos.length) {
+	        idbProcessDocs();
+	      }
+	    }
+
+	    function readMetadata(event) {
+	      var metadata = decodeMetadata(event.target.result);
+
+	      if (metadata) {
+	        fetchedDocs.set(metadata.id, metadata);
+	      }
+	      checkDone();
+	    }
+
+	    for (var i = 0, len = docInfos.length; i < len; i++) {
+	      var docInfo = docInfos[i];
+	      if (docInfo._id && isLocalId(docInfo._id)) {
+	        checkDone(); // skip local docs
+	        continue;
+	      }
+	      var req = docStore.get(docInfo.metadata.id);
+	      req.onsuccess = readMetadata;
+	    }
+	  }
+
+	  function complete() {
+	    if (preconditionErrored) {
+	      return;
+	    }
+
+	    idbChanges.notify(api._meta.name);
+	    api._meta.docCount += docCountDelta;
+	    callback(null, results);
+	  }
+
+	  function verifyAttachment(digest, callback) {
+
+	    var req = attachStore.get(digest);
+	    req.onsuccess = function (e) {
+	      if (!e.target.result) {
+	        var err = createError(MISSING_STUB,
+	          'unknown stub attachment with digest ' +
+	          digest);
+	        err.status = 412;
+	        callback(err);
+	      } else {
+	        callback();
+	      }
+	    };
+	  }
+
+	  function verifyAttachments(finish) {
+
+
+	    var digests = [];
+	    docInfos.forEach(function (docInfo) {
+	      if (docInfo.data && docInfo.data._attachments) {
+	        Object.keys(docInfo.data._attachments).forEach(function (filename) {
+	          var att = docInfo.data._attachments[filename];
+	          if (att.stub) {
+	            digests.push(att.digest);
+	          }
+	        });
+	      }
+	    });
+	    if (!digests.length) {
+	      return finish();
+	    }
+	    var numDone = 0;
+	    var err;
+
+	    function checkDone() {
+	      if (++numDone === digests.length) {
+	        finish(err);
+	      }
+	    }
+	    digests.forEach(function (digest) {
+	      verifyAttachment(digest, function (attErr) {
+	        if (attErr && !err) {
+	          err = attErr;
+	        }
+	        checkDone();
+	      });
+	    });
+	  }
+
+	  function writeDoc(docInfo, winningRev, winningRevIsDeleted, newRevIsDeleted,
+	                    isUpdate, delta, resultsIdx, callback) {
+
+	    docCountDelta += delta;
+
+	    docInfo.metadata.winningRev = winningRev;
+	    docInfo.metadata.deleted = winningRevIsDeleted;
+
+	    var doc = docInfo.data;
+	    doc._id = docInfo.metadata.id;
+	    doc._rev = docInfo.metadata.rev;
+
+	    if (newRevIsDeleted) {
+	      doc._deleted = true;
+	    }
+
+	    var hasAttachments = doc._attachments &&
+	      Object.keys(doc._attachments).length;
+	    if (hasAttachments) {
+	      return writeAttachments(docInfo, winningRev, winningRevIsDeleted,
+	        isUpdate, resultsIdx, callback);
+	    }
+
+	    finishDoc(docInfo, winningRev, winningRevIsDeleted,
+	      isUpdate, resultsIdx, callback);
+	  }
+
+	  function finishDoc(docInfo, winningRev, winningRevIsDeleted,
+	                     isUpdate, resultsIdx, callback) {
+
+	    var doc = docInfo.data;
+	    var metadata = docInfo.metadata;
+
+	    doc._doc_id_rev = metadata.id + '::' + metadata.rev;
+	    delete doc._id;
+	    delete doc._rev;
+
+	    function afterPutDoc(e) {
+	      var revsToDelete = docInfo.stemmedRevs || [];
+
+	      if (isUpdate && api.auto_compaction) {
+	        revsToDelete = revsToDelete.concat(compactTree(docInfo.metadata));
+	      }
+
+	      if (revsToDelete && revsToDelete.length) {
+	        compactRevs(revsToDelete, docInfo.metadata.id, txn);
+	      }
+
+	      metadata.seq = e.target.result;
+	      // Current _rev is calculated from _rev_tree on read
+	      delete metadata.rev;
+	      var metadataToStore = encodeMetadata(metadata, winningRev,
+	        winningRevIsDeleted);
+	      var metaDataReq = docStore.put(metadataToStore);
+	      metaDataReq.onsuccess = afterPutMetadata;
+	    }
+
+	    function afterPutDocError(e) {
+	      // ConstraintError, need to update, not put (see #1638 for details)
+	      e.preventDefault(); // avoid transaction abort
+	      e.stopPropagation(); // avoid transaction onerror
+	      var index = bySeqStore.index('_doc_id_rev');
+	      var getKeyReq = index.getKey(doc._doc_id_rev);
+	      getKeyReq.onsuccess = function (e) {
+	        var putReq = bySeqStore.put(doc, e.target.result);
+	        putReq.onsuccess = afterPutDoc;
+	      };
+	    }
+
+	    function afterPutMetadata() {
+	      results[resultsIdx] = {
+	        ok: true,
+	        id: metadata.id,
+	        rev: winningRev
+	      };
+	      fetchedDocs.set(docInfo.metadata.id, docInfo.metadata);
+	      insertAttachmentMappings(docInfo, metadata.seq, callback);
+	    }
+
+	    var putReq = bySeqStore.put(doc);
+
+	    putReq.onsuccess = afterPutDoc;
+	    putReq.onerror = afterPutDocError;
+	  }
+
+	  function writeAttachments(docInfo, winningRev, winningRevIsDeleted,
+	                            isUpdate, resultsIdx, callback) {
+
+
+	    var doc = docInfo.data;
+
+	    var numDone = 0;
+	    var attachments = Object.keys(doc._attachments);
+
+	    function collectResults() {
+	      if (numDone === attachments.length) {
+	        finishDoc(docInfo, winningRev, winningRevIsDeleted,
+	          isUpdate, resultsIdx, callback);
+	      }
+	    }
+
+	    function attachmentSaved() {
+	      numDone++;
+	      collectResults();
+	    }
+
+	    attachments.forEach(function (key) {
+	      var att = docInfo.data._attachments[key];
+	      if (!att.stub) {
+	        var data = att.data;
+	        delete att.data;
+	        att.revpos = parseInt(winningRev, 10);
+	        var digest = att.digest;
+	        saveAttachment(digest, data, attachmentSaved);
+	      } else {
+	        numDone++;
+	        collectResults();
+	      }
+	    });
+	  }
+
+	  // map seqs to attachment digests, which
+	  // we will need later during compaction
+	  function insertAttachmentMappings(docInfo, seq, callback) {
+
+	    var attsAdded = 0;
+	    var attsToAdd = Object.keys(docInfo.data._attachments || {});
+
+	    if (!attsToAdd.length) {
+	      return callback();
+	    }
+
+	    function checkDone() {
+	      if (++attsAdded === attsToAdd.length) {
+	        callback();
+	      }
+	    }
+
+	    function add(att) {
+	      var digest = docInfo.data._attachments[att].digest;
+	      var req = attachAndSeqStore.put({
+	        seq: seq,
+	        digestSeq: digest + '::' + seq
+	      });
+
+	      req.onsuccess = checkDone;
+	      req.onerror = function (e) {
+	        // this callback is for a constaint error, which we ignore
+	        // because this docid/rev has already been associated with
+	        // the digest (e.g. when new_edits == false)
+	        e.preventDefault(); // avoid transaction abort
+	        e.stopPropagation(); // avoid transaction onerror
+	        checkDone();
+	      };
+	    }
+	    for (var i = 0; i < attsToAdd.length; i++) {
+	      add(attsToAdd[i]); // do in parallel
+	    }
+	  }
+
+	  function saveAttachment(digest, data, callback) {
+
+
+	    var getKeyReq = attachStore.count(digest);
+	    getKeyReq.onsuccess = function (e) {
+	      var count = e.target.result;
+	      if (count) {
+	        return callback(); // already exists
+	      }
+	      var newAtt = {
+	        digest: digest,
+	        body: data
+	      };
+	      var putReq = attachStore.put(newAtt);
+	      putReq.onsuccess = callback;
+	    };
+	  }
+	}
+
+	function createKeyRange(start, end, inclusiveEnd, key, descending) {
+	  try {
+	    if (start && end) {
+	      if (descending) {
+	        return IDBKeyRange.bound(end, start, !inclusiveEnd, false);
+	      } else {
+	        return IDBKeyRange.bound(start, end, false, !inclusiveEnd);
+	      }
+	    } else if (start) {
+	      if (descending) {
+	        return IDBKeyRange.upperBound(start);
+	      } else {
+	        return IDBKeyRange.lowerBound(start);
+	      }
+	    } else if (end) {
+	      if (descending) {
+	        return IDBKeyRange.lowerBound(end, !inclusiveEnd);
+	      } else {
+	        return IDBKeyRange.upperBound(end, !inclusiveEnd);
+	      }
+	    } else if (key) {
+	      return IDBKeyRange.only(key);
+	    }
+	  } catch (e) {
+	    return {error: e};
+	  }
+	  return null;
+	}
+
+	function handleKeyRangeError(api, opts, err, callback) {
+	  if (err.name === "DataError" && err.code === 0) {
+	    // data error, start is less than end
+	    return callback(null, {
+	      total_rows: api._meta.docCount,
+	      offset: opts.skip,
+	      rows: []
+	    });
+	  }
+	  callback(createError(IDB_ERROR, err.name, err.message));
+	}
+
+	function idbAllDocs(opts, api, idb, callback) {
+
+	  function allDocsQuery(opts, callback) {
+	    var start = 'startkey' in opts ? opts.startkey : false;
+	    var end = 'endkey' in opts ? opts.endkey : false;
+	    var key = 'key' in opts ? opts.key : false;
+	    var skip = opts.skip || 0;
+	    var limit = typeof opts.limit === 'number' ? opts.limit : -1;
+	    var inclusiveEnd = opts.inclusive_end !== false;
+	    var descending = 'descending' in opts && opts.descending ? 'prev' : null;
+
+	    var keyRange = createKeyRange(start, end, inclusiveEnd, key, descending);
+	    if (keyRange && keyRange.error) {
+	      return handleKeyRangeError(api, opts, keyRange.error, callback);
+	    }
+
+	    var stores = [DOC_STORE, BY_SEQ_STORE];
+
+	    if (opts.attachments) {
+	      stores.push(ATTACH_STORE);
+	    }
+	    var txnResult = openTransactionSafely(idb, stores, 'readonly');
+	    if (txnResult.error) {
+	      return callback(txnResult.error);
+	    }
+	    var txn = txnResult.txn;
+	    var docStore = txn.objectStore(DOC_STORE);
+	    var seqStore = txn.objectStore(BY_SEQ_STORE);
+	    var cursor = descending ?
+	      docStore.openCursor(keyRange, descending) :
+	      docStore.openCursor(keyRange);
+	    var docIdRevIndex = seqStore.index('_doc_id_rev');
+	    var results = [];
+	    var docCount = 0;
+
+	    // if the user specifies include_docs=true, then we don't
+	    // want to block the main cursor while we're fetching the doc
+	    function fetchDocAsynchronously(metadata, row, winningRev) {
+	      var key = metadata.id + "::" + winningRev;
+	      docIdRevIndex.get(key).onsuccess =  function onGetDoc(e) {
+	        row.doc = decodeDoc(e.target.result);
+	        if (opts.conflicts) {
+	          row.doc._conflicts = collectConflicts(metadata);
+	        }
+	        fetchAttachmentsIfNecessary(row.doc, opts, txn);
+	      };
+	    }
+
+	    function allDocsInner(cursor, winningRev, metadata) {
+	      var row = {
+	        id: metadata.id,
+	        key: metadata.id,
+	        value: {
+	          rev: winningRev
+	        }
+	      };
+	      var deleted = metadata.deleted;
+	      if (opts.deleted === 'ok') {
+	        results.push(row);
+	        // deleted docs are okay with "keys" requests
+	        if (deleted) {
+	          row.value.deleted = true;
+	          row.doc = null;
+	        } else if (opts.include_docs) {
+	          fetchDocAsynchronously(metadata, row, winningRev);
+	        }
+	      } else if (!deleted && skip-- <= 0) {
+	        results.push(row);
+	        if (opts.include_docs) {
+	          fetchDocAsynchronously(metadata, row, winningRev);
+	        }
+	        if (--limit === 0) {
+	          return;
+	        }
+	      }
+	      cursor.continue();
+	    }
+
+	    function onGetCursor(e) {
+	      docCount = api._meta.docCount; // do this within the txn for consistency
+	      var cursor = e.target.result;
+	      if (!cursor) {
+	        return;
+	      }
+	      var metadata = decodeMetadata(cursor.value);
+	      var winningRev = metadata.winningRev;
+
+	      allDocsInner(cursor, winningRev, metadata);
+	    }
+
+	    function onResultsReady() {
+	      callback(null, {
+	        total_rows: docCount,
+	        offset: opts.skip,
+	        rows: results
+	      });
+	    }
+
+	    function onTxnComplete() {
+	      if (opts.attachments) {
+	        postProcessAttachments(results, opts.binary).then(onResultsReady);
+	      } else {
+	        onResultsReady();
+	      }
+	    }
+
+	    txn.oncomplete = onTxnComplete;
+	    cursor.onsuccess = onGetCursor;
+	  }
+
+	  function allDocs(opts, callback) {
+
+	    if (opts.limit === 0) {
+	      return callback(null, {
+	        total_rows: api._meta.docCount,
+	        offset: opts.skip,
+	        rows: []
+	      });
+	    }
+	    allDocsQuery(opts, callback);
+	  }
+
+	  allDocs(opts, callback);
+	}
+
+	//
+	// Blobs are not supported in all versions of IndexedDB, notably
+	// Chrome <37 and Android <5. In those versions, storing a blob will throw.
+	//
+	// Various other blob bugs exist in Chrome v37-42 (inclusive).
+	// Detecting them is expensive and confusing to users, and Chrome 37-42
+	// is at very low usage worldwide, so we do a hacky userAgent check instead.
+	//
+	// content-type bug: https://code.google.com/p/chromium/issues/detail?id=408120
+	// 404 bug: https://code.google.com/p/chromium/issues/detail?id=447916
+	// FileReader bug: https://code.google.com/p/chromium/issues/detail?id=447836
+	//
+	function checkBlobSupport(txn) {
+	  return new PouchPromise(function (resolve) {
+	    var blob = createBlob(['']);
+	    txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(blob, 'key');
+
+	    txn.onabort = function (e) {
+	      // If the transaction aborts now its due to not being able to
+	      // write to the database, likely due to the disk being full
+	      e.preventDefault();
+	      e.stopPropagation();
+	      resolve(false);
+	    };
+
+	    txn.oncomplete = function () {
+	      var matchedChrome = navigator.userAgent.match(/Chrome\/(\d+)/);
+	      var matchedEdge = navigator.userAgent.match(/Edge\//);
+	      // MS Edge pretends to be Chrome 42:
+	      // https://msdn.microsoft.com/en-us/library/hh869301%28v=vs.85%29.aspx
+	      resolve(matchedEdge || !matchedChrome ||
+	        parseInt(matchedChrome[1], 10) >= 43);
+	    };
+	  }).catch(function () {
+	    return false; // error, so assume unsupported
+	  });
+	}
+
+	var cachedDBs = new _Map();
+	var blobSupportPromise;
+	var idbChanges = new Changes$1();
+	var openReqList = new _Map();
+
+	function IdbPouch(opts, callback) {
+	  var api = this;
+
+	  taskQueue.queue.push({
+	    action: function (thisCallback) {
+	      init(api, opts, thisCallback);
+	    },
+	    callback: callback
+	  });
+	  applyNext(api.constructor);
+	}
+
+	function init(api, opts, callback) {
+
+	  var dbName = opts.name;
+
+	  var idb = null;
+	  api._meta = null;
+
+	  // called when creating a fresh new database
+	  function createSchema(db) {
+	    var docStore = db.createObjectStore(DOC_STORE, {keyPath : 'id'});
+	    db.createObjectStore(BY_SEQ_STORE, {autoIncrement: true})
+	      .createIndex('_doc_id_rev', '_doc_id_rev', {unique: true});
+	    db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
+	    db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
+	    db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
+
+	    // added in v2
+	    docStore.createIndex('deletedOrLocal', 'deletedOrLocal', {unique : false});
+
+	    // added in v3
+	    db.createObjectStore(LOCAL_STORE, {keyPath: '_id'});
+
+	    // added in v4
+	    var attAndSeqStore = db.createObjectStore(ATTACH_AND_SEQ_STORE,
+	      {autoIncrement: true});
+	    attAndSeqStore.createIndex('seq', 'seq');
+	    attAndSeqStore.createIndex('digestSeq', 'digestSeq', {unique: true});
+	  }
+
+	  // migration to version 2
+	  // unfortunately "deletedOrLocal" is a misnomer now that we no longer
+	  // store local docs in the main doc-store, but whaddyagonnado
+	  function addDeletedOrLocalIndex(txn, callback) {
+	    var docStore = txn.objectStore(DOC_STORE);
+	    docStore.createIndex('deletedOrLocal', 'deletedOrLocal', {unique : false});
+
+	    docStore.openCursor().onsuccess = function (event) {
+	      var cursor = event.target.result;
+	      if (cursor) {
+	        var metadata = cursor.value;
+	        var deleted = isDeleted(metadata);
+	        metadata.deletedOrLocal = deleted ? "1" : "0";
+	        docStore.put(metadata);
+	        cursor.continue();
+	      } else {
+	        callback();
+	      }
+	    };
+	  }
+
+	  // migration to version 3 (part 1)
+	  function createLocalStoreSchema(db) {
+	    db.createObjectStore(LOCAL_STORE, {keyPath: '_id'})
+	      .createIndex('_doc_id_rev', '_doc_id_rev', {unique: true});
+	  }
+
+	  // migration to version 3 (part 2)
+	  function migrateLocalStore(txn, cb) {
+	    var localStore = txn.objectStore(LOCAL_STORE);
+	    var docStore = txn.objectStore(DOC_STORE);
+	    var seqStore = txn.objectStore(BY_SEQ_STORE);
+
+	    var cursor = docStore.openCursor();
+	    cursor.onsuccess = function (event) {
+	      var cursor = event.target.result;
+	      if (cursor) {
+	        var metadata = cursor.value;
+	        var docId = metadata.id;
+	        var local = isLocalId(docId);
+	        var rev = winningRev(metadata);
+	        if (local) {
+	          var docIdRev = docId + "::" + rev;
+	          // remove all seq entries
+	          // associated with this docId
+	          var start = docId + "::";
+	          var end = docId + "::~";
+	          var index = seqStore.index('_doc_id_rev');
+	          var range = IDBKeyRange.bound(start, end, false, false);
+	          var seqCursor = index.openCursor(range);
+	          seqCursor.onsuccess = function (e) {
+	            seqCursor = e.target.result;
+	            if (!seqCursor) {
+	              // done
+	              docStore.delete(cursor.primaryKey);
+	              cursor.continue();
+	            } else {
+	              var data = seqCursor.value;
+	              if (data._doc_id_rev === docIdRev) {
+	                localStore.put(data);
+	              }
+	              seqStore.delete(seqCursor.primaryKey);
+	              seqCursor.continue();
+	            }
+	          };
+	        } else {
+	          cursor.continue();
+	        }
+	      } else if (cb) {
+	        cb();
+	      }
+	    };
+	  }
+
+	  // migration to version 4 (part 1)
+	  function addAttachAndSeqStore(db) {
+	    var attAndSeqStore = db.createObjectStore(ATTACH_AND_SEQ_STORE,
+	      {autoIncrement: true});
+	    attAndSeqStore.createIndex('seq', 'seq');
+	    attAndSeqStore.createIndex('digestSeq', 'digestSeq', {unique: true});
+	  }
+
+	  // migration to version 4 (part 2)
+	  function migrateAttsAndSeqs(txn, callback) {
+	    var seqStore = txn.objectStore(BY_SEQ_STORE);
+	    var attStore = txn.objectStore(ATTACH_STORE);
+	    var attAndSeqStore = txn.objectStore(ATTACH_AND_SEQ_STORE);
+
+	    // need to actually populate the table. this is the expensive part,
+	    // so as an optimization, check first that this database even
+	    // contains attachments
+	    var req = attStore.count();
+	    req.onsuccess = function (e) {
+	      var count = e.target.result;
+	      if (!count) {
+	        return callback(); // done
+	      }
+
+	      seqStore.openCursor().onsuccess = function (e) {
+	        var cursor = e.target.result;
+	        if (!cursor) {
+	          return callback(); // done
+	        }
+	        var doc = cursor.value;
+	        var seq = cursor.primaryKey;
+	        var atts = Object.keys(doc._attachments || {});
+	        var digestMap = {};
+	        for (var j = 0; j < atts.length; j++) {
+	          var att = doc._attachments[atts[j]];
+	          digestMap[att.digest] = true; // uniq digests, just in case
+	        }
+	        var digests = Object.keys(digestMap);
+	        for (j = 0; j < digests.length; j++) {
+	          var digest = digests[j];
+	          attAndSeqStore.put({
+	            seq: seq,
+	            digestSeq: digest + '::' + seq
+	          });
+	        }
+	        cursor.continue();
+	      };
+	    };
+	  }
+
+	  // migration to version 5
+	  // Instead of relying on on-the-fly migration of metadata,
+	  // this brings the doc-store to its modern form:
+	  // - metadata.winningrev
+	  // - metadata.seq
+	  // - stringify the metadata when storing it
+	  function migrateMetadata(txn) {
+
+	    function decodeMetadataCompat(storedObject) {
+	      if (!storedObject.data) {
+	        // old format, when we didn't store it stringified
+	        storedObject.deleted = storedObject.deletedOrLocal === '1';
+	        return storedObject;
+	      }
+	      return decodeMetadata(storedObject);
+	    }
+
+	    // ensure that every metadata has a winningRev and seq,
+	    // which was previously created on-the-fly but better to migrate
+	    var bySeqStore = txn.objectStore(BY_SEQ_STORE);
+	    var docStore = txn.objectStore(DOC_STORE);
+	    var cursor = docStore.openCursor();
+	    cursor.onsuccess = function (e) {
+	      var cursor = e.target.result;
+	      if (!cursor) {
+	        return; // done
+	      }
+	      var metadata = decodeMetadataCompat(cursor.value);
+
+	      metadata.winningRev = metadata.winningRev ||
+	        winningRev(metadata);
+
+	      function fetchMetadataSeq() {
+	        // metadata.seq was added post-3.2.0, so if it's missing,
+	        // we need to fetch it manually
+	        var start = metadata.id + '::';
+	        var end = metadata.id + '::\uffff';
+	        var req = bySeqStore.index('_doc_id_rev').openCursor(
+	          IDBKeyRange.bound(start, end));
+
+	        var metadataSeq = 0;
+	        req.onsuccess = function (e) {
+	          var cursor = e.target.result;
+	          if (!cursor) {
+	            metadata.seq = metadataSeq;
+	            return onGetMetadataSeq();
+	          }
+	          var seq = cursor.primaryKey;
+	          if (seq > metadataSeq) {
+	            metadataSeq = seq;
+	          }
+	          cursor.continue();
+	        };
+	      }
+
+	      function onGetMetadataSeq() {
+	        var metadataToStore = encodeMetadata(metadata,
+	          metadata.winningRev, metadata.deleted);
+
+	        var req = docStore.put(metadataToStore);
+	        req.onsuccess = function () {
+	          cursor.continue();
+	        };
+	      }
+
+	      if (metadata.seq) {
+	        return onGetMetadataSeq();
+	      }
+
+	      fetchMetadataSeq();
+	    };
+
+	  }
+
+	  api.type = function () {
+	    return 'idb';
+	  };
+
+	  api._id = toPromise(function (callback) {
+	    callback(null, api._meta.instanceId);
+	  });
+
+	  api._bulkDocs = function idb_bulkDocs(req, reqOpts, callback) {
+	    idbBulkDocs(opts, req, reqOpts, api, idb, idbChanges, callback);
+	  };
+
+	  // First we look up the metadata in the ids database, then we fetch the
+	  // current revision(s) from the by sequence store
+	  api._get = function idb_get(id, opts, callback) {
+	    var doc;
+	    var metadata;
+	    var err;
+	    var txn = opts.ctx;
+	    if (!txn) {
+	      var txnResult = openTransactionSafely(idb,
+	        [DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
+	      if (txnResult.error) {
+	        return callback(txnResult.error);
+	      }
+	      txn = txnResult.txn;
+	    }
+
+	    function finish() {
+	      callback(err, {doc: doc, metadata: metadata, ctx: txn});
+	    }
+
+	    txn.objectStore(DOC_STORE).get(id).onsuccess = function (e) {
+	      metadata = decodeMetadata(e.target.result);
+	      // we can determine the result here if:
+	      // 1. there is no such document
+	      // 2. the document is deleted and we don't ask about specific rev
+	      // When we ask with opts.rev we expect the answer to be either
+	      // doc (possibly with _deleted=true) or missing error
+	      if (!metadata) {
+	        err = createError(MISSING_DOC, 'missing');
+	        return finish();
+	      }
+	      if (isDeleted(metadata) && !opts.rev) {
+	        err = createError(MISSING_DOC, "deleted");
+	        return finish();
+	      }
+	      var objectStore = txn.objectStore(BY_SEQ_STORE);
+
+	      var rev = opts.rev || metadata.winningRev;
+	      var key = metadata.id + '::' + rev;
+
+	      objectStore.index('_doc_id_rev').get(key).onsuccess = function (e) {
+	        doc = e.target.result;
+	        if (doc) {
+	          doc = decodeDoc(doc);
+	        }
+	        if (!doc) {
+	          err = createError(MISSING_DOC, 'missing');
+	          return finish();
+	        }
+	        finish();
+	      };
+	    };
+	  };
+
+	  api._getAttachment = function (docId, attachId, attachment, opts, callback) {
+	    var txn;
+	    if (opts.ctx) {
+	      txn = opts.ctx;
+	    } else {
+	      var txnResult = openTransactionSafely(idb,
+	        [DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
+	      if (txnResult.error) {
+	        return callback(txnResult.error);
+	      }
+	      txn = txnResult.txn;
+	    }
+	    var digest = attachment.digest;
+	    var type = attachment.content_type;
+
+	    txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function (e) {
+	      var body = e.target.result.body;
+	      readBlobData(body, type, opts.binary, function (blobData) {
+	        callback(null, blobData);
+	      });
+	    };
+	  };
+
+	  api._info = function idb_info(callback) {
+
+	    if (idb === null || !cachedDBs.has(dbName)) {
+	      var error = new Error('db isn\'t open');
+	      error.id = 'idbNull';
+	      return callback(error);
+	    }
+	    var updateSeq;
+	    var docCount;
+
+	    var txnResult = openTransactionSafely(idb, [BY_SEQ_STORE], 'readonly');
+	    if (txnResult.error) {
+	      return callback(txnResult.error);
+	    }
+	    var txn = txnResult.txn;
+	    var cursor = txn.objectStore(BY_SEQ_STORE).openCursor(null, 'prev');
+	    cursor.onsuccess = function (event) {
+	      var cursor = event.target.result;
+	      updateSeq = cursor ? cursor.key : 0;
+	      // count within the same txn for consistency
+	      docCount = api._meta.docCount;
+	    };
+
+	    txn.oncomplete = function () {
+	      callback(null, {
+	        doc_count: docCount,
+	        update_seq: updateSeq,
+	        // for debugging
+	        idb_attachment_format: (api._meta.blobSupport ? 'binary' : 'base64')
+	      });
+	    };
+	  };
+
+	  api._allDocs = function idb_allDocs(opts, callback) {
+	    idbAllDocs(opts, api, idb, callback);
+	  };
+
+	  api._changes = function (opts) {
+	    opts = clone(opts);
+
+	    if (opts.continuous) {
+	      var id = dbName + ':' + uuid();
+	      idbChanges.addListener(dbName, id, api, opts);
+	      idbChanges.notify(dbName);
+	      return {
+	        cancel: function () {
+	          idbChanges.removeListener(dbName, id);
+	        }
+	      };
+	    }
+
+	    var docIds = opts.doc_ids && new _Set(opts.doc_ids);
+
+	    opts.since = opts.since || 0;
+	    var lastSeq = opts.since;
+
+	    var limit = 'limit' in opts ? opts.limit : -1;
+	    if (limit === 0) {
+	      limit = 1; // per CouchDB _changes spec
+	    }
+	    var returnDocs;
+	    if ('return_docs' in opts) {
+	      returnDocs = opts.return_docs;
+	    } else if ('returnDocs' in opts) {
+	      // TODO: Remove 'returnDocs' in favor of 'return_docs' in a future release
+	      returnDocs = opts.returnDocs;
+	    } else {
+	      returnDocs = true;
+	    }
+
+	    var results = [];
+	    var numResults = 0;
+	    var filter = filterChange(opts);
+	    var docIdsToMetadata = new _Map();
+
+	    var txn;
+	    var bySeqStore;
+	    var docStore;
+	    var docIdRevIndex;
+
+	    function onGetCursor(cursor) {
+
+	      var doc = decodeDoc(cursor.value);
+	      var seq = cursor.key;
+
+	      if (docIds && !docIds.has(doc._id)) {
+	        return cursor.continue();
+	      }
+
+	      var metadata;
+
+	      function onGetMetadata() {
+	        if (metadata.seq !== seq) {
+	          // some other seq is later
+	          return cursor.continue();
+	        }
+
+	        lastSeq = seq;
+
+	        if (metadata.winningRev === doc._rev) {
+	          return onGetWinningDoc(doc);
+	        }
+
+	        fetchWinningDoc();
+	      }
+
+	      function fetchWinningDoc() {
+	        var docIdRev = doc._id + '::' + metadata.winningRev;
+	        var req = docIdRevIndex.get(docIdRev);
+	        req.onsuccess = function (e) {
+	          onGetWinningDoc(decodeDoc(e.target.result));
+	        };
+	      }
+
+	      function onGetWinningDoc(winningDoc) {
+
+	        var change = opts.processChange(winningDoc, metadata, opts);
+	        change.seq = metadata.seq;
+
+	        var filtered = filter(change);
+	        if (typeof filtered === 'object') {
+	          return opts.complete(filtered);
+	        }
+
+	        if (filtered) {
+	          numResults++;
+	          if (returnDocs) {
+	            results.push(change);
+	          }
+	          // process the attachment immediately
+	          // for the benefit of live listeners
+	          if (opts.attachments && opts.include_docs) {
+	            fetchAttachmentsIfNecessary(winningDoc, opts, txn, function () {
+	              postProcessAttachments([change], opts.binary).then(function () {
+	                opts.onChange(change);
+	              });
+	            });
+	          } else {
+	            opts.onChange(change);
+	          }
+	        }
+	        if (numResults !== limit) {
+	          cursor.continue();
+	        }
+	      }
+
+	      metadata = docIdsToMetadata.get(doc._id);
+	      if (metadata) { // cached
+	        return onGetMetadata();
+	      }
+	      // metadata not cached, have to go fetch it
+	      docStore.get(doc._id).onsuccess = function (event) {
+	        metadata = decodeMetadata(event.target.result);
+	        docIdsToMetadata.set(doc._id, metadata);
+	        onGetMetadata();
+	      };
+	    }
+
+	    function onsuccess(event) {
+	      var cursor = event.target.result;
+
+	      if (!cursor) {
+	        return;
+	      }
+	      onGetCursor(cursor);
+	    }
+
+	    function fetchChanges() {
+	      var objectStores = [DOC_STORE, BY_SEQ_STORE];
+	      if (opts.attachments) {
+	        objectStores.push(ATTACH_STORE);
+	      }
+	      var txnResult = openTransactionSafely(idb, objectStores, 'readonly');
+	      if (txnResult.error) {
+	        return opts.complete(txnResult.error);
+	      }
+	      txn = txnResult.txn;
+	      txn.onabort = idbError(opts.complete);
+	      txn.oncomplete = onTxnComplete;
+
+	      bySeqStore = txn.objectStore(BY_SEQ_STORE);
+	      docStore = txn.objectStore(DOC_STORE);
+	      docIdRevIndex = bySeqStore.index('_doc_id_rev');
+
+	      var req;
+
+	      if (opts.descending) {
+	        req = bySeqStore.openCursor(null, 'prev');
+	      } else {
+	        req = bySeqStore.openCursor(IDBKeyRange.lowerBound(opts.since, true));
+	      }
+
+	      req.onsuccess = onsuccess;
+	    }
+
+	    fetchChanges();
+
+	    function onTxnComplete() {
+
+	      function finish() {
+	        opts.complete(null, {
+	          results: results,
+	          last_seq: lastSeq
+	        });
+	      }
+
+	      if (!opts.continuous && opts.attachments) {
+	        // cannot guarantee that postProcessing was already done,
+	        // so do it again
+	        postProcessAttachments(results).then(finish);
+	      } else {
+	        finish();
+	      }
+	    }
+	  };
+
+	  api._close = function (callback) {
+	    if (idb === null) {
+	      return callback(createError(NOT_OPEN));
+	    }
+
+	    // https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#close
+	    // "Returns immediately and closes the connection in a separate thread..."
+	    idb.close();
+	    cachedDBs.delete(dbName);
+	    idb = null;
+	    callback();
+	  };
+
+	  api._getRevisionTree = function (docId, callback) {
+	    var txnResult = openTransactionSafely(idb, [DOC_STORE], 'readonly');
+	    if (txnResult.error) {
+	      return callback(txnResult.error);
+	    }
+	    var txn = txnResult.txn;
+	    var req = txn.objectStore(DOC_STORE).get(docId);
+	    req.onsuccess = function (event) {
+	      var doc = decodeMetadata(event.target.result);
+	      if (!doc) {
+	        callback(createError(MISSING_DOC));
+	      } else {
+	        callback(null, doc.rev_tree);
+	      }
+	    };
+	  };
+
+	  // This function removes revisions of document docId
+	  // which are listed in revs and sets this document
+	  // revision to to rev_tree
+	  api._doCompaction = function (docId, revs, callback) {
+	    var stores = [
+	      DOC_STORE,
+	      BY_SEQ_STORE,
+	      ATTACH_STORE,
+	      ATTACH_AND_SEQ_STORE
+	    ];
+	    var txnResult = openTransactionSafely(idb, stores, 'readwrite');
+	    if (txnResult.error) {
+	      return callback(txnResult.error);
+	    }
+	    var txn = txnResult.txn;
+
+	    var docStore = txn.objectStore(DOC_STORE);
+
+	    docStore.get(docId).onsuccess = function (event) {
+	      var metadata = decodeMetadata(event.target.result);
+	      traverseRevTree(metadata.rev_tree, function (isLeaf, pos,
+	                                                         revHash, ctx, opts) {
+	        var rev = pos + '-' + revHash;
+	        if (revs.indexOf(rev) !== -1) {
+	          opts.status = 'missing';
+	        }
+	      });
+	      compactRevs(revs, docId, txn);
+	      var winningRev = metadata.winningRev;
+	      var deleted = metadata.deleted;
+	      txn.objectStore(DOC_STORE).put(
+	        encodeMetadata(metadata, winningRev, deleted));
+	    };
+	    txn.onabort = idbError(callback);
+	    txn.oncomplete = function () {
+	      callback();
+	    };
+	  };
+
+
+	  api._getLocal = function (id, callback) {
+	    var txnResult = openTransactionSafely(idb, [LOCAL_STORE], 'readonly');
+	    if (txnResult.error) {
+	      return callback(txnResult.error);
+	    }
+	    var tx = txnResult.txn;
+	    var req = tx.objectStore(LOCAL_STORE).get(id);
+
+	    req.onerror = idbError(callback);
+	    req.onsuccess = function (e) {
+	      var doc = e.target.result;
+	      if (!doc) {
+	        callback(createError(MISSING_DOC));
+	      } else {
+	        delete doc['_doc_id_rev']; // for backwards compat
+	        callback(null, doc);
+	      }
+	    };
+	  };
+
+	  api._putLocal = function (doc, opts, callback) {
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    delete doc._revisions; // ignore this, trust the rev
+	    var oldRev = doc._rev;
+	    var id = doc._id;
+	    if (!oldRev) {
+	      doc._rev = '0-1';
+	    } else {
+	      doc._rev = '0-' + (parseInt(oldRev.split('-')[1], 10) + 1);
+	    }
+
+	    var tx = opts.ctx;
+	    var ret;
+	    if (!tx) {
+	      var txnResult = openTransactionSafely(idb, [LOCAL_STORE], 'readwrite');
+	      if (txnResult.error) {
+	        return callback(txnResult.error);
+	      }
+	      tx = txnResult.txn;
+	      tx.onerror = idbError(callback);
+	      tx.oncomplete = function () {
+	        if (ret) {
+	          callback(null, ret);
+	        }
+	      };
+	    }
+
+	    var oStore = tx.objectStore(LOCAL_STORE);
+	    var req;
+	    if (oldRev) {
+	      req = oStore.get(id);
+	      req.onsuccess = function (e) {
+	        var oldDoc = e.target.result;
+	        if (!oldDoc || oldDoc._rev !== oldRev) {
+	          callback(createError(REV_CONFLICT));
+	        } else { // update
+	          var req = oStore.put(doc);
+	          req.onsuccess = function () {
+	            ret = {ok: true, id: doc._id, rev: doc._rev};
+	            if (opts.ctx) { // return immediately
+	              callback(null, ret);
+	            }
+	          };
+	        }
+	      };
+	    } else { // new doc
+	      req = oStore.add(doc);
+	      req.onerror = function (e) {
+	        // constraint error, already exists
+	        callback(createError(REV_CONFLICT));
+	        e.preventDefault(); // avoid transaction abort
+	        e.stopPropagation(); // avoid transaction onerror
+	      };
+	      req.onsuccess = function () {
+	        ret = {ok: true, id: doc._id, rev: doc._rev};
+	        if (opts.ctx) { // return immediately
+	          callback(null, ret);
+	        }
+	      };
+	    }
+	  };
+
+	  api._removeLocal = function (doc, opts, callback) {
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    var tx = opts.ctx;
+	    if (!tx) {
+	      var txnResult = openTransactionSafely(idb, [LOCAL_STORE], 'readwrite');
+	      if (txnResult.error) {
+	        return callback(txnResult.error);
+	      }
+	      tx = txnResult.txn;
+	      tx.oncomplete = function () {
+	        if (ret) {
+	          callback(null, ret);
+	        }
+	      };
+	    }
+	    var ret;
+	    var id = doc._id;
+	    var oStore = tx.objectStore(LOCAL_STORE);
+	    var req = oStore.get(id);
+
+	    req.onerror = idbError(callback);
+	    req.onsuccess = function (e) {
+	      var oldDoc = e.target.result;
+	      if (!oldDoc || oldDoc._rev !== doc._rev) {
+	        callback(createError(MISSING_DOC));
+	      } else {
+	        oStore.delete(id);
+	        ret = {ok: true, id: id, rev: '0-0'};
+	        if (opts.ctx) { // return immediately
+	          callback(null, ret);
+	        }
+	      }
+	    };
+	  };
+
+	  api._destroy = function (opts, callback) {
+	    idbChanges.removeAllListeners(dbName);
+
+	    //Close open request for "dbName" database to fix ie delay.
+	    var openReq = openReqList.get(dbName);
+	    if (openReq && openReq.result) {
+	      openReq.result.close();
+	      cachedDBs.delete(dbName);
+	    }
+	    var req = indexedDB.deleteDatabase(dbName);
+
+	    req.onsuccess = function () {
+	      //Remove open request from the list.
+	      openReqList.delete(dbName);
+	      if (hasLocalStorage() && (dbName in localStorage)) {
+	        delete localStorage[dbName];
+	      }
+	      callback(null, { 'ok': true });
+	    };
+
+	    req.onerror = idbError(callback);
+	  };
+
+	  var cached = cachedDBs.get(dbName);
+
+	  if (cached) {
+	    idb = cached.idb;
+	    api._meta = cached.global;
+	    process.nextTick(function () {
+	      callback(null, api);
+	    });
+	    return;
+	  }
+
+	  var req;
+	  if (opts.storage) {
+	    req = tryStorageOption(dbName, opts.storage);
+	  } else {
+	    req = indexedDB.open(dbName, ADAPTER_VERSION);
+	  }
+
+	  openReqList.set(dbName, req);
+
+	  req.onupgradeneeded = function (e) {
+	    var db = e.target.result;
+	    if (e.oldVersion < 1) {
+	      return createSchema(db); // new db, initial schema
+	    }
+	    // do migrations
+
+	    var txn = e.currentTarget.transaction;
+	    // these migrations have to be done in this function, before
+	    // control is returned to the event loop, because IndexedDB
+
+	    if (e.oldVersion < 3) {
+	      createLocalStoreSchema(db); // v2 -> v3
+	    }
+	    if (e.oldVersion < 4) {
+	      addAttachAndSeqStore(db); // v3 -> v4
+	    }
+
+	    var migrations = [
+	      addDeletedOrLocalIndex, // v1 -> v2
+	      migrateLocalStore,      // v2 -> v3
+	      migrateAttsAndSeqs,     // v3 -> v4
+	      migrateMetadata         // v4 -> v5
+	    ];
+
+	    var i = e.oldVersion;
+
+	    function next() {
+	      var migration = migrations[i - 1];
+	      i++;
+	      if (migration) {
+	        migration(txn, next);
+	      }
+	    }
+
+	    next();
+	  };
+
+	  req.onsuccess = function (e) {
+
+	    idb = e.target.result;
+
+	    idb.onversionchange = function () {
+	      idb.close();
+	      cachedDBs.delete(dbName);
+	    };
+
+	    idb.onabort = function (e) {
+	      guardedConsole('error', 'Database has a global failure', e.target.error);
+	      idb.close();
+	      cachedDBs.delete(dbName);
+	    };
+
+	    var txn = idb.transaction([
+	      META_STORE,
+	      DETECT_BLOB_SUPPORT_STORE,
+	      DOC_STORE
+	    ], 'readwrite');
+
+	    var req = txn.objectStore(META_STORE).get(META_STORE);
+
+	    var blobSupport = null;
+	    var docCount = null;
+	    var instanceId = null;
+
+	    req.onsuccess = function (e) {
+
+	      var checkSetupComplete = function () {
+	        if (blobSupport === null || docCount === null ||
+	            instanceId === null) {
+	          return;
+	        } else {
+	          api._meta = {
+	            name: dbName,
+	            instanceId: instanceId,
+	            blobSupport: blobSupport,
+	            docCount: docCount
+	          };
+
+	          cachedDBs.set(dbName, {
+	            idb: idb,
+	            global: api._meta
+	          });
+	          callback(null, api);
+	        }
+	      };
+
+	      //
+	      // fetch/store the id
+	      //
+
+	      var meta = e.target.result || {id: META_STORE};
+	      if (dbName  + '_id' in meta) {
+	        instanceId = meta[dbName + '_id'];
+	        checkSetupComplete();
+	      } else {
+	        instanceId = uuid();
+	        meta[dbName + '_id'] = instanceId;
+	        txn.objectStore(META_STORE).put(meta).onsuccess = function () {
+	          checkSetupComplete();
+	        };
+	      }
+
+	      //
+	      // check blob support
+	      //
+
+	      if (!blobSupportPromise) {
+	        // make sure blob support is only checked once
+	        blobSupportPromise = checkBlobSupport(txn);
+	      }
+
+	      blobSupportPromise.then(function (val) {
+	        blobSupport = val;
+	        checkSetupComplete();
+	      });
+
+	      //
+	      // count docs
+	      //
+
+	      var index = txn.objectStore(DOC_STORE).index('deletedOrLocal');
+	      index.count(IDBKeyRange.only('0')).onsuccess = function (e) {
+	        docCount = e.target.result;
+	        checkSetupComplete();
+	      };
+
+	    };
+	  };
+
+	  req.onerror = function () {
+	    var msg = 'Failed to open indexedDB, are you in private browsing mode?';
+	    guardedConsole('error', msg);
+	    callback(createError(IDB_ERROR, msg));
+	  };
+	}
+
+	IdbPouch.valid = function () {
+	  // Issue #2533, we finally gave up on doing bug
+	  // detection instead of browser sniffing. Safari brought us
+	  // to our knees.
+	  var isSafari = typeof openDatabase !== 'undefined' &&
+	    /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) &&
+	    !/Chrome/.test(navigator.userAgent) &&
+	    !/BlackBerry/.test(navigator.platform);
+
+	  // some outdated implementations of IDB that appear on Samsung
+	  // and HTC Android devices <4.4 are missing IDBKeyRange
+	  return !isSafari && typeof indexedDB !== 'undefined' &&
+	    typeof IDBKeyRange !== 'undefined';
+	};
+
+	function tryStorageOption(dbName, storage) {
+	  try { // option only available in Firefox 26+
+	    return indexedDB.open(dbName, {
+	      version: ADAPTER_VERSION,
+	      storage: storage
+	    });
+	  } catch(err) {
+	      return indexedDB.open(dbName, ADAPTER_VERSION);
+	  }
+	}
+
+	function IDBPouch (PouchDB) {
+	  PouchDB.adapter('idb', IdbPouch, true);
+	}
+
+	//
+	// Parsing hex strings. Yeah.
+	//
+	// So basically we need this because of a bug in WebSQL:
+	// https://code.google.com/p/chromium/issues/detail?id=422690
+	// https://bugs.webkit.org/show_bug.cgi?id=137637
+	//
+	// UTF-8 and UTF-16 are provided as separate functions
+	// for meager performance improvements
+	//
+
+	function decodeUtf8(str) {
+	  return decodeURIComponent(escape(str));
+	}
+
+	function hexToInt(charCode) {
+	  // '0'-'9' is 48-57
+	  // 'A'-'F' is 65-70
+	  // SQLite will only give us uppercase hex
+	  return charCode < 65 ? (charCode - 48) : (charCode - 55);
+	}
+
+
+	// Example:
+	// pragma encoding=utf8;
+	// select hex('A');
+	// returns '41'
+	function parseHexUtf8(str, start, end) {
+	  var result = '';
+	  while (start < end) {
+	    result += String.fromCharCode(
+	      (hexToInt(str.charCodeAt(start++)) << 4) |
+	        hexToInt(str.charCodeAt(start++)));
+	  }
+	  return result;
+	}
+
+	// Example:
+	// pragma encoding=utf16;
+	// select hex('A');
+	// returns '4100'
+	// notice that the 00 comes after the 41 (i.e. it's swizzled)
+	function parseHexUtf16(str, start, end) {
+	  var result = '';
+	  while (start < end) {
+	    // UTF-16, so swizzle the bytes
+	    result += String.fromCharCode(
+	      (hexToInt(str.charCodeAt(start + 2)) << 12) |
+	        (hexToInt(str.charCodeAt(start + 3)) << 8) |
+	        (hexToInt(str.charCodeAt(start)) << 4) |
+	        hexToInt(str.charCodeAt(start + 1)));
+	    start += 4;
+	  }
+	  return result;
+	}
+
+	function parseHexString(str, encoding) {
+	  if (encoding === 'UTF-8') {
+	    return decodeUtf8(parseHexUtf8(str, 0, str.length));
+	  } else {
+	    return parseHexUtf16(str, 0, str.length);
+	  }
+	}
+
+	function quote(str) {
+	  return "'" + str + "'";
+	}
+
+	var ADAPTER_VERSION$1 = 7; // used to manage migrations
+
+	// The object stores created for each database
+	// DOC_STORE stores the document meta data, its revision history and state
+	var DOC_STORE$1 = quote('document-store');
+	// BY_SEQ_STORE stores a particular version of a document, keyed by its
+	// sequence id
+	var BY_SEQ_STORE$1 = quote('by-sequence');
+	// Where we store attachments
+	var ATTACH_STORE$1 = quote('attach-store');
+	var LOCAL_STORE$1 = quote('local-store');
+	var META_STORE$1 = quote('metadata-store');
+	// where we store many-to-many relations between attachment
+	// digests and seqs
+	var ATTACH_AND_SEQ_STORE$1 = quote('attach-seq-store');
+
+	// escapeBlob and unescapeBlob are workarounds for a websql bug:
+	// https://code.google.com/p/chromium/issues/detail?id=422690
+	// https://bugs.webkit.org/show_bug.cgi?id=137637
+	// The goal is to never actually insert the \u0000 character
+	// in the database.
+	function escapeBlob(str) {
+	  return str
+	    .replace(/\u0002/g, '\u0002\u0002')
+	    .replace(/\u0001/g, '\u0001\u0002')
+	    .replace(/\u0000/g, '\u0001\u0001');
+	}
+
+	function unescapeBlob(str) {
+	  return str
+	    .replace(/\u0001\u0001/g, '\u0000')
+	    .replace(/\u0001\u0002/g, '\u0001')
+	    .replace(/\u0002\u0002/g, '\u0002');
+	}
+
+	function stringifyDoc(doc) {
+	  // don't bother storing the id/rev. it uses lots of space,
+	  // in persistent map/reduce especially
+	  delete doc._id;
+	  delete doc._rev;
+	  return JSON.stringify(doc);
+	}
+
+	function unstringifyDoc(doc, id, rev) {
+	  doc = JSON.parse(doc);
+	  doc._id = id;
+	  doc._rev = rev;
+	  return doc;
+	}
+
+	// question mark groups IN queries, e.g. 3 -> '(?,?,?)'
+	function qMarks(num) {
+	  var s = '(';
+	  while (num--) {
+	    s += '?';
+	    if (num) {
+	      s += ',';
+	    }
+	  }
+	  return s + ')';
+	}
+
+	function select(selector, table, joiner, where, orderBy) {
+	  return 'SELECT ' + selector + ' FROM ' +
+	    (typeof table === 'string' ? table : table.join(' JOIN ')) +
+	    (joiner ? (' ON ' + joiner) : '') +
+	    (where ? (' WHERE ' +
+	    (typeof where === 'string' ? where : where.join(' AND '))) : '') +
+	    (orderBy ? (' ORDER BY ' + orderBy) : '');
+	}
+
+	function compactRevs$1(revs, docId, tx) {
+
+	  if (!revs.length) {
+	    return;
+	  }
+
+	  var numDone = 0;
+	  var seqs = [];
+
+	  function checkDone() {
+	    if (++numDone === revs.length) { // done
+	      deleteOrphans();
+	    }
+	  }
+
+	  function deleteOrphans() {
+	    // find orphaned attachment digests
+
+	    if (!seqs.length) {
+	      return;
+	    }
+
+	    var sql = 'SELECT DISTINCT digest AS digest FROM ' +
+	      ATTACH_AND_SEQ_STORE$1 + ' WHERE seq IN ' + qMarks(seqs.length);
+
+	    tx.executeSql(sql, seqs, function (tx, res) {
+
+	      var digestsToCheck = [];
+	      for (var i = 0; i < res.rows.length; i++) {
+	        digestsToCheck.push(res.rows.item(i).digest);
+	      }
+	      if (!digestsToCheck.length) {
+	        return;
+	      }
+
+	      var sql = 'DELETE FROM ' + ATTACH_AND_SEQ_STORE$1 +
+	        ' WHERE seq IN (' +
+	        seqs.map(function () { return '?'; }).join(',') +
+	        ')';
+	      tx.executeSql(sql, seqs, function (tx) {
+
+	        var sql = 'SELECT digest FROM ' + ATTACH_AND_SEQ_STORE$1 +
+	          ' WHERE digest IN (' +
+	          digestsToCheck.map(function () { return '?'; }).join(',') +
+	          ')';
+	        tx.executeSql(sql, digestsToCheck, function (tx, res) {
+	          var nonOrphanedDigests = new _Set();
+	          for (var i = 0; i < res.rows.length; i++) {
+	            nonOrphanedDigests.add(res.rows.item(i).digest);
+	          }
+	          digestsToCheck.forEach(function (digest) {
+	            if (nonOrphanedDigests.has(digest)) {
+	              return;
+	            }
+	            tx.executeSql(
+	              'DELETE FROM ' + ATTACH_AND_SEQ_STORE$1 + ' WHERE digest=?',
+	              [digest]);
+	            tx.executeSql(
+	              'DELETE FROM ' + ATTACH_STORE$1 + ' WHERE digest=?', [digest]);
+	          });
+	        });
+	      });
+	    });
+	  }
+
+	  // update by-seq and attach stores in parallel
+	  revs.forEach(function (rev) {
+	    var sql = 'SELECT seq FROM ' + BY_SEQ_STORE$1 +
+	      ' WHERE doc_id=? AND rev=?';
+
+	    tx.executeSql(sql, [docId, rev], function (tx, res) {
+	      if (!res.rows.length) { // already deleted
+	        return checkDone();
+	      }
+	      var seq = res.rows.item(0).seq;
+	      seqs.push(seq);
+
+	      tx.executeSql(
+	        'DELETE FROM ' + BY_SEQ_STORE$1 + ' WHERE seq=?', [seq], checkDone);
+	    });
+	  });
+	}
+
+	function websqlError(callback) {
+	  return function (event) {
+	    guardedConsole('error', 'WebSQL threw an error', event);
+	    // event may actually be a SQLError object, so report is as such
+	    var errorNameMatch = event && event.constructor.toString()
+	        .match(/function ([^\(]+)/);
+	    var errorName = (errorNameMatch && errorNameMatch[1]) || event.type;
+	    var errorReason = event.target || event.message;
+	    callback(createError(WSQ_ERROR, errorReason, errorName));
+	  };
+	}
+
+	function getSize(opts) {
+	  if ('size' in opts) {
+	    // triggers immediate popup in iOS, fixes #2347
+	    // e.g. 5000001 asks for 5 MB, 10000001 asks for 10 MB,
+	    return opts.size * 1000000;
+	  }
+	  // In iOS, doesn't matter as long as it's <= 5000000.
+	  // Except that if you request too much, our tests fail
+	  // because of the native "do you accept?" popup.
+	  // In Android <=4.3, this value is actually used as an
+	  // honest-to-god ceiling for data, so we need to
+	  // set it to a decently high number.
+	  var isAndroid = typeof navigator !== 'undefined' &&
+	    /Android/.test(navigator.userAgent);
+	  return isAndroid ? 5000000 : 1; // in PhantomJS, if you use 0 it will crash
+	}
+
+	function websqlBulkDocs(dbOpts, req, opts, api, db, websqlChanges, callback) {
+	  var newEdits = opts.new_edits;
+	  var userDocs = req.docs;
+
+	  // Parse the docs, give them a sequence number for the result
+	  var docInfos = userDocs.map(function (doc) {
+	    if (doc._id && isLocalId(doc._id)) {
+	      return doc;
+	    }
+	    var newDoc = parseDoc(doc, newEdits);
+	    return newDoc;
+	  });
+
+	  var docInfoErrors = docInfos.filter(function (docInfo) {
+	    return docInfo.error;
+	  });
+	  if (docInfoErrors.length) {
+	    return callback(docInfoErrors[0]);
+	  }
+
+	  var tx;
+	  var results = new Array(docInfos.length);
+	  var fetchedDocs = new _Map();
+
+	  var preconditionErrored;
+	  function complete() {
+	    if (preconditionErrored) {
+	      return callback(preconditionErrored);
+	    }
+	    websqlChanges.notify(api._name);
+	    api._docCount = -1; // invalidate
+	    callback(null, results);
+	  }
+
+	  function verifyAttachment(digest, callback) {
+	    var sql = 'SELECT count(*) as cnt FROM ' + ATTACH_STORE$1 +
+	      ' WHERE digest=?';
+	    tx.executeSql(sql, [digest], function (tx, result) {
+	      if (result.rows.item(0).cnt === 0) {
+	        var err = createError(MISSING_STUB,
+	          'unknown stub attachment with digest ' +
+	          digest);
+	        callback(err);
+	      } else {
+	        callback();
+	      }
+	    });
+	  }
+
+	  function verifyAttachments(finish) {
+	    var digests = [];
+	    docInfos.forEach(function (docInfo) {
+	      if (docInfo.data && docInfo.data._attachments) {
+	        Object.keys(docInfo.data._attachments).forEach(function (filename) {
+	          var att = docInfo.data._attachments[filename];
+	          if (att.stub) {
+	            digests.push(att.digest);
+	          }
+	        });
+	      }
+	    });
+	    if (!digests.length) {
+	      return finish();
+	    }
+	    var numDone = 0;
+	    var err;
+
+	    function checkDone() {
+	      if (++numDone === digests.length) {
+	        finish(err);
+	      }
+	    }
+	    digests.forEach(function (digest) {
+	      verifyAttachment(digest, function (attErr) {
+	        if (attErr && !err) {
+	          err = attErr;
+	        }
+	        checkDone();
+	      });
+	    });
+	  }
+
+	  function writeDoc(docInfo, winningRev, winningRevIsDeleted, newRevIsDeleted,
+	                    isUpdate, delta, resultsIdx, callback) {
+
+	    function finish() {
+	      var data = docInfo.data;
+	      var deletedInt = newRevIsDeleted ? 1 : 0;
+
+	      var id = data._id;
+	      var rev = data._rev;
+	      var json = stringifyDoc(data);
+	      var sql = 'INSERT INTO ' + BY_SEQ_STORE$1 +
+	        ' (doc_id, rev, json, deleted) VALUES (?, ?, ?, ?);';
+	      var sqlArgs = [id, rev, json, deletedInt];
+
+	      // map seqs to attachment digests, which
+	      // we will need later during compaction
+	      function insertAttachmentMappings(seq, callback) {
+	        var attsAdded = 0;
+	        var attsToAdd = Object.keys(data._attachments || {});
+
+	        if (!attsToAdd.length) {
+	          return callback();
+	        }
+	        function checkDone() {
+	          if (++attsAdded === attsToAdd.length) {
+	            callback();
+	          }
+	          return false; // ack handling a constraint error
+	        }
+	        function add(att) {
+	          var sql = 'INSERT INTO ' + ATTACH_AND_SEQ_STORE$1 +
+	            ' (digest, seq) VALUES (?,?)';
+	          var sqlArgs = [data._attachments[att].digest, seq];
+	          tx.executeSql(sql, sqlArgs, checkDone, checkDone);
+	          // second callback is for a constaint error, which we ignore
+	          // because this docid/rev has already been associated with
+	          // the digest (e.g. when new_edits == false)
+	        }
+	        for (var i = 0; i < attsToAdd.length; i++) {
+	          add(attsToAdd[i]); // do in parallel
+	        }
+	      }
+
+	      tx.executeSql(sql, sqlArgs, function (tx, result) {
+	        var seq = result.insertId;
+	        insertAttachmentMappings(seq, function () {
+	          dataWritten(tx, seq);
+	        });
+	      }, function () {
+	        // constraint error, recover by updating instead (see #1638)
+	        var fetchSql = select('seq', BY_SEQ_STORE$1, null,
+	          'doc_id=? AND rev=?');
+	        tx.executeSql(fetchSql, [id, rev], function (tx, res) {
+	          var seq = res.rows.item(0).seq;
+	          var sql = 'UPDATE ' + BY_SEQ_STORE$1 +
+	            ' SET json=?, deleted=? WHERE doc_id=? AND rev=?;';
+	          var sqlArgs = [json, deletedInt, id, rev];
+	          tx.executeSql(sql, sqlArgs, function (tx) {
+	            insertAttachmentMappings(seq, function () {
+	              dataWritten(tx, seq);
+	            });
+	          });
+	        });
+	        return false; // ack that we've handled the error
+	      });
+	    }
+
+	    function collectResults(attachmentErr) {
+	      if (!err) {
+	        if (attachmentErr) {
+	          err = attachmentErr;
+	          callback(err);
+	        } else if (recv === attachments.length) {
+	          finish();
+	        }
+	      }
+	    }
+
+	    var err = null;
+	    var recv = 0;
+
+	    docInfo.data._id = docInfo.metadata.id;
+	    docInfo.data._rev = docInfo.metadata.rev;
+	    var attachments = Object.keys(docInfo.data._attachments || {});
+
+
+	    if (newRevIsDeleted) {
+	      docInfo.data._deleted = true;
+	    }
+
+	    function attachmentSaved(err) {
+	      recv++;
+	      collectResults(err);
+	    }
+
+	    attachments.forEach(function (key) {
+	      var att = docInfo.data._attachments[key];
+	      if (!att.stub) {
+	        var data = att.data;
+	        delete att.data;
+	        att.revpos = parseInt(winningRev, 10);
+	        var digest = att.digest;
+	        saveAttachment(digest, data, attachmentSaved);
+	      } else {
+	        recv++;
+	        collectResults();
+	      }
+	    });
+
+	    if (!attachments.length) {
+	      finish();
+	    }
+
+	    function dataWritten(tx, seq) {
+	      var id = docInfo.metadata.id;
+
+	      var revsToCompact = docInfo.stemmedRevs || [];
+	      if (isUpdate && api.auto_compaction) {
+	        revsToCompact = compactTree(docInfo.metadata).concat(revsToCompact);
+	      }
+	      if (revsToCompact.length) {
+	        compactRevs$1(revsToCompact, id, tx);
+	      }
+
+	      docInfo.metadata.seq = seq;
+	      delete docInfo.metadata.rev;
+
+	      var sql = isUpdate ?
+	      'UPDATE ' + DOC_STORE$1 +
+	      ' SET json=?, max_seq=?, winningseq=' +
+	      '(SELECT seq FROM ' + BY_SEQ_STORE$1 +
+	      ' WHERE doc_id=' + DOC_STORE$1 + '.id AND rev=?) WHERE id=?'
+	        : 'INSERT INTO ' + DOC_STORE$1 +
+	      ' (id, winningseq, max_seq, json) VALUES (?,?,?,?);';
+	      var metadataStr = safeJsonStringify(docInfo.metadata);
+	      var params = isUpdate ?
+	        [metadataStr, seq, winningRev, id] :
+	        [id, seq, seq, metadataStr];
+	      tx.executeSql(sql, params, function () {
+	        results[resultsIdx] = {
+	          ok: true,
+	          id: docInfo.metadata.id,
+	          rev: winningRev
+	        };
+	        fetchedDocs.set(id, docInfo.metadata);
+	        callback();
+	      });
+	    }
+	  }
+
+	  function websqlProcessDocs() {
+	    processDocs(dbOpts.revs_limit, docInfos, api, fetchedDocs, tx,
+	                results, writeDoc, opts);
+	  }
+
+	  function fetchExistingDocs(callback) {
+	    if (!docInfos.length) {
+	      return callback();
+	    }
+
+	    var numFetched = 0;
+
+	    function checkDone() {
+	      if (++numFetched === docInfos.length) {
+	        callback();
+	      }
+	    }
+
+	    docInfos.forEach(function (docInfo) {
+	      if (docInfo._id && isLocalId(docInfo._id)) {
+	        return checkDone(); // skip local docs
+	      }
+	      var id = docInfo.metadata.id;
+	      tx.executeSql('SELECT json FROM ' + DOC_STORE$1 +
+	      ' WHERE id = ?', [id], function (tx, result) {
+	        if (result.rows.length) {
+	          var metadata = safeJsonParse(result.rows.item(0).json);
+	          fetchedDocs.set(id, metadata);
+	        }
+	        checkDone();
+	      });
+	    });
+	  }
+
+	  function saveAttachment(digest, data, callback) {
+	    var sql = 'SELECT digest FROM ' + ATTACH_STORE$1 + ' WHERE digest=?';
+	    tx.executeSql(sql, [digest], function (tx, result) {
+	      if (result.rows.length) { // attachment already exists
+	        return callback();
+	      }
+	      // we could just insert before selecting and catch the error,
+	      // but my hunch is that it's cheaper not to serialize the blob
+	      // from JS to C if we don't have to (TODO: confirm this)
+	      sql = 'INSERT INTO ' + ATTACH_STORE$1 +
+	      ' (digest, body, escaped) VALUES (?,?,1)';
+	      tx.executeSql(sql, [digest, escapeBlob(data)], function () {
+	        callback();
+	      }, function () {
+	        // ignore constaint errors, means it already exists
+	        callback();
+	        return false; // ack we handled the error
+	      });
+	    });
+	  }
+
+	  preprocessAttachments(docInfos, 'binary', function (err) {
+	    if (err) {
+	      return callback(err);
+	    }
+	    db.transaction(function (txn) {
+	      tx = txn;
+	      verifyAttachments(function (err) {
+	        if (err) {
+	          preconditionErrored = err;
+	        } else {
+	          fetchExistingDocs(websqlProcessDocs);
+	        }
+	      });
+	    }, websqlError(callback), complete);
+	  });
+	}
+
+	var cachedDatabases = new _Map();
+
+	// openDatabase passed in through opts (e.g. for node-websql)
+	function openDatabaseWithOpts(opts) {
+	  return opts.websql(opts.name, opts.version, opts.description, opts.size);
+	}
+
+	function openDBSafely(opts) {
+	  try {
+	    return {
+	      db: openDatabaseWithOpts(opts)
+	    };
+	  } catch (err) {
+	    return {
+	      error: err
+	    };
+	  }
+	}
+
+	function openDB$1(opts) {
+	  var cachedResult = cachedDatabases.get(opts.name);
+	  if (!cachedResult) {
+	    cachedResult = openDBSafely(opts);
+	    cachedDatabases.set(opts.name, cachedResult);
+	  }
+	  return cachedResult;
+	}
+
+	var websqlChanges = new Changes$1();
+
+	function fetchAttachmentsIfNecessary$1(doc, opts, api, txn, cb) {
+	  var attachments = Object.keys(doc._attachments || {});
+	  if (!attachments.length) {
+	    return cb && cb();
+	  }
+	  var numDone = 0;
+
+	  function checkDone() {
+	    if (++numDone === attachments.length && cb) {
+	      cb();
+	    }
+	  }
+
+	  function fetchAttachment(doc, att) {
+	    var attObj = doc._attachments[att];
+	    var attOpts = {binary: opts.binary, ctx: txn};
+	    api._getAttachment(doc._id, att, attObj, attOpts, function (_, data) {
+	      doc._attachments[att] = jsExtend.extend(
+	        pick(attObj, ['digest', 'content_type']),
+	        { data: data }
+	      );
+	      checkDone();
+	    });
+	  }
+
+	  attachments.forEach(function (att) {
+	    if (opts.attachments && opts.include_docs) {
+	      fetchAttachment(doc, att);
+	    } else {
+	      doc._attachments[att].stub = true;
+	      checkDone();
+	    }
+	  });
+	}
+
+	var POUCH_VERSION = 1;
+
+	// these indexes cover the ground for most allDocs queries
+	var BY_SEQ_STORE_DELETED_INDEX_SQL =
+	  'CREATE INDEX IF NOT EXISTS \'by-seq-deleted-idx\' ON ' +
+	  BY_SEQ_STORE$1 + ' (seq, deleted)';
+	var BY_SEQ_STORE_DOC_ID_REV_INDEX_SQL =
+	  'CREATE UNIQUE INDEX IF NOT EXISTS \'by-seq-doc-id-rev\' ON ' +
+	    BY_SEQ_STORE$1 + ' (doc_id, rev)';
+	var DOC_STORE_WINNINGSEQ_INDEX_SQL =
+	  'CREATE INDEX IF NOT EXISTS \'doc-winningseq-idx\' ON ' +
+	  DOC_STORE$1 + ' (winningseq)';
+	var ATTACH_AND_SEQ_STORE_SEQ_INDEX_SQL =
+	  'CREATE INDEX IF NOT EXISTS \'attach-seq-seq-idx\' ON ' +
+	    ATTACH_AND_SEQ_STORE$1 + ' (seq)';
+	var ATTACH_AND_SEQ_STORE_ATTACH_INDEX_SQL =
+	  'CREATE UNIQUE INDEX IF NOT EXISTS \'attach-seq-digest-idx\' ON ' +
+	    ATTACH_AND_SEQ_STORE$1 + ' (digest, seq)';
+
+	var DOC_STORE_AND_BY_SEQ_JOINER = BY_SEQ_STORE$1 +
+	  '.seq = ' + DOC_STORE$1 + '.winningseq';
+
+	var SELECT_DOCS = BY_SEQ_STORE$1 + '.seq AS seq, ' +
+	  BY_SEQ_STORE$1 + '.deleted AS deleted, ' +
+	  BY_SEQ_STORE$1 + '.json AS data, ' +
+	  BY_SEQ_STORE$1 + '.rev AS rev, ' +
+	  DOC_STORE$1 + '.json AS metadata';
+
+	function WebSqlPouch$1(opts, callback) {
+	  var api = this;
+	  var instanceId = null;
+	  var size = getSize(opts);
+	  var idRequests = [];
+	  var encoding;
+
+	  api._docCount = -1; // cache sqlite count(*) for performance
+	  api._name = opts.name;
+
+	  // extend the options here, because sqlite plugin has a ton of options
+	  // and they are constantly changing, so it's more prudent to allow anything
+	  var websqlOpts = jsExtend.extend({}, opts, {
+	    version: POUCH_VERSION,
+	    description: opts.name,
+	    size: size
+	  });
+	  var openDBResult = openDB$1(websqlOpts);
+	  if (openDBResult.error) {
+	    return websqlError(callback)(openDBResult.error);
+	  }
+	  var db = openDBResult.db;
+	  if (typeof db.readTransaction !== 'function') {
+	    // doesn't exist in sqlite plugin
+	    db.readTransaction = db.transaction;
+	  }
+
+	  function dbCreated() {
+	    // note the db name in case the browser upgrades to idb
+	    if (hasLocalStorage()) {
+	      window.localStorage['_pouch__websqldb_' + api._name] = true;
+	    }
+	    callback(null, api);
+	  }
+
+	  // In this migration, we added the 'deleted' and 'local' columns to the
+	  // by-seq and doc store tables.
+	  // To preserve existing user data, we re-process all the existing JSON
+	  // and add these values.
+	  // Called migration2 because it corresponds to adapter version (db_version) #2
+	  function runMigration2(tx, callback) {
+	    // index used for the join in the allDocs query
+	    tx.executeSql(DOC_STORE_WINNINGSEQ_INDEX_SQL);
+
+	    tx.executeSql('ALTER TABLE ' + BY_SEQ_STORE$1 +
+	      ' ADD COLUMN deleted TINYINT(1) DEFAULT 0', [], function () {
+	      tx.executeSql(BY_SEQ_STORE_DELETED_INDEX_SQL);
+	      tx.executeSql('ALTER TABLE ' + DOC_STORE$1 +
+	        ' ADD COLUMN local TINYINT(1) DEFAULT 0', [], function () {
+	        tx.executeSql('CREATE INDEX IF NOT EXISTS \'doc-store-local-idx\' ON ' +
+	          DOC_STORE$1 + ' (local, id)');
+
+	        var sql = 'SELECT ' + DOC_STORE$1 + '.winningseq AS seq, ' + DOC_STORE$1 +
+	          '.json AS metadata FROM ' + BY_SEQ_STORE$1 + ' JOIN ' + DOC_STORE$1 +
+	          ' ON ' + BY_SEQ_STORE$1 + '.seq = ' + DOC_STORE$1 + '.winningseq';
+
+	        tx.executeSql(sql, [], function (tx, result) {
+
+	          var deleted = [];
+	          var local = [];
+
+	          for (var i = 0; i < result.rows.length; i++) {
+	            var item = result.rows.item(i);
+	            var seq = item.seq;
+	            var metadata = JSON.parse(item.metadata);
+	            if (isDeleted(metadata)) {
+	              deleted.push(seq);
+	            }
+	            if (isLocalId(metadata.id)) {
+	              local.push(metadata.id);
+	            }
+	          }
+	          tx.executeSql('UPDATE ' + DOC_STORE$1 + 'SET local = 1 WHERE id IN ' +
+	            qMarks(local.length), local, function () {
+	            tx.executeSql('UPDATE ' + BY_SEQ_STORE$1 +
+	              ' SET deleted = 1 WHERE seq IN ' +
+	              qMarks(deleted.length), deleted, callback);
+	          });
+	        });
+	      });
+	    });
+	  }
+
+	  // in this migration, we make all the local docs unversioned
+	  function runMigration3(tx, callback) {
+	    var local = 'CREATE TABLE IF NOT EXISTS ' + LOCAL_STORE$1 +
+	      ' (id UNIQUE, rev, json)';
+	    tx.executeSql(local, [], function () {
+	      var sql = 'SELECT ' + DOC_STORE$1 + '.id AS id, ' +
+	        BY_SEQ_STORE$1 + '.json AS data ' +
+	        'FROM ' + BY_SEQ_STORE$1 + ' JOIN ' +
+	        DOC_STORE$1 + ' ON ' + BY_SEQ_STORE$1 + '.seq = ' +
+	        DOC_STORE$1 + '.winningseq WHERE local = 1';
+	      tx.executeSql(sql, [], function (tx, res) {
+	        var rows = [];
+	        for (var i = 0; i < res.rows.length; i++) {
+	          rows.push(res.rows.item(i));
+	        }
+	        function doNext() {
+	          if (!rows.length) {
+	            return callback(tx);
+	          }
+	          var row = rows.shift();
+	          var rev = JSON.parse(row.data)._rev;
+	          tx.executeSql('INSERT INTO ' + LOCAL_STORE$1 +
+	              ' (id, rev, json) VALUES (?,?,?)',
+	              [row.id, rev, row.data], function (tx) {
+	            tx.executeSql('DELETE FROM ' + DOC_STORE$1 + ' WHERE id=?',
+	                [row.id], function (tx) {
+	              tx.executeSql('DELETE FROM ' + BY_SEQ_STORE$1 + ' WHERE seq=?',
+	                  [row.seq], function () {
+	                doNext();
+	              });
+	            });
+	          });
+	        }
+	        doNext();
+	      });
+	    });
+	  }
+
+	  // in this migration, we remove doc_id_rev and just use rev
+	  function runMigration4(tx, callback) {
+
+	    function updateRows(rows) {
+	      function doNext() {
+	        if (!rows.length) {
+	          return callback(tx);
+	        }
+	        var row = rows.shift();
+	        var doc_id_rev = parseHexString(row.hex, encoding);
+	        var idx = doc_id_rev.lastIndexOf('::');
+	        var doc_id = doc_id_rev.substring(0, idx);
+	        var rev = doc_id_rev.substring(idx + 2);
+	        var sql = 'UPDATE ' + BY_SEQ_STORE$1 +
+	          ' SET doc_id=?, rev=? WHERE doc_id_rev=?';
+	        tx.executeSql(sql, [doc_id, rev, doc_id_rev], function () {
+	          doNext();
+	        });
+	      }
+	      doNext();
+	    }
+
+	    var sql = 'ALTER TABLE ' + BY_SEQ_STORE$1 + ' ADD COLUMN doc_id';
+	    tx.executeSql(sql, [], function (tx) {
+	      var sql = 'ALTER TABLE ' + BY_SEQ_STORE$1 + ' ADD COLUMN rev';
+	      tx.executeSql(sql, [], function (tx) {
+	        tx.executeSql(BY_SEQ_STORE_DOC_ID_REV_INDEX_SQL, [], function (tx) {
+	          var sql = 'SELECT hex(doc_id_rev) as hex FROM ' + BY_SEQ_STORE$1;
+	          tx.executeSql(sql, [], function (tx, res) {
+	            var rows = [];
+	            for (var i = 0; i < res.rows.length; i++) {
+	              rows.push(res.rows.item(i));
+	            }
+	            updateRows(rows);
+	          });
+	        });
+	      });
+	    });
+	  }
+
+	  // in this migration, we add the attach_and_seq table
+	  // for issue #2818
+	  function runMigration5(tx, callback) {
+
+	    function migrateAttsAndSeqs(tx) {
+	      // need to actually populate the table. this is the expensive part,
+	      // so as an optimization, check first that this database even
+	      // contains attachments
+	      var sql = 'SELECT COUNT(*) AS cnt FROM ' + ATTACH_STORE$1;
+	      tx.executeSql(sql, [], function (tx, res) {
+	        var count = res.rows.item(0).cnt;
+	        if (!count) {
+	          return callback(tx);
+	        }
+
+	        var offset = 0;
+	        var pageSize = 10;
+	        function nextPage() {
+	          var sql = select(
+	            SELECT_DOCS + ', ' + DOC_STORE$1 + '.id AS id',
+	            [DOC_STORE$1, BY_SEQ_STORE$1],
+	            DOC_STORE_AND_BY_SEQ_JOINER,
+	            null,
+	            DOC_STORE$1 + '.id '
+	          );
+	          sql += ' LIMIT ' + pageSize + ' OFFSET ' + offset;
+	          offset += pageSize;
+	          tx.executeSql(sql, [], function (tx, res) {
+	            if (!res.rows.length) {
+	              return callback(tx);
+	            }
+	            var digestSeqs = {};
+	            function addDigestSeq(digest, seq) {
+	              // uniq digest/seq pairs, just in case there are dups
+	              var seqs = digestSeqs[digest] = (digestSeqs[digest] || []);
+	              if (seqs.indexOf(seq) === -1) {
+	                seqs.push(seq);
+	              }
+	            }
+	            for (var i = 0; i < res.rows.length; i++) {
+	              var row = res.rows.item(i);
+	              var doc = unstringifyDoc(row.data, row.id, row.rev);
+	              var atts = Object.keys(doc._attachments || {});
+	              for (var j = 0; j < atts.length; j++) {
+	                var att = doc._attachments[atts[j]];
+	                addDigestSeq(att.digest, row.seq);
+	              }
+	            }
+	            var digestSeqPairs = [];
+	            Object.keys(digestSeqs).forEach(function (digest) {
+	              var seqs = digestSeqs[digest];
+	              seqs.forEach(function (seq) {
+	                digestSeqPairs.push([digest, seq]);
+	              });
+	            });
+	            if (!digestSeqPairs.length) {
+	              return nextPage();
+	            }
+	            var numDone = 0;
+	            digestSeqPairs.forEach(function (pair) {
+	              var sql = 'INSERT INTO ' + ATTACH_AND_SEQ_STORE$1 +
+	                ' (digest, seq) VALUES (?,?)';
+	              tx.executeSql(sql, pair, function () {
+	                if (++numDone === digestSeqPairs.length) {
+	                  nextPage();
+	                }
+	              });
+	            });
+	          });
+	        }
+	        nextPage();
+	      });
+	    }
+
+	    var attachAndRev = 'CREATE TABLE IF NOT EXISTS ' +
+	      ATTACH_AND_SEQ_STORE$1 + ' (digest, seq INTEGER)';
+	    tx.executeSql(attachAndRev, [], function (tx) {
+	      tx.executeSql(
+	        ATTACH_AND_SEQ_STORE_ATTACH_INDEX_SQL, [], function (tx) {
+	          tx.executeSql(
+	            ATTACH_AND_SEQ_STORE_SEQ_INDEX_SQL, [],
+	            migrateAttsAndSeqs);
+	        });
+	    });
+	  }
+
+	  // in this migration, we use escapeBlob() and unescapeBlob()
+	  // instead of reading out the binary as HEX, which is slow
+	  function runMigration6(tx, callback) {
+	    var sql = 'ALTER TABLE ' + ATTACH_STORE$1 +
+	      ' ADD COLUMN escaped TINYINT(1) DEFAULT 0';
+	    tx.executeSql(sql, [], callback);
+	  }
+
+	  // issue #3136, in this migration we need a "latest seq" as well
+	  // as the "winning seq" in the doc store
+	  function runMigration7(tx, callback) {
+	    var sql = 'ALTER TABLE ' + DOC_STORE$1 +
+	      ' ADD COLUMN max_seq INTEGER';
+	    tx.executeSql(sql, [], function (tx) {
+	      var sql = 'UPDATE ' + DOC_STORE$1 + ' SET max_seq=(SELECT MAX(seq) FROM ' +
+	        BY_SEQ_STORE$1 + ' WHERE doc_id=id)';
+	      tx.executeSql(sql, [], function (tx) {
+	        // add unique index after filling, else we'll get a constraint
+	        // error when we do the ALTER TABLE
+	        var sql =
+	          'CREATE UNIQUE INDEX IF NOT EXISTS \'doc-max-seq-idx\' ON ' +
+	          DOC_STORE$1 + ' (max_seq)';
+	        tx.executeSql(sql, [], callback);
+	      });
+	    });
+	  }
+
+	  function checkEncoding(tx, cb) {
+	    // UTF-8 on chrome/android, UTF-16 on safari < 7.1
+	    tx.executeSql('SELECT HEX("a") AS hex', [], function (tx, res) {
+	        var hex = res.rows.item(0).hex;
+	        encoding = hex.length === 2 ? 'UTF-8' : 'UTF-16';
+	        cb();
+	      }
+	    );
+	  }
+
+	  function onGetInstanceId() {
+	    while (idRequests.length > 0) {
+	      var idCallback = idRequests.pop();
+	      idCallback(null, instanceId);
+	    }
+	  }
+
+	  function onGetVersion(tx, dbVersion) {
+	    if (dbVersion === 0) {
+	      // initial schema
+
+	      var meta = 'CREATE TABLE IF NOT EXISTS ' + META_STORE$1 +
+	        ' (dbid, db_version INTEGER)';
+	      var attach = 'CREATE TABLE IF NOT EXISTS ' + ATTACH_STORE$1 +
+	        ' (digest UNIQUE, escaped TINYINT(1), body BLOB)';
+	      var attachAndRev = 'CREATE TABLE IF NOT EXISTS ' +
+	        ATTACH_AND_SEQ_STORE$1 + ' (digest, seq INTEGER)';
+	      // TODO: migrate winningseq to INTEGER
+	      var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE$1 +
+	        ' (id unique, json, winningseq, max_seq INTEGER UNIQUE)';
+	      var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE$1 +
+	        ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ' +
+	        'json, deleted TINYINT(1), doc_id, rev)';
+	      var local = 'CREATE TABLE IF NOT EXISTS ' + LOCAL_STORE$1 +
+	        ' (id UNIQUE, rev, json)';
+
+	      // creates
+	      tx.executeSql(attach);
+	      tx.executeSql(local);
+	      tx.executeSql(attachAndRev, [], function () {
+	        tx.executeSql(ATTACH_AND_SEQ_STORE_SEQ_INDEX_SQL);
+	        tx.executeSql(ATTACH_AND_SEQ_STORE_ATTACH_INDEX_SQL);
+	      });
+	      tx.executeSql(doc, [], function () {
+	        tx.executeSql(DOC_STORE_WINNINGSEQ_INDEX_SQL);
+	        tx.executeSql(seq, [], function () {
+	          tx.executeSql(BY_SEQ_STORE_DELETED_INDEX_SQL);
+	          tx.executeSql(BY_SEQ_STORE_DOC_ID_REV_INDEX_SQL);
+	          tx.executeSql(meta, [], function () {
+	            // mark the db version, and new dbid
+	            var initSeq = 'INSERT INTO ' + META_STORE$1 +
+	              ' (db_version, dbid) VALUES (?,?)';
+	            instanceId = uuid();
+	            var initSeqArgs = [ADAPTER_VERSION$1, instanceId];
+	            tx.executeSql(initSeq, initSeqArgs, function () {
+	              onGetInstanceId();
+	            });
+	          });
+	        });
+	      });
+	    } else { // version > 0
+
+	      var setupDone = function () {
+	        var migrated = dbVersion < ADAPTER_VERSION$1;
+	        if (migrated) {
+	          // update the db version within this transaction
+	          tx.executeSql('UPDATE ' + META_STORE$1 + ' SET db_version = ' +
+	            ADAPTER_VERSION$1);
+	        }
+	        // notify db.id() callers
+	        var sql = 'SELECT dbid FROM ' + META_STORE$1;
+	        tx.executeSql(sql, [], function (tx, result) {
+	          instanceId = result.rows.item(0).dbid;
+	          onGetInstanceId();
+	        });
+	      };
+
+	      // would love to use promises here, but then websql
+	      // ends the transaction early
+	      var tasks = [
+	        runMigration2,
+	        runMigration3,
+	        runMigration4,
+	        runMigration5,
+	        runMigration6,
+	        runMigration7,
+	        setupDone
+	      ];
+
+	      // run each migration sequentially
+	      var i = dbVersion;
+	      var nextMigration = function (tx) {
+	        tasks[i - 1](tx, nextMigration);
+	        i++;
+	      };
+	      nextMigration(tx);
+	    }
+	  }
+
+	  function setup() {
+	    db.transaction(function (tx) {
+	      // first check the encoding
+	      checkEncoding(tx, function () {
+	        // then get the version
+	        fetchVersion(tx);
+	      });
+	    }, websqlError(callback), dbCreated);
+	  }
+
+	  function fetchVersion(tx) {
+	    var sql = 'SELECT sql FROM sqlite_master WHERE tbl_name = ' + META_STORE$1;
+	    tx.executeSql(sql, [], function (tx, result) {
+	      if (!result.rows.length) {
+	        // database hasn't even been created yet (version 0)
+	        onGetVersion(tx, 0);
+	      } else if (!/db_version/.test(result.rows.item(0).sql)) {
+	        // table was created, but without the new db_version column,
+	        // so add it.
+	        tx.executeSql('ALTER TABLE ' + META_STORE$1 +
+	          ' ADD COLUMN db_version INTEGER', [], function () {
+	          // before version 2, this column didn't even exist
+	          onGetVersion(tx, 1);
+	        });
+	      } else { // column exists, we can safely get it
+	        tx.executeSql('SELECT db_version FROM ' + META_STORE$1,
+	          [], function (tx, result) {
+	          var dbVersion = result.rows.item(0).db_version;
+	          onGetVersion(tx, dbVersion);
+	        });
+	      }
+	    });
+	  }
+
+	  setup();
+
+	  api.type = function () {
+	    return 'websql';
+	  };
+
+	  api._id = toPromise(function (callback) {
+	    callback(null, instanceId);
+	  });
+
+	  api._info = function (callback) {
+	    db.readTransaction(function (tx) {
+	      countDocs(tx, function (docCount) {
+	        var sql = 'SELECT MAX(seq) AS seq FROM ' + BY_SEQ_STORE$1;
+	        tx.executeSql(sql, [], function (tx, res) {
+	          var updateSeq = res.rows.item(0).seq || 0;
+	          callback(null, {
+	            doc_count: docCount,
+	            update_seq: updateSeq,
+	            websql_encoding: encoding
+	          });
+	        });
+	      });
+	    }, websqlError(callback));
+	  };
+
+	  api._bulkDocs = function (req, reqOpts, callback) {
+	    websqlBulkDocs(opts, req, reqOpts, api, db, websqlChanges, callback);
+	  };
+
+	  api._get = function (id, opts, callback) {
+	    var doc;
+	    var metadata;
+	    var err;
+	    var tx = opts.ctx;
+	    if (!tx) {
+	      return db.readTransaction(function (txn) {
+	        api._get(id, jsExtend.extend({ctx: txn}, opts), callback);
+	      });
+	    }
+
+	    function finish() {
+	      callback(err, {doc: doc, metadata: metadata, ctx: tx});
+	    }
+
+	    var sql;
+	    var sqlArgs;
+	    if (opts.rev) {
+	      sql = select(
+	        SELECT_DOCS,
+	        [DOC_STORE$1, BY_SEQ_STORE$1],
+	        DOC_STORE$1 + '.id=' + BY_SEQ_STORE$1 + '.doc_id',
+	        [BY_SEQ_STORE$1 + '.doc_id=?', BY_SEQ_STORE$1 + '.rev=?']);
+	      sqlArgs = [id, opts.rev];
+	    } else {
+	      sql = select(
+	        SELECT_DOCS,
+	        [DOC_STORE$1, BY_SEQ_STORE$1],
+	        DOC_STORE_AND_BY_SEQ_JOINER,
+	        DOC_STORE$1 + '.id=?');
+	      sqlArgs = [id];
+	    }
+	    tx.executeSql(sql, sqlArgs, function (a, results) {
+	      if (!results.rows.length) {
+	        err = createError(MISSING_DOC, 'missing');
+	        return finish();
+	      }
+	      var item = results.rows.item(0);
+	      metadata = safeJsonParse(item.metadata);
+	      if (item.deleted && !opts.rev) {
+	        err = createError(MISSING_DOC, 'deleted');
+	        return finish();
+	      }
+	      doc = unstringifyDoc(item.data, metadata.id, item.rev);
+	      finish();
+	    });
+	  };
+
+	  function countDocs(tx, callback) {
+
+	    if (api._docCount !== -1) {
+	      return callback(api._docCount);
+	    }
+
+	    // count the total rows
+	    var sql = select(
+	      'COUNT(' + DOC_STORE$1 + '.id) AS \'num\'',
+	      [DOC_STORE$1, BY_SEQ_STORE$1],
+	      DOC_STORE_AND_BY_SEQ_JOINER,
+	      BY_SEQ_STORE$1 + '.deleted=0');
+
+	    tx.executeSql(sql, [], function (tx, result) {
+	      api._docCount = result.rows.item(0).num;
+	      callback(api._docCount);
+	    });
+	  }
+
+	  api._allDocs = function (opts, callback) {
+	    var results = [];
+	    var totalRows;
+
+	    var start = 'startkey' in opts ? opts.startkey : false;
+	    var end = 'endkey' in opts ? opts.endkey : false;
+	    var key = 'key' in opts ? opts.key : false;
+	    var descending = 'descending' in opts ? opts.descending : false;
+	    var limit = 'limit' in opts ? opts.limit : -1;
+	    var offset = 'skip' in opts ? opts.skip : 0;
+	    var inclusiveEnd = opts.inclusive_end !== false;
+
+	    var sqlArgs = [];
+	    var criteria = [];
+
+	    if (key !== false) {
+	      criteria.push(DOC_STORE$1 + '.id = ?');
+	      sqlArgs.push(key);
+	    } else if (start !== false || end !== false) {
+	      if (start !== false) {
+	        criteria.push(DOC_STORE$1 + '.id ' + (descending ? '<=' : '>=') + ' ?');
+	        sqlArgs.push(start);
+	      }
+	      if (end !== false) {
+	        var comparator = descending ? '>' : '<';
+	        if (inclusiveEnd) {
+	          comparator += '=';
+	        }
+	        criteria.push(DOC_STORE$1 + '.id ' + comparator + ' ?');
+	        sqlArgs.push(end);
+	      }
+	      if (key !== false) {
+	        criteria.push(DOC_STORE$1 + '.id = ?');
+	        sqlArgs.push(key);
+	      }
+	    }
+
+	    if (opts.deleted !== 'ok') {
+	      // report deleted if keys are specified
+	      criteria.push(BY_SEQ_STORE$1 + '.deleted = 0');
+	    }
+
+	    db.readTransaction(function (tx) {
+
+	      // first count up the total rows
+	      countDocs(tx, function (count) {
+	        totalRows = count;
+
+	        if (limit === 0) {
+	          return;
+	        }
+
+	        // then actually fetch the documents
+	        var sql = select(
+	          SELECT_DOCS,
+	          [DOC_STORE$1, BY_SEQ_STORE$1],
+	          DOC_STORE_AND_BY_SEQ_JOINER,
+	          criteria,
+	          DOC_STORE$1 + '.id ' + (descending ? 'DESC' : 'ASC')
+	          );
+	        sql += ' LIMIT ' + limit + ' OFFSET ' + offset;
+
+	        tx.executeSql(sql, sqlArgs, function (tx, result) {
+	          for (var i = 0, l = result.rows.length; i < l; i++) {
+	            var item = result.rows.item(i);
+	            var metadata = safeJsonParse(item.metadata);
+	            var id = metadata.id;
+	            var data = unstringifyDoc(item.data, id, item.rev);
+	            var winningRev = data._rev;
+	            var doc = {
+	              id: id,
+	              key: id,
+	              value: {rev: winningRev}
+	            };
+	            if (opts.include_docs) {
+	              doc.doc = data;
+	              doc.doc._rev = winningRev;
+	              if (opts.conflicts) {
+	                doc.doc._conflicts = collectConflicts(metadata);
+	              }
+	              fetchAttachmentsIfNecessary$1(doc.doc, opts, api, tx);
+	            }
+	            if (item.deleted) {
+	              if (opts.deleted === 'ok') {
+	                doc.value.deleted = true;
+	                doc.doc = null;
+	              } else {
+	                continue;
+	              }
+	            }
+	            results.push(doc);
+	          }
+	        });
+	      });
+	    }, websqlError(callback), function () {
+	      callback(null, {
+	        total_rows: totalRows,
+	        offset: opts.skip,
+	        rows: results
+	      });
+	    });
+	  };
+
+	  api._changes = function (opts) {
+	    opts = clone(opts);
+
+	    if (opts.continuous) {
+	      var id = api._name + ':' + uuid();
+	      websqlChanges.addListener(api._name, id, api, opts);
+	      websqlChanges.notify(api._name);
+	      return {
+	        cancel: function () {
+	          websqlChanges.removeListener(api._name, id);
+	        }
+	      };
+	    }
+
+	    var descending = opts.descending;
+
+	    // Ignore the `since` parameter when `descending` is true
+	    opts.since = opts.since && !descending ? opts.since : 0;
+
+	    var limit = 'limit' in opts ? opts.limit : -1;
+	    if (limit === 0) {
+	      limit = 1; // per CouchDB _changes spec
+	    }
+
+	    var returnDocs;
+	    if ('return_docs' in opts) {
+	      returnDocs = opts.return_docs;
+	    } else if ('returnDocs' in opts) {
+	      // TODO: Remove 'returnDocs' in favor of 'return_docs' in a future release
+	      returnDocs = opts.returnDocs;
+	    } else {
+	      returnDocs = true;
+	    }
+	    var results = [];
+	    var numResults = 0;
+
+	    function fetchChanges() {
+
+	      var selectStmt =
+	        DOC_STORE$1 + '.json AS metadata, ' +
+	        DOC_STORE$1 + '.max_seq AS maxSeq, ' +
+	        BY_SEQ_STORE$1 + '.json AS winningDoc, ' +
+	        BY_SEQ_STORE$1 + '.rev AS winningRev ';
+
+	      var from = DOC_STORE$1 + ' JOIN ' + BY_SEQ_STORE$1;
+
+	      var joiner = DOC_STORE$1 + '.id=' + BY_SEQ_STORE$1 + '.doc_id' +
+	        ' AND ' + DOC_STORE$1 + '.winningseq=' + BY_SEQ_STORE$1 + '.seq';
+
+	      var criteria = ['maxSeq > ?'];
+	      var sqlArgs = [opts.since];
+
+	      if (opts.doc_ids) {
+	        criteria.push(DOC_STORE$1 + '.id IN ' + qMarks(opts.doc_ids.length));
+	        sqlArgs = sqlArgs.concat(opts.doc_ids);
+	      }
+
+	      var orderBy = 'maxSeq ' + (descending ? 'DESC' : 'ASC');
+
+	      var sql = select(selectStmt, from, joiner, criteria, orderBy);
+
+	      var filter = filterChange(opts);
+	      if (!opts.view && !opts.filter) {
+	        // we can just limit in the query
+	        sql += ' LIMIT ' + limit;
+	      }
+
+	      var lastSeq = opts.since || 0;
+	      db.readTransaction(function (tx) {
+	        tx.executeSql(sql, sqlArgs, function (tx, result) {
+	          function reportChange(change) {
+	            return function () {
+	              opts.onChange(change);
+	            };
+	          }
+	          for (var i = 0, l = result.rows.length; i < l; i++) {
+	            var item = result.rows.item(i);
+	            var metadata = safeJsonParse(item.metadata);
+	            lastSeq = item.maxSeq;
+
+	            var doc = unstringifyDoc(item.winningDoc, metadata.id,
+	              item.winningRev);
+	            var change = opts.processChange(doc, metadata, opts);
+	            change.seq = item.maxSeq;
+
+	            var filtered = filter(change);
+	            if (typeof filtered === 'object') {
+	              return opts.complete(filtered);
+	            }
+
+	            if (filtered) {
+	              numResults++;
+	              if (returnDocs) {
+	                results.push(change);
+	              }
+	              // process the attachment immediately
+	              // for the benefit of live listeners
+	              if (opts.attachments && opts.include_docs) {
+	                fetchAttachmentsIfNecessary$1(doc, opts, api, tx,
+	                  reportChange(change));
+	              } else {
+	                reportChange(change)();
+	              }
+	            }
+	            if (numResults === limit) {
+	              break;
+	            }
+	          }
+	        });
+	      }, websqlError(opts.complete), function () {
+	        if (!opts.continuous) {
+	          opts.complete(null, {
+	            results: results,
+	            last_seq: lastSeq
+	          });
+	        }
+	      });
+	    }
+
+	    fetchChanges();
+	  };
+
+	  api._close = function (callback) {
+	    //WebSQL databases do not need to be closed
+	    callback();
+	  };
+
+	  api._getAttachment = function (docId, attachId, attachment, opts, callback) {
+	    var res;
+	    var tx = opts.ctx;
+	    var digest = attachment.digest;
+	    var type = attachment.content_type;
+	    var sql = 'SELECT escaped, ' +
+	      'CASE WHEN escaped = 1 THEN body ELSE HEX(body) END AS body FROM ' +
+	      ATTACH_STORE$1 + ' WHERE digest=?';
+	    tx.executeSql(sql, [digest], function (tx, result) {
+	      // websql has a bug where \u0000 causes early truncation in strings
+	      // and blobs. to work around this, we used to use the hex() function,
+	      // but that's not performant. after migration 6, we remove \u0000
+	      // and add it back in afterwards
+	      var item = result.rows.item(0);
+	      var data = item.escaped ? unescapeBlob(item.body) :
+	        parseHexString(item.body, encoding);
+	      if (opts.binary) {
+	        res = binStringToBluffer(data, type);
+	      } else {
+	        res = btoa$1(data);
+	      }
+	      callback(null, res);
+	    });
+	  };
+
+	  api._getRevisionTree = function (docId, callback) {
+	    db.readTransaction(function (tx) {
+	      var sql = 'SELECT json AS metadata FROM ' + DOC_STORE$1 + ' WHERE id = ?';
+	      tx.executeSql(sql, [docId], function (tx, result) {
+	        if (!result.rows.length) {
+	          callback(createError(MISSING_DOC));
+	        } else {
+	          var data = safeJsonParse(result.rows.item(0).metadata);
+	          callback(null, data.rev_tree);
+	        }
+	      });
+	    });
+	  };
+
+	  api._doCompaction = function (docId, revs, callback) {
+	    if (!revs.length) {
+	      return callback();
+	    }
+	    db.transaction(function (tx) {
+
+	      // update doc store
+	      var sql = 'SELECT json AS metadata FROM ' + DOC_STORE$1 + ' WHERE id = ?';
+	      tx.executeSql(sql, [docId], function (tx, result) {
+	        var metadata = safeJsonParse(result.rows.item(0).metadata);
+	        traverseRevTree(metadata.rev_tree, function (isLeaf, pos,
+	                                                           revHash, ctx, opts) {
+	          var rev = pos + '-' + revHash;
+	          if (revs.indexOf(rev) !== -1) {
+	            opts.status = 'missing';
+	          }
+	        });
+
+	        var sql = 'UPDATE ' + DOC_STORE$1 + ' SET json = ? WHERE id = ?';
+	        tx.executeSql(sql, [safeJsonStringify(metadata), docId]);
+	      });
+
+	      compactRevs$1(revs, docId, tx);
+	    }, websqlError(callback), function () {
+	      callback();
+	    });
+	  };
+
+	  api._getLocal = function (id, callback) {
+	    db.readTransaction(function (tx) {
+	      var sql = 'SELECT json, rev FROM ' + LOCAL_STORE$1 + ' WHERE id=?';
+	      tx.executeSql(sql, [id], function (tx, res) {
+	        if (res.rows.length) {
+	          var item = res.rows.item(0);
+	          var doc = unstringifyDoc(item.json, id, item.rev);
+	          callback(null, doc);
+	        } else {
+	          callback(createError(MISSING_DOC));
+	        }
+	      });
+	    });
+	  };
+
+	  api._putLocal = function (doc, opts, callback) {
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    delete doc._revisions; // ignore this, trust the rev
+	    var oldRev = doc._rev;
+	    var id = doc._id;
+	    var newRev;
+	    if (!oldRev) {
+	      newRev = doc._rev = '0-1';
+	    } else {
+	      newRev = doc._rev = '0-' + (parseInt(oldRev.split('-')[1], 10) + 1);
+	    }
+	    var json = stringifyDoc(doc);
+
+	    var ret;
+	    function putLocal(tx) {
+	      var sql;
+	      var values;
+	      if (oldRev) {
+	        sql = 'UPDATE ' + LOCAL_STORE$1 + ' SET rev=?, json=? ' +
+	          'WHERE id=? AND rev=?';
+	        values = [newRev, json, id, oldRev];
+	      } else {
+	        sql = 'INSERT INTO ' + LOCAL_STORE$1 + ' (id, rev, json) VALUES (?,?,?)';
+	        values = [id, newRev, json];
+	      }
+	      tx.executeSql(sql, values, function (tx, res) {
+	        if (res.rowsAffected) {
+	          ret = {ok: true, id: id, rev: newRev};
+	          if (opts.ctx) { // return immediately
+	            callback(null, ret);
+	          }
+	        } else {
+	          callback(createError(REV_CONFLICT));
+	        }
+	      }, function () {
+	        callback(createError(REV_CONFLICT));
+	        return false; // ack that we handled the error
+	      });
+	    }
+
+	    if (opts.ctx) {
+	      putLocal(opts.ctx);
+	    } else {
+	      db.transaction(putLocal, websqlError(callback), function () {
+	        if (ret) {
+	          callback(null, ret);
+	        }
+	      });
+	    }
+	  };
+
+	  api._removeLocal = function (doc, opts, callback) {
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    var ret;
+
+	    function removeLocal(tx) {
+	      var sql = 'DELETE FROM ' + LOCAL_STORE$1 + ' WHERE id=? AND rev=?';
+	      var params = [doc._id, doc._rev];
+	      tx.executeSql(sql, params, function (tx, res) {
+	        if (!res.rowsAffected) {
+	          return callback(createError(MISSING_DOC));
+	        }
+	        ret = {ok: true, id: doc._id, rev: '0-0'};
+	        if (opts.ctx) { // return immediately
+	          callback(null, ret);
+	        }
+	      });
+	    }
+
+	    if (opts.ctx) {
+	      removeLocal(opts.ctx);
+	    } else {
+	      db.transaction(removeLocal, websqlError(callback), function () {
+	        if (ret) {
+	          callback(null, ret);
+	        }
+	      });
+	    }
+	  };
+
+	  api._destroy = function (opts, callback) {
+	    websqlChanges.removeAllListeners(api._name);
+	    db.transaction(function (tx) {
+	      var stores = [DOC_STORE$1, BY_SEQ_STORE$1, ATTACH_STORE$1, META_STORE$1,
+	        LOCAL_STORE$1, ATTACH_AND_SEQ_STORE$1];
+	      stores.forEach(function (store) {
+	        tx.executeSql('DROP TABLE IF EXISTS ' + store, []);
+	      });
+	    }, websqlError(callback), function () {
+	      if (hasLocalStorage()) {
+	        delete window.localStorage['_pouch__websqldb_' + api._name];
+	        delete window.localStorage[api._name];
+	      }
+	      callback(null, {'ok': true});
+	    });
+	  };
+	}
+
+	function canOpenTestDB() {
+	  try {
+	    openDatabase('_pouch_validate_websql', 1, '', 1);
+	    return true;
+	  } catch (err) {
+	    return false;
+	  }
+	}
+
+	// WKWebView had a bug where WebSQL would throw a DOM Exception 18
+	// (see https://bugs.webkit.org/show_bug.cgi?id=137760 and
+	// https://github.com/pouchdb/pouchdb/issues/5079)
+	// This has been fixed in latest WebKit, so we try to detect it here.
+	function isValidWebSQL() {
+	  // WKWebView UA:
+	  //   Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X)
+	  //   AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13C75
+	  // Chrome for iOS UA:
+	  //   Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en)
+	  //   AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60
+	  //   Mobile/9B206 Safari/7534.48.3
+	  // Firefox for iOS UA:
+	  //   Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4
+	  //   (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4
+
+	  // indexedDB is null on some UIWebViews and undefined in others
+	  // see: https://bugs.webkit.org/show_bug.cgi?id=137034
+	  if (typeof indexedDB === 'undefined' || indexedDB === null ||
+	      !/iP(hone|od|ad)/.test(navigator.userAgent)) {
+	    // definitely not WKWebView, avoid creating an unnecessary database
+	    return true;
+	  }
+	  // Cache the result in LocalStorage. Reason we do this is because if we
+	  // call openDatabase() too many times, Safari craps out in SauceLabs and
+	  // starts throwing DOM Exception 14s.
+	  var hasLS = hasLocalStorage();
+	  // Include user agent in the hash, so that if Safari is upgraded, we don't
+	  // continually think it's broken.
+	  var localStorageKey = '_pouch__websqldb_valid_' + navigator.userAgent;
+	  if (hasLS && localStorage[localStorageKey]) {
+	    return localStorage[localStorageKey] === '1';
+	  }
+	  var openedTestDB = canOpenTestDB();
+	  if (hasLS) {
+	    localStorage[localStorageKey] = openedTestDB ? '1' : '0';
+	  }
+	  return openedTestDB;
+	}
+
+	function valid() {
+	  if (typeof openDatabase !== 'function') {
+	    return false;
+	  }
+	  return isValidWebSQL();
+	}
+
+	function openDB(name, version, description, size) {
+	  // Traditional WebSQL API
+	  return openDatabase(name, version, description, size);
+	}
+
+	function WebSQLPouch(opts, callback) {
+	  var _opts = jsExtend.extend({
+	    websql: openDB
+	  }, opts);
+
+	  WebSqlPouch$1.call(this, _opts, callback);
+	}
+
+	WebSQLPouch.valid = valid;
+
+	WebSQLPouch.use_prefix = true;
+
+	function WebSqlPouch (PouchDB) {
+	  PouchDB.adapter('websql', WebSQLPouch, true);
+	}
+
+	/* global fetch */
+	/* global Headers */
+	function wrappedFetch() {
+	  var wrappedPromise = {};
+
+	  var promise = new PouchPromise(function (resolve, reject) {
+	    wrappedPromise.resolve = resolve;
+	    wrappedPromise.reject = reject;
+	  });
+
+	  var args = new Array(arguments.length);
+
+	  for (var i = 0; i < args.length; i++) {
+	    args[i] = arguments[i];
+	  }
+
+	  wrappedPromise.promise = promise;
+
+	  PouchPromise.resolve().then(function () {
+	    return fetch.apply(null, args);
+	  }).then(function (response) {
+	    wrappedPromise.resolve(response);
+	  }).catch(function (error) {
+	    wrappedPromise.reject(error);
+	  });
+
+	  return wrappedPromise;
+	}
+
+	function fetchRequest(options, callback) {
+	  var wrappedPromise, timer, response;
+
+	  var headers = new Headers();
+
+	  var fetchOptions = {
+	    method: options.method,
+	    credentials: 'include',
+	    headers: headers
+	  };
+
+	  if (options.json) {
+	    headers.set('Accept', 'application/json');
+	    headers.set('Content-Type', options.headers['Content-Type'] ||
+	      'application/json');
+	  }
+
+	  if (options.body && (options.body instanceof Blob)) {
+	    readAsArrayBuffer(options.body, function (arrayBuffer) {
+	      fetchOptions.body = arrayBuffer;
+	    });
+	  } else if (options.body &&
+	             options.processData &&
+	             typeof options.body !== 'string') {
+	    fetchOptions.body = JSON.stringify(options.body);
+	  } else if ('body' in options) {
+	    fetchOptions.body = options.body;
+	  } else {
+	    fetchOptions.body = null;
+	  }
+
+	  Object.keys(options.headers).forEach(function (key) {
+	    if (options.headers.hasOwnProperty(key)) {
+	      headers.set(key, options.headers[key]);
+	    }
+	  });
+
+	  wrappedPromise = wrappedFetch(options.url, fetchOptions);
+
+	  if (options.timeout > 0) {
+	    timer = setTimeout(function () {
+	      wrappedPromise.reject(new Error('Load timeout for resource: ' +
+	        options.url));
+	    }, options.timeout);
+	  }
+
+	  wrappedPromise.promise.then(function (fetchResponse) {
+	    response = {
+	      statusCode: fetchResponse.status
+	    };
+
+	    if (options.timeout > 0) {
+	      clearTimeout(timer);
+	    }
+
+	    if (response.statusCode >= 200 && response.statusCode < 300) {
+	      return options.binary ? fetchResponse.blob() : fetchResponse.text();
+	    }
+
+	    return fetchResponse.json();
+	  }).then(function (result) {
+	    if (response.statusCode >= 200 && response.statusCode < 300) {
+	      callback(null, response, result);
+	    } else {
+	      callback(result, response);
+	    }
+	  }).catch(function (error) {
+	    callback(error, response);
+	  });
+
+	  return {abort: wrappedPromise.reject};
+	}
+
+	function xhRequest(options, callback) {
+
+	  var xhr, timer;
+	  var timedout = false;
+
+	  var abortReq = function () {
+	    xhr.abort();
+	    cleanUp();
+	  };
+
+	  var timeoutReq = function () {
+	    timedout = true;
+	    xhr.abort();
+	    cleanUp();
+	  };
+
+	  var ret = {abort: abortReq};
+
+	  var cleanUp = function () {
+	    clearTimeout(timer);
+	    ret.abort = function () {};
+	    if (xhr) {
+	      xhr.onprogress = undefined;
+	      if (xhr.upload) {
+	        xhr.upload.onprogress = undefined;
+	      }
+	      xhr.onreadystatechange = undefined;
+	      xhr = undefined;
+	    }
+	  };
+
+	  if (options.xhr) {
+	    xhr = new options.xhr();
+	  } else {
+	    xhr = new XMLHttpRequest();
+	  }
+
+	  try {
+	    xhr.open(options.method, options.url);
+	  } catch (exception) {
+	    return callback(new Error(exception.name || 'Url is invalid'));
+	  }
+
+	  xhr.withCredentials = ('withCredentials' in options) ?
+	    options.withCredentials : true;
+
+	  if (options.method === 'GET') {
+	    delete options.headers['Content-Type'];
+	  } else if (options.json) {
+	    options.headers.Accept = 'application/json';
+	    options.headers['Content-Type'] = options.headers['Content-Type'] ||
+	      'application/json';
+	    if (options.body &&
+	        options.processData &&
+	        typeof options.body !== "string") {
+	      options.body = JSON.stringify(options.body);
+	    }
+	  }
+
+	  if (options.binary) {
+	    xhr.responseType = 'arraybuffer';
+	  }
+
+	  if (!('body' in options)) {
+	    options.body = null;
+	  }
+
+	  for (var key in options.headers) {
+	    if (options.headers.hasOwnProperty(key)) {
+	      xhr.setRequestHeader(key, options.headers[key]);
+	    }
+	  }
+
+	  if (options.timeout > 0) {
+	    timer = setTimeout(timeoutReq, options.timeout);
+	    xhr.onprogress = function () {
+	      clearTimeout(timer);
+	      if(xhr.readyState !== 4) {
+	        timer = setTimeout(timeoutReq, options.timeout);
+	      }
+	    };
+	    if (typeof xhr.upload !== 'undefined') { // does not exist in ie9
+	      xhr.upload.onprogress = xhr.onprogress;
+	    }
+	  }
+
+	  xhr.onreadystatechange = function () {
+	    if (xhr.readyState !== 4) {
+	      return;
+	    }
+
+	    var response = {
+	      statusCode: xhr.status
+	    };
+
+	    if (xhr.status >= 200 && xhr.status < 300) {
+	      var data;
+	      if (options.binary) {
+	        data = createBlob([xhr.response || ''], {
+	          type: xhr.getResponseHeader('Content-Type')
+	        });
+	      } else {
+	        data = xhr.responseText;
+	      }
+	      callback(null, response, data);
+	    } else {
+	      var err = {};
+	      if (timedout) {
+	        err = new Error('ETIMEDOUT');
+	        err.code = 'ETIMEDOUT';
+	      } else if (typeof xhr.response === 'string') {
+	        try {
+	          err = JSON.parse(xhr.response);
+	        } catch(e) {}
+	      }
+	      err.status = xhr.status;
+	      callback(err);
+	    }
+	    cleanUp();
+	  };
+
+	  if (options.body && (options.body instanceof Blob)) {
+	    readAsArrayBuffer(options.body, function (arrayBuffer) {
+	      xhr.send(arrayBuffer);
+	    });
+	  } else {
+	    xhr.send(options.body);
+	  }
+
+	  return ret;
+	}
+
+	function testXhr() {
+	  try {
+	    new XMLHttpRequest();
+	    return true;
+	  } catch (err) {
+	    return false;
+	  }
+	}
+
+	var hasXhr = testXhr();
+
+	function ajax$1(options, callback) {
+	  if (hasXhr || options.xhr) {
+	    return xhRequest(options, callback);
+	  } else {
+	    return fetchRequest(options, callback);
+	  }
+	}
+
+	// the blob already has a type; do nothing
+	var res$2 = function () {};
+
+	function defaultBody() {
+	  return '';
+	}
+
+	function ajaxCore(options, callback) {
+
+	  options = clone(options);
+
+	  var defaultOptions = {
+	    method : "GET",
+	    headers: {},
+	    json: true,
+	    processData: true,
+	    timeout: 10000,
+	    cache: false
+	  };
+
+	  options = jsExtend.extend(defaultOptions, options);
+
+	  function onSuccess(obj, resp, cb) {
+	    if (!options.binary && options.json && typeof obj === 'string') {
+	      /* istanbul ignore next */
+	      try {
+	        obj = JSON.parse(obj);
+	      } catch (e) {
+	        // Probably a malformed JSON from server
+	        return cb(e);
+	      }
+	    }
+	    if (Array.isArray(obj)) {
+	      obj = obj.map(function (v) {
+	        if (v.error || v.missing) {
+	          return generateErrorFromResponse(v);
+	        } else {
+	          return v;
+	        }
+	      });
+	    }
+	    if (options.binary) {
+	      res$2(obj, resp);
+	    }
+	    cb(null, obj, resp);
+	  }
+
+	  if (options.json) {
+	    if (!options.binary) {
+	      options.headers.Accept = 'application/json';
+	    }
+	    options.headers['Content-Type'] = options.headers['Content-Type'] ||
+	      'application/json';
+	  }
+
+	  if (options.binary) {
+	    options.encoding = null;
+	    options.json = false;
+	  }
+
+	  if (!options.processData) {
+	    options.json = false;
+	  }
+
+	  return ajax$1(options, function (err, response, body) {
+
+	    if (err) {
+	      return callback(generateErrorFromResponse(err));
+	    }
+
+	    var error;
+	    var content_type = response.headers && response.headers['content-type'];
+	    var data = body || defaultBody();
+
+	    // CouchDB doesn't always return the right content-type for JSON data, so
+	    // we check for ^{ and }$ (ignoring leading/trailing whitespace)
+	    if (!options.binary && (options.json || !options.processData) &&
+	        typeof data !== 'object' &&
+	        (/json/.test(content_type) ||
+	         (/^[\s]*\{/.test(data) && /\}[\s]*$/.test(data)))) {
+	      try {
+	        data = JSON.parse(data.toString());
+	      } catch (e) {}
+	    }
+
+	    if (response.statusCode >= 200 && response.statusCode < 300) {
+	      onSuccess(data, response, callback);
+	    } else {
+	      error = generateErrorFromResponse(data);
+	      error.status = response.statusCode;
+	      callback(error);
+	    }
+	  });
+	}
+
+	function ajax(opts, callback) {
+
+	  // cache-buster, specifically designed to work around IE's aggressive caching
+	  // see http://www.dashbay.com/2011/05/internet-explorer-caches-ajax/
+	  // Also Safari caches POSTs, so we need to cache-bust those too.
+	  var ua = (navigator && navigator.userAgent) ?
+	    navigator.userAgent.toLowerCase() : '';
+
+	  var isSafari = ua.indexOf('safari') !== -1 && ua.indexOf('chrome') === -1;
+	  var isIE = ua.indexOf('msie') !== -1;
+	  var isEdge = ua.indexOf('edge') !== -1;
+
+	  // it appears the new version of safari also caches GETs,
+	  // see https://github.com/pouchdb/pouchdb/issues/5010
+	  var shouldCacheBust = (isSafari ||
+	    ((isIE || isEdge) && opts.method === 'GET'));
+
+	  var cache = 'cache' in opts ? opts.cache : true;
+
+	  var isBlobUrl = /^blob:/.test(opts.url); // don't append nonces for blob URLs
+
+	  if (!isBlobUrl && (shouldCacheBust || !cache)) {
+	    var hasArgs = opts.url.indexOf('?') !== -1;
+	    opts.url += (hasArgs ? '&' : '?') + '_nonce=' + Date.now();
+	  }
+
+	  return ajaxCore(opts, callback);
+	}
+
+	var CHANGES_BATCH_SIZE = 25;
+	var MAX_SIMULTANEOUS_REVS = 50;
+
+	var supportsBulkGetMap = {};
+
+	var log$1 = debug('pouchdb:http');
+
+	function readAttachmentsAsBlobOrBuffer(row) {
+	  var atts = row.doc && row.doc._attachments;
+	  if (!atts) {
+	    return;
+	  }
+	  Object.keys(atts).forEach(function (filename) {
+	    var att = atts[filename];
+	    att.data = b64ToBluffer(att.data, att.content_type);
+	  });
+	}
+
+	function encodeDocId(id) {
+	  if (/^_design/.test(id)) {
+	    return '_design/' + encodeURIComponent(id.slice(8));
+	  }
+	  if (/^_local/.test(id)) {
+	    return '_local/' + encodeURIComponent(id.slice(7));
+	  }
+	  return encodeURIComponent(id);
+	}
+
+	function preprocessAttachments$1(doc) {
+	  if (!doc._attachments || !Object.keys(doc._attachments)) {
+	    return PouchPromise.resolve();
+	  }
+
+	  return PouchPromise.all(Object.keys(doc._attachments).map(function (key) {
+	    var attachment = doc._attachments[key];
+	    if (attachment.data && typeof attachment.data !== 'string') {
+	      return new PouchPromise(function (resolve) {
+	        blobToBase64(attachment.data, resolve);
+	      }).then(function (b64) {
+	        attachment.data = b64;
+	      });
+	    }
+	  }));
+	}
+
+	function hasUrlPrefix(opts) {
+	  if (!opts.prefix) {
+	    return false;
+	  }
+
+	  var protocol = parseUri(opts.prefix).protocol;
+
+	  return protocol === 'http' || protocol === 'https';
+	}
+
+	// Get all the information you possibly can about the URI given by name and
+	// return it as a suitable object.
+	function getHost(name, opts) {
+
+	  // encode db name if opts.prefix is a url (#5574)
+	  if (hasUrlPrefix(opts)) {
+	    var dbName = opts.name.substr(opts.prefix.length);
+	    name = opts.prefix + encodeURIComponent(dbName);
+	  }
+
+	  // Prase the URI into all its little bits
+	  var uri = parseUri(name);
+
+	  // Store the user and password as a separate auth object
+	  if (uri.user || uri.password) {
+	    uri.auth = {username: uri.user, password: uri.password};
+	  }
+
+	  // Split the path part of the URI into parts using '/' as the delimiter
+	  // after removing any leading '/' and any trailing '/'
+	  var parts = uri.path.replace(/(^\/|\/$)/g, '').split('/');
+
+	  // Store the first part as the database name and remove it from the parts
+	  // array
+	  uri.db = parts.pop();
+	  // Prevent double encoding of URI component
+	  if (uri.db.indexOf('%') === -1) {
+	    uri.db = encodeURIComponent(uri.db);
+	  }
+
+	  // Restore the path by joining all the remaining parts (all the parts
+	  // except for the database name) with '/'s
+	  uri.path = parts.join('/');
+
+	  return uri;
+	}
+
+	// Generate a URL with the host data given by opts and the given path
+	function genDBUrl(opts, path) {
+	  return genUrl(opts, opts.db + '/' + path);
+	}
+
+	// Generate a URL with the host data given by opts and the given path
+	function genUrl(opts, path) {
+	  // If the host already has a path, then we need to have a path delimiter
+	  // Otherwise, the path delimiter is the empty string
+	  var pathDel = !opts.path ? '' : '/';
+
+	  // If the host already has a path, then we need to have a path delimiter
+	  // Otherwise, the path delimiter is the empty string
+	  return opts.protocol + '://' + opts.host +
+	         (opts.port ? (':' + opts.port) : '') +
+	         '/' + opts.path + pathDel + path;
+	}
+
+	function paramsToStr(params) {
+	  return '?' + Object.keys(params).map(function (k) {
+	    return k + '=' + encodeURIComponent(params[k]);
+	  }).join('&');
+	}
+
+	// Implements the PouchDB API for dealing with CouchDB instances over HTTP
+	function HttpPouch(opts, callback) {
+
+	  // The functions that will be publicly available for HttpPouch
+	  var api = this;
+
+	  var host = getHost(opts.name, opts);
+	  var dbUrl = genDBUrl(host, '');
+
+	  opts = clone(opts);
+	  var ajaxOpts = opts.ajax || {};
+
+	  if (opts.auth || host.auth) {
+	    var nAuth = opts.auth || host.auth;
+	    var str = nAuth.username + ':' + nAuth.password;
+	    var token = btoa$1(unescape(encodeURIComponent(str)));
+	    ajaxOpts.headers = ajaxOpts.headers || {};
+	    ajaxOpts.headers.Authorization = 'Basic ' + token;
+	  }
+
+	  // Not strictly necessary, but we do this because numerous tests
+	  // rely on swapping ajax in and out.
+	  api._ajax = ajax;
+
+	  function ajax$$(userOpts, options, callback) {
+	    var reqAjax = userOpts.ajax || {};
+	    var reqOpts = jsExtend.extend(clone(ajaxOpts), reqAjax, options);
+	    log$1(reqOpts.method + ' ' + reqOpts.url);
+	    return api._ajax(reqOpts, callback);
+	  }
+
+	  function ajaxPromise(userOpts, opts) {
+	    return new PouchPromise(function (resolve, reject) {
+	      ajax$$(userOpts, opts, function (err, res) {
+	        /* istanbul ignore if */
+	        if (err) {
+	          return reject(err);
+	        }
+	        resolve(res);
+	      });
+	    });
+	  }
+
+	  function adapterFun$$(name, fun) {
+	    return adapterFun(name, getArguments(function (args) {
+	      setup().then(function () {
+	        return fun.apply(this, args);
+	      }).catch(function (e) {
+	        var callback = args.pop();
+	        callback(e);
+	      });
+	    }));
+	  }
+
+	  var setupPromise;
+
+	  function setup() {
+	    // TODO: Remove `skipSetup` in favor of `skip_setup` in a future release
+	    if (opts.skipSetup || opts.skip_setup) {
+	      return PouchPromise.resolve();
+	    }
+
+	    // If there is a setup in process or previous successful setup
+	    // done then we will use that
+	    // If previous setups have been rejected we will try again
+	    if (setupPromise) {
+	      return setupPromise;
+	    }
+
+	    var checkExists = {method: 'GET', url: dbUrl};
+	    setupPromise = ajaxPromise({}, checkExists).catch(function (err) {
+	      if (err && err.status && err.status === 404) {
+	        // Doesnt exist, create it
+	        explainError(404, 'PouchDB is just detecting if the remote exists.');
+	        return ajaxPromise({}, {method: 'PUT', url: dbUrl});
+	      } else {
+	        return PouchPromise.reject(err);
+	      }
+	    }).catch(function (err) {
+	      // If we try to create a database that already exists, skipped in
+	      // istanbul since its catching a race condition.
+	      /* istanbul ignore if */
+	      if (err && err.status && err.status === 412) {
+	        return true;
+	      }
+	      return PouchPromise.reject(err);
+	    });
+
+	    setupPromise.catch(function () {
+	      setupPromise = null;
+	    });
+
+	    return setupPromise;
+	  }
+
+	  setTimeout(function () {
+	    callback(null, api);
+	  });
+
+	  api.type = function () {
+	    return 'http';
+	  };
+
+	  api.id = adapterFun$$('id', function (callback) {
+	    ajax$$({}, {method: 'GET', url: genUrl(host, '')}, function (err, result) {
+	      var uuid = (result && result.uuid) ?
+	        (result.uuid + host.db) : genDBUrl(host, '');
+	      callback(null, uuid);
+	    });
+	  });
+
+	  api.request = adapterFun$$('request', function (options, callback) {
+	    options.url = genDBUrl(host, options.url);
+	    ajax$$({}, options, callback);
+	  });
+
+	  // Sends a POST request to the host calling the couchdb _compact function
+	  //    version: The version of CouchDB it is running
+	  api.compact = adapterFun$$('compact', function (opts, callback) {
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    opts = clone(opts);
+	    ajax$$(opts, {
+	      url: genDBUrl(host, '_compact'),
+	      method: 'POST'
+	    }, function () {
+	      function ping() {
+	        api.info(function (err, res) {
+	          if (res && !res.compact_running) {
+	            callback(null, {ok: true});
+	          } else {
+	            setTimeout(ping, opts.interval || 200);
+	          }
+	        });
+	      }
+	      // Ping the http if it's finished compaction
+	      ping();
+	    });
+	  });
+
+	  api.bulkGet = adapterFun('bulkGet', function (opts, callback) {
+	    var self = this;
+
+	    function doBulkGet(cb) {
+	      var params = {};
+	      if (opts.revs) {
+	        params.revs = true;
+	      }
+	      if (opts.attachments) {
+	        /* istanbul ignore next */
+	        params.attachments = true;
+	      }
+	      ajax$$({}, {
+	        url: genDBUrl(host, '_bulk_get' + paramsToStr(params)),
+	        method: 'POST',
+	        body: { docs: opts.docs}
+	      }, cb);
+	    }
+
+	    function doBulkGetShim() {
+	      // avoid "url too long error" by splitting up into multiple requests
+	      var batchSize = MAX_SIMULTANEOUS_REVS;
+	      var numBatches = Math.ceil(opts.docs.length / batchSize);
+	      var numDone = 0;
+	      var results = new Array(numBatches);
+
+	      function onResult(batchNum) {
+	        return function (err, res) {
+	          // err is impossible because shim returns a list of errs in that case
+	          results[batchNum] = res.results;
+	          if (++numDone === numBatches) {
+	            callback(null, {results: flatten(results)});
+	          }
+	        };
+	      }
+
+	      for (var i = 0; i < numBatches; i++) {
+	        var subOpts = pick(opts, ['revs', 'attachments']);
+	        subOpts.ajax = ajaxOpts;
+	        subOpts.docs = opts.docs.slice(i * batchSize,
+	          Math.min(opts.docs.length, (i + 1) * batchSize));
+	        bulkGet(self, subOpts, onResult(i));
+	      }
+	    }
+
+	    // mark the whole database as either supporting or not supporting _bulk_get
+	    var dbUrl = genUrl(host, '');
+	    var supportsBulkGet = supportsBulkGetMap[dbUrl];
+
+	    if (typeof supportsBulkGet !== 'boolean') {
+	      // check if this database supports _bulk_get
+	      doBulkGet(function (err, res) {
+	        /* istanbul ignore else */
+	        if (err) {
+	          var status = Math.floor(err.status / 100);
+	          /* istanbul ignore else */
+	          if (status === 4 || status === 5) { // 40x or 50x
+	            supportsBulkGetMap[dbUrl] = false;
+	            explainError(
+	              err.status,
+	              'PouchDB is just detecting if the remote ' +
+	              'supports the _bulk_get API.'
+	            );
+	            doBulkGetShim();
+	          } else {
+	            callback(err);
+	          }
+	        } else {
+	          supportsBulkGetMap[dbUrl] = true;
+	          callback(null, res);
+	        }
+	      });
+	    } else if (supportsBulkGet) {
+	      /* istanbul ignore next */
+	      doBulkGet(callback);
+	    } else {
+	      doBulkGetShim();
+	    }
+	  });
+
+	  // Calls GET on the host, which gets back a JSON string containing
+	  //    couchdb: A welcome string
+	  //    version: The version of CouchDB it is running
+	  api._info = function (callback) {
+	    setup().then(function () {
+	      ajax$$({}, {
+	        method: 'GET',
+	        url: genDBUrl(host, '')
+	      }, function (err, res) {
+	        /* istanbul ignore next */
+	        if (err) {
+	        return callback(err);
+	        }
+	        res.host = genDBUrl(host, '');
+	        callback(null, res);
+	      });
+	    }).catch(callback);
+	  };
+
+	  // Get the document with the given id from the database given by host.
+	  // The id could be solely the _id in the database, or it may be a
+	  // _design/ID or _local/ID path
+	  api.get = adapterFun$$('get', function (id, opts, callback) {
+	    // If no options were given, set the callback to the second parameter
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    opts = clone(opts);
+
+	    // List of parameters to add to the GET request
+	    var params = {};
+
+	    if (opts.revs) {
+	      params.revs = true;
+	    }
+
+	    if (opts.revs_info) {
+	      params.revs_info = true;
+	    }
+
+	    if (opts.open_revs) {
+	      if (opts.open_revs !== "all") {
+	        opts.open_revs = JSON.stringify(opts.open_revs);
+	      }
+	      params.open_revs = opts.open_revs;
+	    }
+
+	    if (opts.rev) {
+	      params.rev = opts.rev;
+	    }
+
+	    if (opts.conflicts) {
+	      params.conflicts = opts.conflicts;
+	    }
+
+	    id = encodeDocId(id);
+
+	    // Set the options for the ajax call
+	    var options = {
+	      method: 'GET',
+	      url: genDBUrl(host, id + paramsToStr(params))
+	    };
+
+	    function fetchAttachments(doc) {
+	      var atts = doc._attachments;
+	      var filenames = atts && Object.keys(atts);
+	      if (!atts || !filenames.length) {
+	        return;
+	      }
+	      // we fetch these manually in separate XHRs, because
+	      // Sync Gateway would normally send it back as multipart/mixed,
+	      // which we cannot parse. Also, this is more efficient than
+	      // receiving attachments as base64-encoded strings.
+	      function fetch() {
+
+	        if (!filenames.length) {
+	          return null;
+	        }
+
+	        var filename = filenames.pop();
+	        var att = atts[filename];
+	        var path = encodeDocId(doc._id) + '/' + encodeAttachmentId(filename) +
+	          '?rev=' + doc._rev;
+	        return ajaxPromise(opts, {
+	          method: 'GET',
+	          url: genDBUrl(host, path),
+	          binary: true
+	        }).then(function (blob) {
+	          if (opts.binary) {
+	            return blob;
+	          }
+	          return new PouchPromise(function (resolve) {
+	            blobToBase64(blob, resolve);
+	          });
+	        }).then(function (data) {
+	          delete att.stub;
+	          delete att.length;
+	          att.data = data;
+	        });
+	      }
+
+	      // This limits the number of parallel xhr requests to 5 any time
+	      // to avoid issues with maximum browser request limits
+	      return new PromisePool(fetch, 5, {promise: PouchPromise}).start();
+	    }
+
+	    function fetchAllAttachments(docOrDocs) {
+	      if (Array.isArray(docOrDocs)) {
+	        return PouchPromise.all(docOrDocs.map(function (doc) {
+	          if (doc.ok) {
+	            return fetchAttachments(doc.ok);
+	          }
+	        }));
+	      }
+	      return fetchAttachments(docOrDocs);
+	    }
+
+	    ajaxPromise(opts, options).then(function (res) {
+	      return PouchPromise.resolve().then(function () {
+	        if (opts.attachments) {
+	          return fetchAllAttachments(res);
+	        }
+	      }).then(function () {
+	        callback(null, res);
+	      });
+	    }).catch(callback);
+	  });
+
+	  // Delete the document given by doc from the database given by host.
+	  api.remove = adapterFun$$('remove',
+	      function (docOrId, optsOrRev, opts, callback) {
+	    var doc;
+	    if (typeof optsOrRev === 'string') {
+	      // id, rev, opts, callback style
+	      doc = {
+	        _id: docOrId,
+	        _rev: optsOrRev
+	      };
+	      if (typeof opts === 'function') {
+	        callback = opts;
+	        opts = {};
+	      }
+	    } else {
+	      // doc, opts, callback style
+	      doc = docOrId;
+	      if (typeof optsOrRev === 'function') {
+	        callback = optsOrRev;
+	        opts = {};
+	      } else {
+	        callback = opts;
+	        opts = optsOrRev;
+	      }
+	    }
+
+	    var rev = (doc._rev || opts.rev);
+
+	    // Delete the document
+	    ajax$$(opts, {
+	      method: 'DELETE',
+	      url: genDBUrl(host, encodeDocId(doc._id)) + '?rev=' + rev
+	    }, callback);
+	  });
+
+	  function encodeAttachmentId(attachmentId) {
+	    return attachmentId.split("/").map(encodeURIComponent).join("/");
+	  }
+
+	  // Get the attachment
+	  api.getAttachment =
+	    adapterFun$$('getAttachment', function (docId, attachmentId, opts,
+	                                                callback) {
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    var params = opts.rev ? ('?rev=' + opts.rev) : '';
+	    var url = genDBUrl(host, encodeDocId(docId)) + '/' +
+	      encodeAttachmentId(attachmentId) + params;
+	    ajax$$(opts, {
+	      method: 'GET',
+	      url: url,
+	      binary: true
+	    }, callback);
+	  });
+
+	  // Remove the attachment given by the id and rev
+	  api.removeAttachment =
+	    adapterFun$$('removeAttachment', function (docId, attachmentId, rev,
+	                                                   callback) {
+
+	    var url = genDBUrl(host, encodeDocId(docId) + '/' +
+	      encodeAttachmentId(attachmentId)) + '?rev=' + rev;
+
+	    ajax$$({}, {
+	      method: 'DELETE',
+	      url: url
+	    }, callback);
+	  });
+
+	  // Add the attachment given by blob and its contentType property
+	  // to the document with the given id, the revision given by rev, and
+	  // add it to the database given by host.
+	  api.putAttachment =
+	    adapterFun$$('putAttachment', function (docId, attachmentId, rev, blob,
+	                                                type, callback) {
+	    if (typeof type === 'function') {
+	      callback = type;
+	      type = blob;
+	      blob = rev;
+	      rev = null;
+	    }
+	    var id = encodeDocId(docId) + '/' + encodeAttachmentId(attachmentId);
+	    var url = genDBUrl(host, id);
+	    if (rev) {
+	      url += '?rev=' + rev;
+	    }
+
+	    if (typeof blob === 'string') {
+	      // input is assumed to be a base64 string
+	      var binary;
+	      try {
+	        binary = atob$1(blob);
+	      } catch (err) {
+	        return callback(createError(BAD_ARG,
+	                        'Attachment is not a valid base64 string'));
+	      }
+	      blob = binary ? binStringToBluffer(binary, type) : '';
+	    }
+
+	    var opts = {
+	      headers: {'Content-Type': type},
+	      method: 'PUT',
+	      url: url,
+	      processData: false,
+	      body: blob,
+	      timeout: ajaxOpts.timeout || 60000
+	    };
+	    // Add the attachment
+	    ajax$$({}, opts, callback);
+	  });
+
+	  // Update/create multiple documents given by req in the database
+	  // given by host.
+	  api._bulkDocs = function (req, opts, callback) {
+	    // If new_edits=false then it prevents the database from creating
+	    // new revision numbers for the documents. Instead it just uses
+	    // the old ones. This is used in database replication.
+	    req.new_edits = opts.new_edits;
+
+	    setup().then(function () {
+	      return PouchPromise.all(req.docs.map(preprocessAttachments$1));
+	    }).then(function () {
+	      // Update/create the documents
+	      ajax$$(opts, {
+	        method: 'POST',
+	        url: genDBUrl(host, '_bulk_docs'),
+	        timeout: opts.timeout,
+	        body: req
+	      }, function (err, results) {
+	        if (err) {
+	          return callback(err);
+	        }
+	        results.forEach(function (result) {
+	          result.ok = true; // smooths out cloudant not adding this
+	        });
+	        callback(null, results);
+	      });
+	    }).catch(callback);
+	  };
+
+
+	  // Update/create document
+	  api._put = function (doc, opts, callback) {
+	    setup().then(function () {
+	      return preprocessAttachments$1(doc);
+	    }).then(function () {
+	      // Update/create the document
+	      ajax$$(opts, {
+	        method: 'PUT',
+	        url: genDBUrl(host, encodeDocId(doc._id)),
+	        body: doc
+	      }, function (err, result) {
+	        if (err) {
+	          return callback(err);
+	        }
+	        callback(null, result);
+	      });
+	    }).catch(callback);
+	  };
+
+
+	  // Get a listing of the documents in the database given
+	  // by host and ordered by increasing id.
+	  api.allDocs = adapterFun$$('allDocs', function (opts, callback) {
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+	    opts = clone(opts);
+
+	    // List of parameters to add to the GET request
+	    var params = {};
+	    var body;
+	    var method = 'GET';
+
+	    if (opts.conflicts) {
+	      params.conflicts = true;
+	    }
+
+	    if (opts.descending) {
+	      params.descending = true;
+	    }
+
+	    if (opts.include_docs) {
+	      params.include_docs = true;
+	    }
+
+	    // added in CouchDB 1.6.0
+	    if (opts.attachments) {
+	      params.attachments = true;
+	    }
+
+	    if (opts.key) {
+	      params.key = JSON.stringify(opts.key);
+	    }
+
+	    if (opts.start_key) {
+	      opts.startkey = opts.start_key;
+	    }
+
+	    if (opts.startkey) {
+	      params.startkey = JSON.stringify(opts.startkey);
+	    }
+
+	    if (opts.end_key) {
+	      opts.endkey = opts.end_key;
+	    }
+
+	    if (opts.endkey) {
+	      params.endkey = JSON.stringify(opts.endkey);
+	    }
+
+	    if (typeof opts.inclusive_end !== 'undefined') {
+	      params.inclusive_end = !!opts.inclusive_end;
+	    }
+
+	    if (typeof opts.limit !== 'undefined') {
+	      params.limit = opts.limit;
+	    }
+
+	    if (typeof opts.skip !== 'undefined') {
+	      params.skip = opts.skip;
+	    }
+
+	    var paramStr = paramsToStr(params);
+
+	    if (typeof opts.keys !== 'undefined') {
+	      method = 'POST';
+	      body = {keys: opts.keys};
+	    }
+
+	    // Get the document listing
+	    ajaxPromise(opts, {
+	      method: method,
+	      url: genDBUrl(host, '_all_docs' + paramStr),
+	      body: body
+	    }).then(function (res) {
+	      if (opts.include_docs && opts.attachments && opts.binary) {
+	        res.rows.forEach(readAttachmentsAsBlobOrBuffer);
+	      }
+	      callback(null, res);
+	    }).catch(callback);
+	  });
+
+	  // Get a list of changes made to documents in the database given by host.
+	  // TODO According to the README, there should be two other methods here,
+	  // api.changes.addListener and api.changes.removeListener.
+	  api._changes = function (opts) {
+
+	    // We internally page the results of a changes request, this means
+	    // if there is a large set of changes to be returned we can start
+	    // processing them quicker instead of waiting on the entire
+	    // set of changes to return and attempting to process them at once
+	    var batchSize = 'batch_size' in opts ? opts.batch_size : CHANGES_BATCH_SIZE;
+
+	    opts = clone(opts);
+	    opts.timeout = ('timeout' in opts) ? opts.timeout :
+	      ('timeout' in ajaxOpts) ? ajaxOpts.timeout :
+	      30 * 1000;
+
+	    // We give a 5 second buffer for CouchDB changes to respond with
+	    // an ok timeout (if a timeout it set)
+	    var params = opts.timeout ? {timeout: opts.timeout - (5 * 1000)} : {};
+	    var limit = (typeof opts.limit !== 'undefined') ? opts.limit : false;
+	    var returnDocs;
+	    if ('return_docs' in opts) {
+	      returnDocs = opts.return_docs;
+	    } else if ('returnDocs' in opts) {
+	      // TODO: Remove 'returnDocs' in favor of 'return_docs' in a future release
+	      returnDocs = opts.returnDocs;
+	    } else {
+	      returnDocs = true;
+	    }
+	    //
+	    var leftToFetch = limit;
+
+	    if (opts.style) {
+	      params.style = opts.style;
+	    }
+
+	    if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
+	      params.include_docs = true;
+	    }
+
+	    if (opts.attachments) {
+	      params.attachments = true;
+	    }
+
+	    if (opts.continuous) {
+	      params.feed = 'longpoll';
+	    }
+
+	    if (opts.conflicts) {
+	      params.conflicts = true;
+	    }
+
+	    if (opts.descending) {
+	      params.descending = true;
+	    }
+
+	    if ('heartbeat' in opts) {
+	      // If the heartbeat value is false, it disables the default heartbeat
+	      if (opts.heartbeat) {
+	        params.heartbeat = opts.heartbeat;
+	      }
+	    } else {
+	      // Default heartbeat to 10 seconds
+	      params.heartbeat = 10000;
+	    }
+
+	    if (opts.filter && typeof opts.filter === 'string') {
+	      params.filter = opts.filter;
+	    }
+
+	    if (opts.view && typeof opts.view === 'string') {
+	      params.filter = '_view';
+	      params.view = opts.view;
+	    }
+
+	    // If opts.query_params exists, pass it through to the changes request.
+	    // These parameters may be used by the filter on the source database.
+	    if (opts.query_params && typeof opts.query_params === 'object') {
+	      for (var param_name in opts.query_params) {
+	        /* istanbul ignore else */
+	        if (opts.query_params.hasOwnProperty(param_name)) {
+	          params[param_name] = opts.query_params[param_name];
+	        }
+	      }
+	    }
+
+	    var method = 'GET';
+	    var body;
+
+	    if (opts.doc_ids) {
+	      // set this automagically for the user; it's annoying that couchdb
+	      // requires both a "filter" and a "doc_ids" param.
+	      params.filter = '_doc_ids';
+	      method = 'POST';
+	      body = {doc_ids: opts.doc_ids };
+	    }
+
+	    var xhr;
+	    var lastFetchedSeq;
+
+	    // Get all the changes starting wtih the one immediately after the
+	    // sequence number given by since.
+	    var fetch = function (since, callback) {
+	      if (opts.aborted) {
+	        return;
+	      }
+	      params.since = since;
+	      // "since" can be any kind of json object in Coudant/CouchDB 2.x
+	      /* istanbul ignore next */
+	      if (typeof params.since === "object") {
+	        params.since = JSON.stringify(params.since);
+	      }
+
+	      if (opts.descending) {
+	        if (limit) {
+	          params.limit = leftToFetch;
+	        }
+	      } else {
+	        params.limit = (!limit || leftToFetch > batchSize) ?
+	          batchSize : leftToFetch;
+	      }
+
+	      // Set the options for the ajax call
+	      var xhrOpts = {
+	        method: method,
+	        url: genDBUrl(host, '_changes' + paramsToStr(params)),
+	        timeout: opts.timeout,
+	        body: body
+	      };
+	      lastFetchedSeq = since;
+
+	      /* istanbul ignore if */
+	      if (opts.aborted) {
+	        return;
+	      }
+
+	      // Get the changes
+	      setup().then(function () {
+	        xhr = ajax$$(opts, xhrOpts, callback);
+	      }).catch(callback);
+	    };
+
+	    // If opts.since exists, get all the changes from the sequence
+	    // number given by opts.since. Otherwise, get all the changes
+	    // from the sequence number 0.
+	    var results = {results: []};
+
+	    var fetched = function (err, res) {
+	      if (opts.aborted) {
+	        return;
+	      }
+	      var raw_results_length = 0;
+	      // If the result of the ajax call (res) contains changes (res.results)
+	      if (res && res.results) {
+	        raw_results_length = res.results.length;
+	        results.last_seq = res.last_seq;
+	        // For each change
+	        var req = {};
+	        req.query = opts.query_params;
+	        res.results = res.results.filter(function (c) {
+	          leftToFetch--;
+	          var ret = filterChange(opts)(c);
+	          if (ret) {
+	            if (opts.include_docs && opts.attachments && opts.binary) {
+	              readAttachmentsAsBlobOrBuffer(c);
+	            }
+	            if (returnDocs) {
+	              results.results.push(c);
+	            }
+	            opts.onChange(c);
+	          }
+	          return ret;
+	        });
+	      } else if (err) {
+	        // In case of an error, stop listening for changes and call
+	        // opts.complete
+	        opts.aborted = true;
+	        opts.complete(err);
+	        return;
+	      }
+
+	      // The changes feed may have timed out with no results
+	      // if so reuse last update sequence
+	      if (res && res.last_seq) {
+	        lastFetchedSeq = res.last_seq;
+	      }
+
+	      var finished = (limit && leftToFetch <= 0) ||
+	        (res && raw_results_length < batchSize) ||
+	        (opts.descending);
+
+	      if ((opts.continuous && !(limit && leftToFetch <= 0)) || !finished) {
+	        // Queue a call to fetch again with the newest sequence number
+	        setTimeout(function () { fetch(lastFetchedSeq, fetched); }, 0);
+	      } else {
+	        // We're done, call the callback
+	        opts.complete(null, results);
+	      }
+	    };
+
+	    fetch(opts.since || 0, fetched);
+
+	    // Return a method to cancel this method from processing any more
+	    return {
+	      cancel: function () {
+	        opts.aborted = true;
+	        if (xhr) {
+	          xhr.abort();
+	        }
+	      }
+	    };
+	  };
+
+	  // Given a set of document/revision IDs (given by req), tets the subset of
+	  // those that do NOT correspond to revisions stored in the database.
+	  // See http://wiki.apache.org/couchdb/HttpPostRevsDiff
+	  api.revsDiff = adapterFun$$('revsDiff', function (req, opts, callback) {
+	    // If no options were given, set the callback to be the second parameter
+	    if (typeof opts === 'function') {
+	      callback = opts;
+	      opts = {};
+	    }
+
+	    // Get the missing document/revision IDs
+	    ajax$$(opts, {
+	      method: 'POST',
+	      url: genDBUrl(host, '_revs_diff'),
+	      body: req
+	    }, callback);
+	  });
+
+	  api._close = function (callback) {
+	    callback();
+	  };
+
+	  api._destroy = function (options, callback) {
+	    ajax$$(options, {
+	      url: genDBUrl(host, ''),
+	      method: 'DELETE'
+	    }, function (err, resp) {
+	      if (err && err.status && err.status !== 404) {
+	        return callback(err);
+	      }
+	      callback(null, resp);
+	    });
+	  };
+	}
+
+	// HttpPouch is a valid adapter.
+	HttpPouch.valid = function () {
+	  return true;
+	};
+
+	function HttpPouch$1 (PouchDB) {
+	  PouchDB.adapter('http', HttpPouch, false);
+	  PouchDB.adapter('https', HttpPouch, false);
+	}
+
+	function pad(str, padWith, upToLength) {
+	  var padding = '';
+	  var targetLength = upToLength - str.length;
+	  /* istanbul ignore next */
+	  while (padding.length < targetLength) {
+	    padding += padWith;
+	  }
+	  return padding;
+	}
+
+	function padLeft(str, padWith, upToLength) {
+	  var padding = pad(str, padWith, upToLength);
+	  return padding + str;
+	}
+
+	var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
+	var MAGNITUDE_DIGITS = 3; // ditto
+	var SEP = ''; // set to '_' for easier debugging 
+
+	function collate(a, b) {
+
+	  if (a === b) {
+	    return 0;
+	  }
+
+	  a = normalizeKey(a);
+	  b = normalizeKey(b);
+
+	  var ai = collationIndex(a);
+	  var bi = collationIndex(b);
+	  if ((ai - bi) !== 0) {
+	    return ai - bi;
+	  }
+	  if (a === null) {
+	    return 0;
+	  }
+	  switch (typeof a) {
+	    case 'number':
+	      return a - b;
+	    case 'boolean':
+	      return a === b ? 0 : (a < b ? -1 : 1);
+	    case 'string':
+	      return stringCollate(a, b);
+	  }
+	  return Array.isArray(a) ? arrayCollate(a, b) : objectCollate(a, b);
+	}
+
+	// couch considers null/NaN/Infinity/-Infinity === undefined,
+	// for the purposes of mapreduce indexes. also, dates get stringified.
+	function normalizeKey(key) {
+	  switch (typeof key) {
+	    case 'undefined':
+	      return null;
+	    case 'number':
+	      if (key === Infinity || key === -Infinity || isNaN(key)) {
+	        return null;
+	      }
+	      return key;
+	    case 'object':
+	      var origKey = key;
+	      if (Array.isArray(key)) {
+	        var len = key.length;
+	        key = new Array(len);
+	        for (var i = 0; i < len; i++) {
+	          key[i] = normalizeKey(origKey[i]);
+	        }
+	      /* istanbul ignore next */
+	      } else if (key instanceof Date) {
+	        return key.toJSON();
+	      } else if (key !== null) { // generic object
+	        key = {};
+	        for (var k in origKey) {
+	          if (origKey.hasOwnProperty(k)) {
+	            var val = origKey[k];
+	            if (typeof val !== 'undefined') {
+	              key[k] = normalizeKey(val);
+	            }
+	          }
+	        }
+	      }
+	  }
+	  return key;
+	}
+
+	function indexify(key) {
+	  if (key !== null) {
+	    switch (typeof key) {
+	      case 'boolean':
+	        return key ? 1 : 0;
+	      case 'number':
+	        return numToIndexableString(key);
+	      case 'string':
+	        // We've to be sure that key does not contain \u0000
+	        // Do order-preserving replacements:
+	        // 0 -> 1, 1
+	        // 1 -> 1, 2
+	        // 2 -> 2, 2
+	        return key
+	          .replace(/\u0002/g, '\u0002\u0002')
+	          .replace(/\u0001/g, '\u0001\u0002')
+	          .replace(/\u0000/g, '\u0001\u0001');
+	      case 'object':
+	        var isArray = Array.isArray(key);
+	        var arr = isArray ? key : Object.keys(key);
+	        var i = -1;
+	        var len = arr.length;
+	        var result = '';
+	        if (isArray) {
+	          while (++i < len) {
+	            result += toIndexableString(arr[i]);
+	          }
+	        } else {
+	          while (++i < len) {
+	            var objKey = arr[i];
+	            result += toIndexableString(objKey) +
+	                toIndexableString(key[objKey]);
+	          }
+	        }
+	        return result;
+	    }
+	  }
+	  return '';
+	}
+
+	// convert the given key to a string that would be appropriate
+	// for lexical sorting, e.g. within a database, where the
+	// sorting is the same given by the collate() function.
+	function toIndexableString(key) {
+	  var zero = '\u0000';
+	  key = normalizeKey(key);
+	  return collationIndex(key) + SEP + indexify(key) + zero;
+	}
+
+	function parseNumber(str, i) {
+	  var originalIdx = i;
+	  var num;
+	  var zero = str[i] === '1';
+	  if (zero) {
+	    num = 0;
+	    i++;
+	  } else {
+	    var neg = str[i] === '0';
+	    i++;
+	    var numAsString = '';
+	    var magAsString = str.substring(i, i + MAGNITUDE_DIGITS);
+	    var magnitude = parseInt(magAsString, 10) + MIN_MAGNITUDE;
+	    /* istanbul ignore next */
+	    if (neg) {
+	      magnitude = -magnitude;
+	    }
+	    i += MAGNITUDE_DIGITS;
+	    while (true) {
+	      var ch = str[i];
+	      if (ch === '\u0000') {
+	        break;
+	      } else {
+	        numAsString += ch;
+	      }
+	      i++;
+	    }
+	    numAsString = numAsString.split('.');
+	    if (numAsString.length === 1) {
+	      num = parseInt(numAsString, 10);
+	    } else {
+	      /* istanbul ignore next */
+	      num = parseFloat(numAsString[0] + '.' + numAsString[1]);
+	    }
+	    /* istanbul ignore next */
+	    if (neg) {
+	      num = num - 10;
+	    }
+	    /* istanbul ignore next */
+	    if (magnitude !== 0) {
+	      // parseFloat is more reliable than pow due to rounding errors
+	      // e.g. Number.MAX_VALUE would return Infinity if we did
+	      // num * Math.pow(10, magnitude);
+	      num = parseFloat(num + 'e' + magnitude);
+	    }
+	  }
+	  return {num: num, length : i - originalIdx};
+	}
+
+	// move up the stack while parsing
+	// this function moved outside of parseIndexableString for performance
+	function pop(stack, metaStack) {
+	  var obj = stack.pop();
+
+	  if (metaStack.length) {
+	    var lastMetaElement = metaStack[metaStack.length - 1];
+	    if (obj === lastMetaElement.element) {
+	      // popping a meta-element, e.g. an object whose value is another object
+	      metaStack.pop();
+	      lastMetaElement = metaStack[metaStack.length - 1];
+	    }
+	    var element = lastMetaElement.element;
+	    var lastElementIndex = lastMetaElement.index;
+	    if (Array.isArray(element)) {
+	      element.push(obj);
+	    } else if (lastElementIndex === stack.length - 2) { // obj with key+value
+	      var key = stack.pop();
+	      element[key] = obj;
+	    } else {
+	      stack.push(obj); // obj with key only
+	    }
+	  }
+	}
+
+	function parseIndexableString(str) {
+	  var stack = [];
+	  var metaStack = []; // stack for arrays and objects
+	  var i = 0;
+
+	  /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
+	  while (true) {
+	    var collationIndex = str[i++];
+	    if (collationIndex === '\u0000') {
+	      if (stack.length === 1) {
+	        return stack.pop();
+	      } else {
+	        pop(stack, metaStack);
+	        continue;
+	      }
+	    }
+	    switch (collationIndex) {
+	      case '1':
+	        stack.push(null);
+	        break;
+	      case '2':
+	        stack.push(str[i] === '1');
+	        i++;
+	        break;
+	      case '3':
+	        var parsedNum = parseNumber(str, i);
+	        stack.push(parsedNum.num);
+	        i += parsedNum.length;
+	        break;
+	      case '4':
+	        var parsedStr = '';
+	        /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
+	        while (true) {
+	          var ch = str[i];
+	          if (ch === '\u0000') {
+	            break;
+	          }
+	          parsedStr += ch;
+	          i++;
+	        }
+	        // perform the reverse of the order-preserving replacement
+	        // algorithm (see above)
+	        parsedStr = parsedStr.replace(/\u0001\u0001/g, '\u0000')
+	          .replace(/\u0001\u0002/g, '\u0001')
+	          .replace(/\u0002\u0002/g, '\u0002');
+	        stack.push(parsedStr);
+	        break;
+	      case '5':
+	        var arrayElement = { element: [], index: stack.length };
+	        stack.push(arrayElement.element);
+	        metaStack.push(arrayElement);
+	        break;
+	      case '6':
+	        var objElement = { element: {}, index: stack.length };
+	        stack.push(objElement.element);
+	        metaStack.push(objElement);
+	        break;
+	      /* istanbul ignore next */
+	      default:
+	        throw new Error(
+	          'bad collationIndex or unexpectedly reached end of input: ' +
+	            collationIndex);
+	    }
+	  }
+	}
+
+	function arrayCollate(a, b) {
+	  var len = Math.min(a.length, b.length);
+	  for (var i = 0; i < len; i++) {
+	    var sort = collate(a[i], b[i]);
+	    if (sort !== 0) {
+	      return sort;
+	    }
+	  }
+	  return (a.length === b.length) ? 0 :
+	    (a.length > b.length) ? 1 : -1;
+	}
+	function stringCollate(a, b) {
+	  // See: https://github.com/daleharvey/pouchdb/issues/40
+	  // This is incompatible with the CouchDB implementation, but its the
+	  // best we can do for now
+	  return (a === b) ? 0 : ((a > b) ? 1 : -1);
+	}
+	function objectCollate(a, b) {
+	  var ak = Object.keys(a), bk = Object.keys(b);
+	  var len = Math.min(ak.length, bk.length);
+	  for (var i = 0; i < len; i++) {
+	    // First sort the keys
+	    var sort = collate(ak[i], bk[i]);
+	    if (sort !== 0) {
+	      return sort;
+	    }
+	    // if the keys are equal sort the values
+	    sort = collate(a[ak[i]], b[bk[i]]);
+	    if (sort !== 0) {
+	      return sort;
+	    }
+
+	  }
+	  return (ak.length === bk.length) ? 0 :
+	    (ak.length > bk.length) ? 1 : -1;
+	}
+	// The collation is defined by erlangs ordered terms
+	// the atoms null, true, false come first, then numbers, strings,
+	// arrays, then objects
+	// null/undefined/NaN/Infinity/-Infinity are all considered null
+	function collationIndex(x) {
+	  var id = ['boolean', 'number', 'string', 'object'];
+	  var idx = id.indexOf(typeof x);
+	  //false if -1 otherwise true, but fast!!!!1
+	  if (~idx) {
+	    if (x === null) {
+	      return 1;
+	    }
+	    if (Array.isArray(x)) {
+	      return 5;
+	    }
+	    return idx < 3 ? (idx + 2) : (idx + 3);
+	  }
+	  /* istanbul ignore next */
+	  if (Array.isArray(x)) {
+	    return 5;
+	  }
+	}
+
+	// conversion:
+	// x yyy zz...zz
+	// x = 0 for negative, 1 for 0, 2 for positive
+	// y = exponent (for negative numbers negated) moved so that it's >= 0
+	// z = mantisse
+	function numToIndexableString(num) {
+
+	  if (num === 0) {
+	    return '1';
+	  }
+
+	  // convert number to exponential format for easier and
+	  // more succinct string sorting
+	  var expFormat = num.toExponential().split(/e\+?/);
+	  var magnitude = parseInt(expFormat[1], 10);
+
+	  var neg = num < 0;
+
+	  var result = neg ? '0' : '2';
+
+	  // first sort by magnitude
+	  // it's easier if all magnitudes are positive
+	  var magForComparison = ((neg ? -magnitude : magnitude) - MIN_MAGNITUDE);
+	  var magString = padLeft((magForComparison).toString(), '0', MAGNITUDE_DIGITS);
+
+	  result += SEP + magString;
+
+	  // then sort by the factor
+	  var factor = Math.abs(parseFloat(expFormat[0])); // [1..10)
+	  /* istanbul ignore next */
+	  if (neg) { // for negative reverse ordering
+	    factor = 10 - factor;
+	  }
+
+	  var factorStr = factor.toFixed(20);
+
+	  // strip zeros from the end
+	  factorStr = factorStr.replace(/\.?0+$/, '');
+
+	  result += SEP + factorStr;
+
+	  return result;
+	}
+
+	/*
+	 * Simple task queue to sequentialize actions. Assumes
+	 * callbacks will eventually fire (once).
+	 */
+
+	function TaskQueue$1() {
+	  this.promise = new PouchPromise(function (fulfill) {fulfill(); });
+	}
+	TaskQueue$1.prototype.add = function (promiseFactory) {
+	  this.promise = this.promise.catch(function () {
+	    // just recover
+	  }).then(function () {
+	    return promiseFactory();
+	  });
+	  return this.promise;
+	};
+	TaskQueue$1.prototype.finish = function () {
+	  return this.promise;
+	};
+
+	function createView(opts) {
+	  var sourceDB = opts.db;
+	  var viewName = opts.viewName;
+	  var mapFun = opts.map;
+	  var reduceFun = opts.reduce;
+	  var temporary = opts.temporary;
+
+	  // the "undefined" part is for backwards compatibility
+	  var viewSignature = mapFun.toString() + (reduceFun && reduceFun.toString()) +
+	    'undefined';
+
+	  var cachedViews;
+	  if (!temporary) {
+	    // cache this to ensure we don't try to update the same view twice
+	    cachedViews = sourceDB._cachedViews = sourceDB._cachedViews || {};
+	    if (cachedViews[viewSignature]) {
+	      return cachedViews[viewSignature];
+	    }
+	  }
+
+	  var promiseForView = sourceDB.info().then(function (info) {
+
+	    var depDbName = info.db_name + '-mrview-' +
+	      (temporary ? 'temp' : stringMd5(viewSignature));
+
+	    // save the view name in the source db so it can be cleaned up if necessary
+	    // (e.g. when the _design doc is deleted, remove all associated view data)
+	    function diffFunction(doc) {
+	      doc.views = doc.views || {};
+	      var fullViewName = viewName;
+	      if (fullViewName.indexOf('/') === -1) {
+	        fullViewName = viewName + '/' + viewName;
+	      }
+	      var depDbs = doc.views[fullViewName] = doc.views[fullViewName] || {};
+	      /* istanbul ignore if */
+	      if (depDbs[depDbName]) {
+	        return; // no update necessary
+	      }
+	      depDbs[depDbName] = true;
+	      return doc;
+	    }
+	    return upsert(sourceDB, '_local/mrviews', diffFunction).then(function () {
+	      return sourceDB.registerDependentDatabase(depDbName).then(function (res) {
+	        var db = res.db;
+	        db.auto_compaction = true;
+	        var view = {
+	          name: depDbName,
+	          db: db,
+	          sourceDB: sourceDB,
+	          adapter: sourceDB.adapter,
+	          mapFun: mapFun,
+	          reduceFun: reduceFun
+	        };
+	        return view.db.get('_local/lastSeq').catch(function (err) {
+	          /* istanbul ignore if */
+	          if (err.status !== 404) {
+	            throw err;
+	          }
+	        }).then(function (lastSeqDoc) {
+	          view.seq = lastSeqDoc ? lastSeqDoc.seq : 0;
+	          if (cachedViews) {
+	            view.db.once('destroyed', function () {
+	              delete cachedViews[viewSignature];
+	            });
+	          }
+	          return view;
+	        });
+	      });
+	    });
+	  });
+
+	  if (cachedViews) {
+	    cachedViews[viewSignature] = promiseForView;
+	  }
+	  return promiseForView;
+	}
+
+	function QueryParseError(message) {
+	  this.status = 400;
+	  this.name = 'query_parse_error';
+	  this.message = message;
+	  this.error = true;
+	  try {
+	    Error.captureStackTrace(this, QueryParseError);
+	  } catch (e) {}
+	}
+
+	inherits(QueryParseError, Error);
+
+	function NotFoundError(message) {
+	  this.status = 404;
+	  this.name = 'not_found';
+	  this.message = message;
+	  this.error = true;
+	  try {
+	    Error.captureStackTrace(this, NotFoundError);
+	  } catch (e) {}
+	}
+
+	inherits(NotFoundError, Error);
+
+	function BuiltInError(message) {
+	  this.status = 500;
+	  this.name = 'invalid_value';
+	  this.message = message;
+	  this.error = true;
+	  try {
+	    Error.captureStackTrace(this, BuiltInError);
+	  } catch (e) {}
+	}
+
+	inherits(BuiltInError, Error);
+
+	function createBuiltInError(name) {
+	  var message = 'builtin ' + name +
+	    ' function requires map values to be numbers' +
+	    ' or number arrays';
+	  return new BuiltInError(message);
+	}
+
+	function sum(values) {
+	  var result = 0;
+	  for (var i = 0, len = values.length; i < len; i++) {
+	    var num = values[i];
+	    if (typeof num !== 'number') {
+	      if (Array.isArray(num)) {
+	        // lists of numbers are also allowed, sum them separately
+	        result = typeof result === 'number' ? [result] : result;
+	        for (var j = 0, jLen = num.length; j < jLen; j++) {
+	          var jNum = num[j];
+	          if (typeof jNum !== 'number') {
+	            throw createBuiltInError('_sum');
+	          } else if (typeof result[j] === 'undefined') {
+	            result.push(jNum);
+	          } else {
+	            result[j] += jNum;
+	          }
+	        }
+	      } else { // not array/number
+	        throw createBuiltInError('_sum');
+	      }
+	    } else if (typeof result === 'number') {
+	      result += num;
+	    } else { // add number to array
+	      result[0] += num;
+	    }
+	  }
+	  return result;
+	}
+
+	var log$2 = guardedConsole.bind(null, 'log');
+	var isArray = Array.isArray;
+	var toJSON = JSON.parse;
+
+	function evalFunctionWithEval(func, emit) {
+	  return scopedEval(
+	    "return (" + func.replace(/;\s*$/, "") + ");",
+	    {
+	      emit: emit,
+	      sum: sum,
+	      log: log$2,
+	      isArray: isArray,
+	      toJSON: toJSON
+	    }
+	  );
+	}
+
+	var promisedCallback = function (promise, callback) {
+	  if (callback) {
+	    promise.then(function (res) {
+	      process.nextTick(function () {
+	        callback(null, res);
+	      });
+	    }, function (reason) {
+	      process.nextTick(function () {
+	        callback(reason);
+	      });
+	    });
+	  }
+	  return promise;
+	};
+
+	var callbackify = function (fun) {
+	  return getArguments(function (args) {
+	    var cb = args.pop();
+	    var promise = fun.apply(this, args);
+	    if (typeof cb === 'function') {
+	      promisedCallback(promise, cb);
+	    }
+	    return promise;
+	  });
+	};
+
+	// Promise finally util similar to Q.finally
+	var fin = function (promise, finalPromiseFactory) {
+	  return promise.then(function (res) {
+	    return finalPromiseFactory().then(function () {
+	      return res;
+	    });
+	  }, function (reason) {
+	    return finalPromiseFactory().then(function () {
+	      throw reason;
+	    });
+	  });
+	};
+
+	var sequentialize = function (queue, promiseFactory) {
+	  return function () {
+	    var args = arguments;
+	    var that = this;
+	    return queue.add(function () {
+	      return promiseFactory.apply(that, args);
+	    });
+	  };
+	};
+
+	// uniq an array of strings, order not guaranteed
+	// similar to underscore/lodash _.uniq
+	var uniq = function (arr) {
+	  var map = {};
+
+	  for (var i = 0, len = arr.length; i < len; i++) {
+	    map['$' + arr[i]] = true;
+	  }
+
+	  var keys = Object.keys(map);
+	  var output = new Array(keys.length);
+
+	  for (i = 0, len = keys.length; i < len; i++) {
+	    output[i] = keys[i].substring(1);
+	  }
+	  return output;
+	};
+
+	var persistentQueues = {};
+	var tempViewQueue = new TaskQueue$1();
+	var CHANGES_BATCH_SIZE$1 = 50;
+
+	function parseViewName(name) {
+	  // can be either 'ddocname/viewname' or just 'viewname'
+	  // (where the ddoc name is the same)
+	  return name.indexOf('/') === -1 ? [name, name] : name.split('/');
+	}
+
+	function isGenOne(changes) {
+	  // only return true if the current change is 1-
+	  // and there are no other leafs
+	  return changes.length === 1 && /^1-/.test(changes[0].rev);
+	}
+
+	function emitError(db, e) {
+	  try {
+	    db.emit('error', e);
+	  } catch (err) {
+	    guardedConsole('error',
+	      'The user\'s map/reduce function threw an uncaught error.\n' +
+	      'You can debug this error by doing:\n' +
+	      'myDatabase.on(\'error\', function (err) { debugger; });\n' +
+	      'Please double-check your map/reduce function.');
+	    guardedConsole('error', e);
+	  }
+	}
+
+	function tryCode$1(db, fun, args) {
+	  // emit an event if there was an error thrown by a map/reduce function.
+	  // putting try/catches in a single function also avoids deoptimizations.
+	  try {
+	    return {
+	      output : fun.apply(null, args)
+	    };
+	  } catch (e) {
+	    emitError(db, e);
+	    return {error: e};
+	  }
+	}
+
+	function sortByKeyThenValue(x, y) {
+	  var keyCompare = collate(x.key, y.key);
+	  return keyCompare !== 0 ? keyCompare : collate(x.value, y.value);
+	}
+
+	function sliceResults(results, limit, skip) {
+	  skip = skip || 0;
+	  if (typeof limit === 'number') {
+	    return results.slice(skip, limit + skip);
+	  } else if (skip > 0) {
+	    return results.slice(skip);
+	  }
+	  return results;
+	}
+
+	function rowToDocId(row) {
+	  var val = row.value;
+	  // Users can explicitly specify a joined doc _id, or it
+	  // defaults to the doc _id that emitted the key/value.
+	  var docId = (val && typeof val === 'object' && val._id) || row.id;
+	  return docId;
+	}
+
+	function readAttachmentsAsBlobOrBuffer$1(res) {
+	  res.rows.forEach(function (row) {
+	    var atts = row.doc && row.doc._attachments;
+	    if (!atts) {
+	      return;
+	    }
+	    Object.keys(atts).forEach(function (filename) {
+	      var att = atts[filename];
+	      atts[filename].data = b64ToBluffer(att.data, att.content_type);
+	    });
+	  });
+	}
+
+	function postprocessAttachments(opts) {
+	  return function (res) {
+	    if (opts.include_docs && opts.attachments && opts.binary) {
+	      readAttachmentsAsBlobOrBuffer$1(res);
+	    }
+	    return res;
+	  };
+	}
+
+	var builtInReduce = {
+	  _sum: function (keys, values) {
+	    return sum(values);
+	  },
+
+	  _count: function (keys, values) {
+	    return values.length;
+	  },
+
+	  _stats: function (keys, values) {
+	    // no need to implement rereduce=true, because Pouch
+	    // will never call it
+	    function sumsqr(values) {
+	      var _sumsqr = 0;
+	      for (var i = 0, len = values.length; i < len; i++) {
+	        var num = values[i];
+	        _sumsqr += (num * num);
+	      }
+	      return _sumsqr;
+	    }
+	    return {
+	      sum     : sum(values),
+	      min     : Math.min.apply(null, values),
+	      max     : Math.max.apply(null, values),
+	      count   : values.length,
+	      sumsqr : sumsqr(values)
+	    };
+	  }
+	};
+
+	function addHttpParam(paramName, opts, params, asJson) {
+	  // add an http param from opts to params, optionally json-encoded
+	  var val = opts[paramName];
+	  if (typeof val !== 'undefined') {
+	    if (asJson) {
+	      val = encodeURIComponent(JSON.stringify(val));
+	    }
+	    params.push(paramName + '=' + val);
+	  }
+	}
+
+	function coerceInteger(integerCandidate) {
+	  if (typeof integerCandidate !== 'undefined') {
+	    var asNumber = Number(integerCandidate);
+	    // prevents e.g. '1foo' or '1.1' being coerced to 1
+	    if (!isNaN(asNumber) && asNumber === parseInt(integerCandidate, 10)) {
+	      return asNumber;
+	    } else {
+	      return integerCandidate;
+	    }
+	  }
+	}
+
+	function coerceOptions(opts) {
+	  opts.group_level = coerceInteger(opts.group_level);
+	  opts.limit = coerceInteger(opts.limit);
+	  opts.skip = coerceInteger(opts.skip);
+	  return opts;
+	}
+
+	function checkPositiveInteger(number) {
+	  if (number) {
+	    if (typeof number !== 'number') {
+	      return  new QueryParseError('Invalid value for integer: "' +
+	      number + '"');
+	    }
+	    if (number < 0) {
+	      return new QueryParseError('Invalid value for positive integer: ' +
+	        '"' + number + '"');
+	    }
+	  }
+	}
+
+	function checkQueryParseError(options, fun) {
+	  var startkeyName = options.descending ? 'endkey' : 'startkey';
+	  var endkeyName = options.descending ? 'startkey' : 'endkey';
+
+	  if (typeof options[startkeyName] !== 'undefined' &&
+	    typeof options[endkeyName] !== 'undefined' &&
+	    collate(options[startkeyName], options[endkeyName]) > 0) {
+	    throw new QueryParseError('No rows can match your key range, ' +
+	    'reverse your start_key and end_key or set {descending : true}');
+	  } else if (fun.reduce && options.reduce !== false) {
+	    if (options.include_docs) {
+	      throw new QueryParseError('{include_docs:true} is invalid for reduce');
+	    } else if (options.keys && options.keys.length > 1 &&
+	        !options.group && !options.group_level) {
+	      throw new QueryParseError('Multi-key fetches for reduce views must use ' +
+	      '{group: true}');
+	    }
+	  }
+	  ['group_level', 'limit', 'skip'].forEach(function (optionName) {
+	    var error = checkPositiveInteger(options[optionName]);
+	    if (error) {
+	      throw error;
+	    }
+	  });
+	}
+
+	function httpQuery(db, fun, opts) {
+	  // List of parameters to add to the PUT request
+	  var params = [];
+	  var body;
+	  var method = 'GET';
+
+	  // If opts.reduce exists and is defined, then add it to the list
+	  // of parameters.
+	  // If reduce=false then the results are that of only the map function
+	  // not the final result of map and reduce.
+	  addHttpParam('reduce', opts, params);
+	  addHttpParam('include_docs', opts, params);
+	  addHttpParam('attachments', opts, params);
+	  addHttpParam('limit', opts, params);
+	  addHttpParam('descending', opts, params);
+	  addHttpParam('group', opts, params);
+	  addHttpParam('group_level', opts, params);
+	  addHttpParam('skip', opts, params);
+	  addHttpParam('stale', opts, params);
+	  addHttpParam('conflicts', opts, params);
+	  addHttpParam('startkey', opts, params, true);
+	  addHttpParam('start_key', opts, params, true);
+	  addHttpParam('endkey', opts, params, true);
+	  addHttpParam('end_key', opts, params, true);
+	  addHttpParam('inclusive_end', opts, params);
+	  addHttpParam('key', opts, params, true);
+
+	  // Format the list of parameters into a valid URI query string
+	  params = params.join('&');
+	  params = params === '' ? '' : '?' + params;
+
+	  // If keys are supplied, issue a POST to circumvent GET query string limits
+	  // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
+	  if (typeof opts.keys !== 'undefined') {
+	    var MAX_URL_LENGTH = 2000;
+	    // according to http://stackoverflow.com/a/417184/680742,
+	    // the de facto URL length limit is 2000 characters
+
+	    var keysAsString =
+	      'keys=' + encodeURIComponent(JSON.stringify(opts.keys));
+	    if (keysAsString.length + params.length + 1 <= MAX_URL_LENGTH) {
+	      // If the keys are short enough, do a GET. we do this to work around
+	      // Safari not understanding 304s on POSTs (see pouchdb/pouchdb#1239)
+	      params += (params[0] === '?' ? '&' : '?') + keysAsString;
+	    } else {
+	      method = 'POST';
+	      if (typeof fun === 'string') {
+	        body = {keys: opts.keys};
+	      } else { // fun is {map : mapfun}, so append to this
+	        fun.keys = opts.keys;
+	      }
+	    }
+	  }
+
+	  // We are referencing a query defined in the design doc
+	  if (typeof fun === 'string') {
+	    var parts = parseViewName(fun);
+	    return db.request({
+	      method: method,
+	      url: '_design/' + parts[0] + '/_view/' + parts[1] + params,
+	      body: body
+	    }).then(postprocessAttachments(opts));
+	  }
+
+	  // We are using a temporary view, terrible for performance, good for testing
+	  body = body || {};
+	  Object.keys(fun).forEach(function (key) {
+	    if (Array.isArray(fun[key])) {
+	      body[key] = fun[key];
+	    } else {
+	      body[key] = fun[key].toString();
+	    }
+	  });
+	  return db.request({
+	    method: 'POST',
+	    url: '_temp_view' + params,
+	    body: body
+	  }).then(postprocessAttachments(opts));
+	}
+
+	// custom adapters can define their own api._query
+	// and override the default behavior
+	/* istanbul ignore next */
+	function customQuery(db, fun, opts) {
+	  return new PouchPromise(function (resolve, reject) {
+	    db._query(fun, opts, function (err, res) {
+	      if (err) {
+	        return reject(err);
+	      }
+	      resolve(res);
+	    });
+	  });
+	}
+
+	// custom adapters can define their own api._viewCleanup
+	// and override the default behavior
+	/* istanbul ignore next */
+	function customViewCleanup(db) {
+	  return new PouchPromise(function (resolve, reject) {
+	    db._viewCleanup(function (err, res) {
+	      if (err) {
+	        return reject(err);
+	      }
+	      resolve(res);
+	    });
+	  });
+	}
+
+	function defaultsTo(value) {
+	  return function (reason) {
+	    /* istanbul ignore else */
+	    if (reason.status === 404) {
+	      return value;
+	    } else {
+	      throw reason;
+	    }
+	  };
+	}
+
+	// returns a promise for a list of docs to update, based on the input docId.
+	// the order doesn't matter, because post-3.2.0, bulkDocs
+	// is an atomic operation in all three adapters.
+	function getDocsToPersist(docId, view, docIdsToChangesAndEmits) {
+	  var metaDocId = '_local/doc_' + docId;
+	  var defaultMetaDoc = {_id: metaDocId, keys: []};
+	  var docData = docIdsToChangesAndEmits[docId];
+	  var indexableKeysToKeyValues = docData.indexableKeysToKeyValues;
+	  var changes = docData.changes;
+
+	  function getMetaDoc() {
+	    if (isGenOne(changes)) {
+	      // generation 1, so we can safely assume initial state
+	      // for performance reasons (avoids unnecessary GETs)
+	      return PouchPromise.resolve(defaultMetaDoc);
+	    }
+	    return view.db.get(metaDocId).catch(defaultsTo(defaultMetaDoc));
+	  }
+
+	  function getKeyValueDocs(metaDoc) {
+	    if (!metaDoc.keys.length) {
+	      // no keys, no need for a lookup
+	      return PouchPromise.resolve({rows: []});
+	    }
+	    return view.db.allDocs({
+	      keys: metaDoc.keys,
+	      include_docs: true
+	    });
+	  }
+
+	  function processKvDocs(metaDoc, kvDocsRes) {
+	    var kvDocs = [];
+	    var oldKeysMap = {};
+
+	    for (var i = 0, len = kvDocsRes.rows.length; i < len; i++) {
+	      var row = kvDocsRes.rows[i];
+	      var doc = row.doc;
+	      if (!doc) { // deleted
+	        continue;
+	      }
+	      kvDocs.push(doc);
+	      oldKeysMap[doc._id] = true;
+	      doc._deleted = !indexableKeysToKeyValues[doc._id];
+	      if (!doc._deleted) {
+	        var keyValue = indexableKeysToKeyValues[doc._id];
+	        if ('value' in keyValue) {
+	          doc.value = keyValue.value;
+	        }
+	      }
+	    }
+
+	    var newKeys = Object.keys(indexableKeysToKeyValues);
+	    newKeys.forEach(function (key) {
+	      if (!oldKeysMap[key]) {
+	        // new doc
+	        var kvDoc = {
+	          _id: key
+	        };
+	        var keyValue = indexableKeysToKeyValues[key];
+	        if ('value' in keyValue) {
+	          kvDoc.value = keyValue.value;
+	        }
+	        kvDocs.push(kvDoc);
+	      }
+	    });
+	    metaDoc.keys = uniq(newKeys.concat(metaDoc.keys));
+	    kvDocs.push(metaDoc);
+
+	    return kvDocs;
+	  }
+
+	  return getMetaDoc().then(function (metaDoc) {
+	    return getKeyValueDocs(metaDoc).then(function (kvDocsRes) {
+	      return processKvDocs(metaDoc, kvDocsRes);
+	    });
+	  });
+	}
+
+	// updates all emitted key/value docs and metaDocs in the mrview database
+	// for the given batch of documents from the source database
+	function saveKeyValues(view, docIdsToChangesAndEmits, seq) {
+	  var seqDocId = '_local/lastSeq';
+	  return view.db.get(seqDocId)
+	  .catch(defaultsTo({_id: seqDocId, seq: 0}))
+	  .then(function (lastSeqDoc) {
+	    var docIds = Object.keys(docIdsToChangesAndEmits);
+	    return PouchPromise.all(docIds.map(function (docId) {
+	      return getDocsToPersist(docId, view, docIdsToChangesAndEmits);
+	    })).then(function (listOfDocsToPersist) {
+	      var docsToPersist = flatten(listOfDocsToPersist);
+	      lastSeqDoc.seq = seq;
+	      docsToPersist.push(lastSeqDoc);
+	      // write all docs in a single operation, update the seq once
+	      return view.db.bulkDocs({docs : docsToPersist});
+	    });
+	  });
+	}
+
+	function getQueue(view) {
+	  var viewName = typeof view === 'string' ? view : view.name;
+	  var queue = persistentQueues[viewName];
+	  if (!queue) {
+	    queue = persistentQueues[viewName] = new TaskQueue$1();
+	  }
+	  return queue;
+	}
+
+	function updateView(view) {
+	  return sequentialize(getQueue(view), function () {
+	    return updateViewInQueue(view);
+	  })();
+	}
+
+	function updateViewInQueue(view) {
+	  // bind the emit function once
+	  var mapResults;
+	  var doc;
+
+	  function emit(key, value) {
+	    var output = {id: doc._id, key: normalizeKey(key)};
+	    // Don't explicitly store the value unless it's defined and non-null.
+	    // This saves on storage space, because often people don't use it.
+	    if (typeof value !== 'undefined' && value !== null) {
+	      output.value = normalizeKey(value);
+	    }
+	    mapResults.push(output);
+	  }
+
+	  var mapFun;
+	  // for temp_views one can use emit(doc, emit), see #38
+	  if (typeof view.mapFun === "function" && view.mapFun.length === 2) {
+	    var origMap = view.mapFun;
+	    mapFun = function (doc) {
+	      return origMap(doc, emit);
+	    };
+	  } else {
+	    mapFun = evalFunctionWithEval(view.mapFun.toString(), emit);
+	  }
+
+	  var currentSeq = view.seq || 0;
+
+	  function processChange(docIdsToChangesAndEmits, seq) {
+	    return function () {
+	      return saveKeyValues(view, docIdsToChangesAndEmits, seq);
+	    };
+	  }
+
+	  var queue = new TaskQueue$1();
+	  // TODO(neojski): https://github.com/daleharvey/pouchdb/issues/1521
+
+	  return new PouchPromise(function (resolve, reject) {
+
+	    function complete() {
+	      queue.finish().then(function () {
+	        view.seq = currentSeq;
+	        resolve();
+	      });
+	    }
+
+	    function processNextBatch() {
+	      view.sourceDB.changes({
+	        conflicts: true,
+	        include_docs: true,
+	        style: 'all_docs',
+	        since: currentSeq,
+	        limit: CHANGES_BATCH_SIZE$1
+	      }).on('complete', function (response) {
+	        var results = response.results;
+	        if (!results.length) {
+	          return complete();
+	        }
+	        var docIdsToChangesAndEmits = {};
+	        for (var i = 0, l = results.length; i < l; i++) {
+	          var change = results[i];
+	          if (change.doc._id[0] !== '_') {
+	            mapResults = [];
+	            doc = change.doc;
+
+	            if (!doc._deleted) {
+	              tryCode$1(view.sourceDB, mapFun, [doc]);
+	            }
+	            mapResults.sort(sortByKeyThenValue);
+
+	            var indexableKeysToKeyValues = {};
+	            var lastKey;
+	            for (var j = 0, jl = mapResults.length; j < jl; j++) {
+	              var obj = mapResults[j];
+	              var complexKey = [obj.key, obj.id];
+	              if (collate(obj.key, lastKey) === 0) {
+	                complexKey.push(j); // dup key+id, so make it unique
+	              }
+	              var indexableKey = toIndexableString(complexKey);
+	              indexableKeysToKeyValues[indexableKey] = obj;
+	              lastKey = obj.key;
+	            }
+	            docIdsToChangesAndEmits[change.doc._id] = {
+	              indexableKeysToKeyValues: indexableKeysToKeyValues,
+	              changes: change.changes
+	            };
+	          }
+	          currentSeq = change.seq;
+	        }
+	        queue.add(processChange(docIdsToChangesAndEmits, currentSeq));
+	        if (results.length < CHANGES_BATCH_SIZE$1) {
+	          return complete();
+	        }
+	        return processNextBatch();
+	      }).on('error', onError);
+	      /* istanbul ignore next */
+	      function onError(err) {
+	        reject(err);
+	      }
+	    }
+
+	    processNextBatch();
+	  });
+	}
+
+	function reduceView(view, results, options) {
+	  if (options.group_level === 0) {
+	    delete options.group_level;
+	  }
+
+	  var shouldGroup = options.group || options.group_level;
+
+	  var reduceFun;
+	  if (builtInReduce[view.reduceFun]) {
+	    reduceFun = builtInReduce[view.reduceFun];
+	  } else {
+	    reduceFun = evalFunctionWithEval(view.reduceFun.toString());
+	  }
+
+	  var groups = [];
+	  var lvl = isNaN(options.group_level) ? Number.POSITIVE_INFINITY :
+	    options.group_level;
+	  results.forEach(function (e) {
+	    var last = groups[groups.length - 1];
+	    var groupKey = shouldGroup ? e.key : null;
+
+	    // only set group_level for array keys
+	    if (shouldGroup && Array.isArray(groupKey)) {
+	      groupKey = groupKey.slice(0, lvl);
+	    }
+
+	    if (last && collate(last.groupKey, groupKey) === 0) {
+	      last.keys.push([e.key, e.id]);
+	      last.values.push(e.value);
+	      return;
+	    }
+	    groups.push({
+	      keys: [[e.key, e.id]],
+	      values: [e.value],
+	      groupKey: groupKey
+	    });
+	  });
+	  results = [];
+	  for (var i = 0, len = groups.length; i < len; i++) {
+	    var e = groups[i];
+	    var reduceTry = tryCode$1(view.sourceDB, reduceFun,
+	      [e.keys, e.values, false]);
+	    if (reduceTry.error && reduceTry.error instanceof BuiltInError) {
+	      // CouchDB returns an error if a built-in errors out
+	      throw reduceTry.error;
+	    }
+	    results.push({
+	      // CouchDB just sets the value to null if a non-built-in errors out
+	      value: reduceTry.error ? null : reduceTry.output,
+	      key: e.groupKey
+	    });
+	  }
+	  // no total_rows/offset when reducing
+	  return {rows: sliceResults(results, options.limit, options.skip)};
+	}
+
+	function queryView(view, opts) {
+	  return sequentialize(getQueue(view), function () {
+	    return queryViewInQueue(view, opts);
+	  })();
+	}
+
+	function queryViewInQueue(view, opts) {
+	  var totalRows;
+	  var shouldReduce = view.reduceFun && opts.reduce !== false;
+	  var skip = opts.skip || 0;
+	  if (typeof opts.keys !== 'undefined' && !opts.keys.length) {
+	    // equivalent query
+	    opts.limit = 0;
+	    delete opts.keys;
+	  }
+
+	  function fetchFromView(viewOpts) {
+	    viewOpts.include_docs = true;
+	    return view.db.allDocs(viewOpts).then(function (res) {
+	      totalRows = res.total_rows;
+	      return res.rows.map(function (result) {
+
+	        // implicit migration - in older versions of PouchDB,
+	        // we explicitly stored the doc as {id: ..., key: ..., value: ...}
+	        // this is tested in a migration test
+	        /* istanbul ignore next */
+	        if ('value' in result.doc && typeof result.doc.value === 'object' &&
+	            result.doc.value !== null) {
+	          var keys = Object.keys(result.doc.value).sort();
+	          // this detection method is not perfect, but it's unlikely the user
+	          // emitted a value which was an object with these 3 exact keys
+	          var expectedKeys = ['id', 'key', 'value'];
+	          if (!(keys < expectedKeys || keys > expectedKeys)) {
+	            return result.doc.value;
+	          }
+	        }
+
+	        var parsedKeyAndDocId = parseIndexableString(result.doc._id);
+	        return {
+	          key: parsedKeyAndDocId[0],
+	          id: parsedKeyAndDocId[1],
+	          value: ('value' in result.doc ? result.doc.value : null)
+	        };
+	      });
+	    });
+	  }
+
+	  function onMapResultsReady(rows) {
+	    var finalResults;
+	    if (shouldReduce) {
+	      finalResults = reduceView(view, rows, opts);
+	    } else {
+	      finalResults = {
+	        total_rows: totalRows,
+	        offset: skip,
+	        rows: rows
+	      };
+	    }
+	    if (opts.include_docs) {
+	      var docIds = uniq(rows.map(rowToDocId));
+
+	      return view.sourceDB.allDocs({
+	        keys: docIds,
+	        include_docs: true,
+	        conflicts: opts.conflicts,
+	        attachments: opts.attachments,
+	        binary: opts.binary
+	      }).then(function (allDocsRes) {
+	        var docIdsToDocs = {};
+	        allDocsRes.rows.forEach(function (row) {
+	          if (row.doc) {
+	            docIdsToDocs['$' + row.id] = row.doc;
+	          }
+	        });
+	        rows.forEach(function (row) {
+	          var docId = rowToDocId(row);
+	          var doc = docIdsToDocs['$' + docId];
+	          if (doc) {
+	            row.doc = doc;
+	          }
+	        });
+	        return finalResults;
+	      });
+	    } else {
+	      return finalResults;
+	    }
+	  }
+
+	  if (typeof opts.keys !== 'undefined') {
+	    var keys = opts.keys;
+	    var fetchPromises = keys.map(function (key) {
+	      var viewOpts = {
+	        startkey : toIndexableString([key]),
+	        endkey   : toIndexableString([key, {}])
+	      };
+	      return fetchFromView(viewOpts);
+	    });
+	    return PouchPromise.all(fetchPromises).then(flatten).then(onMapResultsReady);
+	  } else { // normal query, no 'keys'
+	    var viewOpts = {
+	      descending : opts.descending
+	    };
+	    if (opts.start_key) {
+	        opts.startkey = opts.start_key;
+	    }
+	    if (opts.end_key) {
+	        opts.endkey = opts.end_key;
+	    }
+	    if (typeof opts.startkey !== 'undefined') {
+	      viewOpts.startkey = opts.descending ?
+	        toIndexableString([opts.startkey, {}]) :
+	        toIndexableString([opts.startkey]);
+	    }
+	    if (typeof opts.endkey !== 'undefined') {
+	      var inclusiveEnd = opts.inclusive_end !== false;
+	      if (opts.descending) {
+	        inclusiveEnd = !inclusiveEnd;
+	      }
+
+	      viewOpts.endkey = toIndexableString(
+	        inclusiveEnd ? [opts.endkey, {}] : [opts.endkey]);
+	    }
+	    if (typeof opts.key !== 'undefined') {
+	      var keyStart = toIndexableString([opts.key]);
+	      var keyEnd = toIndexableString([opts.key, {}]);
+	      if (viewOpts.descending) {
+	        viewOpts.endkey = keyStart;
+	        viewOpts.startkey = keyEnd;
+	      } else {
+	        viewOpts.startkey = keyStart;
+	        viewOpts.endkey = keyEnd;
+	      }
+	    }
+	    if (!shouldReduce) {
+	      if (typeof opts.limit === 'number') {
+	        viewOpts.limit = opts.limit;
+	      }
+	      viewOpts.skip = skip;
+	    }
+	    return fetchFromView(viewOpts).then(onMapResultsReady);
+	  }
+	}
+
+	function httpViewCleanup(db) {
+	  return db.request({
+	    method: 'POST',
+	    url: '_view_cleanup'
+	  });
+	}
+
+	function localViewCleanup(db) {
+	  return db.get('_local/mrviews').then(function (metaDoc) {
+	    var docsToViews = {};
+	    Object.keys(metaDoc.views).forEach(function (fullViewName) {
+	      var parts = parseViewName(fullViewName);
+	      var designDocName = '_design/' + parts[0];
+	      var viewName = parts[1];
+	      docsToViews[designDocName] = docsToViews[designDocName] || {};
+	      docsToViews[designDocName][viewName] = true;
+	    });
+	    var opts = {
+	      keys : Object.keys(docsToViews),
+	      include_docs : true
+	    };
+	    return db.allDocs(opts).then(function (res) {
+	      var viewsToStatus = {};
+	      res.rows.forEach(function (row) {
+	        var ddocName = row.key.substring(8);
+	        Object.keys(docsToViews[row.key]).forEach(function (viewName) {
+	          var fullViewName = ddocName + '/' + viewName;
+	          /* istanbul ignore if */
+	          if (!metaDoc.views[fullViewName]) {
+	            // new format, without slashes, to support PouchDB 2.2.0
+	            // migration test in pouchdb's browser.migration.js verifies this
+	            fullViewName = viewName;
+	          }
+	          var viewDBNames = Object.keys(metaDoc.views[fullViewName]);
+	          // design doc deleted, or view function nonexistent
+	          var statusIsGood = row.doc && row.doc.views &&
+	            row.doc.views[viewName];
+	          viewDBNames.forEach(function (viewDBName) {
+	            viewsToStatus[viewDBName] =
+	              viewsToStatus[viewDBName] || statusIsGood;
+	          });
+	        });
+	      });
+	      var dbsToDelete = Object.keys(viewsToStatus).filter(
+	        function (viewDBName) { return !viewsToStatus[viewDBName]; });
+	      var destroyPromises = dbsToDelete.map(function (viewDBName) {
+	        return sequentialize(getQueue(viewDBName), function () {
+	          return new db.constructor(viewDBName, db.__opts).destroy();
+	        })();
+	      });
+	      return PouchPromise.all(destroyPromises).then(function () {
+	        return {ok: true};
+	      });
+	    });
+	  }, defaultsTo({ok: true}));
+	}
+
+	var viewCleanup = callbackify(function () {
+	  var db = this;
+	  if (db.type() === 'http') {
+	    return httpViewCleanup(db);
+	  }
+	  /* istanbul ignore next */
+	  if (typeof db._viewCleanup === 'function') {
+	    return customViewCleanup(db);
+	  }
+	  return localViewCleanup(db);
+	});
+
+	function queryPromised(db, fun, opts) {
+	  if (db.type() === 'http') {
+	    return httpQuery(db, fun, opts);
+	  }
+
+	  /* istanbul ignore next */
+	  if (typeof db._query === 'function') {
+	    return customQuery(db, fun, opts);
+	  }
+
+	  if (typeof fun !== 'string') {
+	    // temp_view
+	    checkQueryParseError(opts, fun);
+
+	    var createViewOpts = {
+	      db : db,
+	      viewName : 'temp_view/temp_view',
+	      map : fun.map,
+	      reduce : fun.reduce,
+	      temporary : true
+	    };
+	    tempViewQueue.add(function () {
+	      return createView(createViewOpts).then(function (view) {
+	        function cleanup() {
+	          return view.db.destroy();
+	        }
+	        return fin(updateView(view).then(function () {
+	          return queryView(view, opts);
+	        }), cleanup);
+	      });
+	    });
+	    return tempViewQueue.finish();
+	  } else {
+	    // persistent view
+	    var fullViewName = fun;
+	    var parts = parseViewName(fullViewName);
+	    var designDocName = parts[0];
+	    var viewName = parts[1];
+	    return db.get('_design/' + designDocName).then(function (doc) {
+	      var fun = doc.views && doc.views[viewName];
+
+	      if (!fun || typeof fun.map !== 'string') {
+	        throw new NotFoundError('ddoc ' + designDocName +
+	        ' has no view named ' + viewName);
+	      }
+	      checkQueryParseError(opts, fun);
+
+	      var createViewOpts = {
+	        db : db,
+	        viewName : fullViewName,
+	        map : fun.map,
+	        reduce : fun.reduce
+	      };
+	      return createView(createViewOpts).then(function (view) {
+	        if (opts.stale === 'ok' || opts.stale === 'update_after') {
+	          if (opts.stale === 'update_after') {
+	            process.nextTick(function () {
+	              updateView(view);
+	            });
+	          }
+	          return queryView(view, opts);
+	        } else { // stale not ok
+	          return updateView(view).then(function () {
+	            return queryView(view, opts);
+	          });
+	        }
+	      });
+	    });
+	  }
+	}
+
+	var query = function (fun, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+	  opts = opts ? coerceOptions(opts) : {};
+
+	  if (typeof fun === 'function') {
+	    fun = {map : fun};
+	  }
+
+	  var db = this;
+	  var promise = PouchPromise.resolve().then(function () {
+	    return queryPromised(db, fun, opts);
+	  });
+	  promisedCallback(promise, callback);
+	  return promise;
+	};
+
+
+	var mapreduce = {
+	  query: query,
+	  viewCleanup: viewCleanup
+	};
+
+	function isGenOne$1(rev) {
+	  return /^1-/.test(rev);
+	}
+
+	function fileHasChanged(localDoc, remoteDoc, filename) {
+	  return !localDoc._attachments ||
+	         !localDoc._attachments[filename] ||
+	         localDoc._attachments[filename].digest !== remoteDoc._attachments[filename].digest;
+	}
+
+	function getDocAttachments(db, doc) {
+	  var filenames = Object.keys(doc._attachments);
+	  return PouchPromise.all(filenames.map(function (filename) {
+	    return db.getAttachment(doc._id, filename, {rev: doc._rev});
+	  }));
+	}
+
+	function getDocAttachmentsFromTargetOrSource(target, src, doc) {
+	  var doCheckForLocalAttachments = src.type() === 'http' && target.type() !== 'http';
+	  var filenames = Object.keys(doc._attachments);
+
+	  if (!doCheckForLocalAttachments) {
+	    return getDocAttachments(src, doc);
+	  }
+
+	  return target.get(doc._id).then(function (localDoc) {
+	    return PouchPromise.all(filenames.map(function (filename) {
+	      if (fileHasChanged(localDoc, doc, filename)) {
+	        return src.getAttachment(doc._id, filename);
+	      }
+
+	      return target.getAttachment(localDoc._id, filename);
+	    }));
+	  }).catch(function (error) {
+	    /* istanbul ignore if */
+	    if (error.status !== 404) {
+	      throw error;
+	    }
+
+	    return getDocAttachments(src, doc);
+	  });
+	}
+
+	function createBulkGetOpts(diffs) {
+	  var requests = [];
+	  Object.keys(diffs).forEach(function (id) {
+	    var missingRevs = diffs[id].missing;
+	    missingRevs.forEach(function (missingRev) {
+	      requests.push({
+	        id: id,
+	        rev: missingRev
+	      });
+	    });
+	  });
+
+	  return {
+	    docs: requests,
+	    revs: true
+	  };
+	}
+
+	//
+	// Fetch all the documents from the src as described in the "diffs",
+	// which is a mapping of docs IDs to revisions. If the state ever
+	// changes to "cancelled", then the returned promise will be rejected.
+	// Else it will be resolved with a list of fetched documents.
+	//
+	function getDocs(src, target, diffs, state) {
+	  diffs = clone(diffs); // we do not need to modify this
+
+	  var resultDocs = [],
+	      ok = true;
+
+	  function getAllDocs() {
+
+	    var bulkGetOpts = createBulkGetOpts(diffs);
+
+	    if (!bulkGetOpts.docs.length) { // optimization: skip empty requests
+	      return;
+	    }
+
+	    return src.bulkGet(bulkGetOpts).then(function (bulkGetResponse) {
+	      /* istanbul ignore if */
+	      if (state.cancelled) {
+	        throw new Error('cancelled');
+	      }
+	      return PouchPromise.all(bulkGetResponse.results.map(function (bulkGetInfo) {
+	        return PouchPromise.all(bulkGetInfo.docs.map(function (doc) {
+	          var remoteDoc = doc.ok;
+
+	          if (doc.error) {
+	            // when AUTO_COMPACTION is set, docs can be returned which look
+	            // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
+	            ok = false;
+	          }
+
+	          if (!remoteDoc || !remoteDoc._attachments) {
+	            return remoteDoc;
+	          }
+
+	          return getDocAttachmentsFromTargetOrSource(target, src, remoteDoc).then(function (attachments) {
+	            var filenames = Object.keys(remoteDoc._attachments);
+	            attachments.forEach(function (attachment, i) {
+	              var att = remoteDoc._attachments[filenames[i]];
+	              delete att.stub;
+	              delete att.length;
+	              att.data = attachment;
+	            });
+
+	            return remoteDoc;
+	          });
+	        }));
+	      }))
+
+	      .then(function (results) {
+	        resultDocs = resultDocs.concat(flatten(results).filter(Boolean));
+	      });
+	    });
+	  }
+
+	  function hasAttachments(doc) {
+	    return doc._attachments && Object.keys(doc._attachments).length > 0;
+	  }
+
+	  function fetchRevisionOneDocs(ids) {
+	    // Optimization: fetch gen-1 docs and attachments in
+	    // a single request using _all_docs
+	    return src.allDocs({
+	      keys: ids,
+	      include_docs: true
+	    }).then(function (res) {
+	      if (state.cancelled) {
+	        throw new Error('cancelled');
+	      }
+	      res.rows.forEach(function (row) {
+	        if (row.deleted || !row.doc || !isGenOne$1(row.value.rev) ||
+	            hasAttachments(row.doc)) {
+	          // if any of these conditions apply, we need to fetch using get()
+	          return;
+	        }
+
+	        // the doc we got back from allDocs() is sufficient
+	        resultDocs.push(row.doc);
+	        delete diffs[row.id];
+	      });
+	    });
+	  }
+
+	  function getRevisionOneDocs() {
+	    // filter out the generation 1 docs and get them
+	    // leaving the non-generation one docs to be got otherwise
+	    var ids = Object.keys(diffs).filter(function (id) {
+	      var missing = diffs[id].missing;
+	      return missing.length === 1 && isGenOne$1(missing[0]);
+	    });
+	    if (ids.length > 0) {
+	      return fetchRevisionOneDocs(ids);
+	    }
+	  }
+
+	  function returnResult() {
+	    return { ok:ok, docs:resultDocs };
+	  }
+
+	  return PouchPromise.resolve()
+	    .then(getRevisionOneDocs)
+	    .then(getAllDocs)
+	    .then(returnResult);
+	}
+
+	var CHECKPOINT_VERSION = 1;
+	var REPLICATOR = "pouchdb";
+	// This is an arbitrary number to limit the
+	// amount of replication history we save in the checkpoint.
+	// If we save too much, the checkpoing docs will become very big,
+	// if we save fewer, we'll run a greater risk of having to
+	// read all the changes from 0 when checkpoint PUTs fail
+	// CouchDB 2.0 has a more involved history pruning,
+	// but let's go for the simple version for now.
+	var CHECKPOINT_HISTORY_SIZE = 5;
+	var LOWEST_SEQ = 0;
+
+	function updateCheckpoint(db, id, checkpoint, session, returnValue) {
+	  return db.get(id).catch(function (err) {
+	    if (err.status === 404) {
+	      if (db.type() === 'http') {
+	        explainError(
+	          404, 'PouchDB is just checking if a remote checkpoint exists.'
+	        );
+	      }
+	      return {
+	        session_id: session,
+	        _id: id,
+	        history: [],
+	        replicator: REPLICATOR,
+	        version: CHECKPOINT_VERSION
+	      };
+	    }
+	    throw err;
+	  }).then(function (doc) {
+	    if (returnValue.cancelled) {
+	      return;
+	    }
+
+	    // if the checkpoint has not changed, do not update
+	    if (doc.last_seq === checkpoint) {
+	      return;
+	    }
+
+	    // Filter out current entry for this replication
+	    doc.history = (doc.history || []).filter(function (item) {
+	      return item.session_id !== session;
+	    });
+
+	    // Add the latest checkpoint to history
+	    doc.history.unshift({
+	      last_seq: checkpoint,
+	      session_id: session
+	    });
+
+	    // Just take the last pieces in history, to
+	    // avoid really big checkpoint docs.
+	    // see comment on history size above
+	    doc.history = doc.history.slice(0, CHECKPOINT_HISTORY_SIZE);
+
+	    doc.version = CHECKPOINT_VERSION;
+	    doc.replicator = REPLICATOR;
+
+	    doc.session_id = session;
+	    doc.last_seq = checkpoint;
+
+	    return db.put(doc).catch(function (err) {
+	      if (err.status === 409) {
+	        // retry; someone is trying to write a checkpoint simultaneously
+	        return updateCheckpoint(db, id, checkpoint, session, returnValue);
+	      }
+	      throw err;
+	    });
+	  });
+	}
+
+	function Checkpointer(src, target, id, returnValue) {
+	  this.src = src;
+	  this.target = target;
+	  this.id = id;
+	  this.returnValue = returnValue;
+	}
+
+	Checkpointer.prototype.writeCheckpoint = function (checkpoint, session) {
+	  var self = this;
+	  return this.updateTarget(checkpoint, session).then(function () {
+	    return self.updateSource(checkpoint, session);
+	  });
+	};
+
+	Checkpointer.prototype.updateTarget = function (checkpoint, session) {
+	  return updateCheckpoint(this.target, this.id, checkpoint,
+	    session, this.returnValue);
+	};
+
+	Checkpointer.prototype.updateSource = function (checkpoint, session) {
+	  var self = this;
+	  if (this.readOnlySource) {
+	    return PouchPromise.resolve(true);
+	  }
+	  return updateCheckpoint(this.src, this.id, checkpoint,
+	    session, this.returnValue)
+	    .catch(function (err) {
+	      if (isForbiddenError(err)) {
+	        self.readOnlySource = true;
+	        return true;
+	      }
+	      throw err;
+	    });
+	};
+
+	var comparisons = {
+	  "undefined": function (targetDoc, sourceDoc) {
+	    // This is the previous comparison function
+	    if (collate(targetDoc.last_seq, sourceDoc.last_seq) === 0) {
+	      return sourceDoc.last_seq;
+	    }
+	    /* istanbul ignore next */
+	    return 0;
+	  },
+	  "1": function (targetDoc, sourceDoc) {
+	    // This is the comparison function ported from CouchDB
+	    return compareReplicationLogs(sourceDoc, targetDoc).last_seq;
+	  }
+	};
+
+	Checkpointer.prototype.getCheckpoint = function () {
+	  var self = this;
+	  return self.target.get(self.id).then(function (targetDoc) {
+	    if (self.readOnlySource) {
+	      return PouchPromise.resolve(targetDoc.last_seq);
+	    }
+
+	    return self.src.get(self.id).then(function (sourceDoc) {
+	      // Since we can't migrate an old version doc to a new one
+	      // (no session id), we just go with the lowest seq in this case
+	      /* istanbul ignore if */
+	      if (targetDoc.version !== sourceDoc.version) {
+	        return LOWEST_SEQ;
+	      }
+
+	      var version;
+	      if (targetDoc.version) {
+	        version = targetDoc.version.toString();
+	      } else {
+	        version = "undefined";
+	      }
+
+	      if (version in comparisons) {
+	        return comparisons[version](targetDoc, sourceDoc);
+	      }
+	      /* istanbul ignore next */
+	      return LOWEST_SEQ;
+	    }, function (err) {
+	      if (err.status === 404 && targetDoc.last_seq) {
+	        return self.src.put({
+	          _id: self.id,
+	          last_seq: LOWEST_SEQ
+	        }).then(function () {
+	          return LOWEST_SEQ;
+	        }, function (err) {
+	          if (isForbiddenError(err)) {
+	            self.readOnlySource = true;
+	            return targetDoc.last_seq;
+	          }
+	          /* istanbul ignore next */
+	          return LOWEST_SEQ;
+	        });
+	      }
+	      throw err;
+	    });
+	  }).catch(function (err) {
+	    if (err.status !== 404) {
+	      throw err;
+	    }
+	    return LOWEST_SEQ;
+	  });
+	};
+	// This checkpoint comparison is ported from CouchDBs source
+	// they come from here:
+	// https://github.com/apache/couchdb-couch-replicator/blob/master/src/couch_replicator.erl#L863-L906
+
+	function compareReplicationLogs(srcDoc, tgtDoc) {
+	  if (srcDoc.session_id === tgtDoc.session_id) {
+	    return {
+	      last_seq: srcDoc.last_seq,
+	      history: srcDoc.history
+	    };
+	  }
+
+	  return compareReplicationHistory(srcDoc.history, tgtDoc.history);
+	}
+
+	function compareReplicationHistory(sourceHistory, targetHistory) {
+	  // the erlang loop via function arguments is not so easy to repeat in JS
+	  // therefore, doing this as recursion
+	  var S = sourceHistory[0];
+	  var sourceRest = sourceHistory.slice(1);
+	  var T = targetHistory[0];
+	  var targetRest = targetHistory.slice(1);
+
+	  if (!S || targetHistory.length === 0) {
+	    return {
+	      last_seq: LOWEST_SEQ,
+	      history: []
+	    };
+	  }
+
+	  var sourceId = S.session_id;
+	  /* istanbul ignore if */
+	  if (hasSessionId(sourceId, targetHistory)) {
+	    return {
+	      last_seq: S.last_seq,
+	      history: sourceHistory
+	    };
+	  }
+
+	  var targetId = T.session_id;
+	  if (hasSessionId(targetId, sourceRest)) {
+	    return {
+	      last_seq: T.last_seq,
+	      history: targetRest
+	    };
+	  }
+
+	  return compareReplicationHistory(sourceRest, targetRest);
+	}
+
+	function hasSessionId(sessionId, history) {
+	  var props = history[0];
+	  var rest = history.slice(1);
+
+	  if (!sessionId || history.length === 0) {
+	    return false;
+	  }
+
+	  if (sessionId === props.session_id) {
+	    return true;
+	  }
+
+	  return hasSessionId(sessionId, rest);
+	}
+
+	function isForbiddenError(err) {
+	  return typeof err.status === 'number' && Math.floor(err.status / 100) === 4;
+	}
+
+	var STARTING_BACK_OFF = 0;
+
+	function backOff(opts, returnValue, error, callback) {
+	  if (opts.retry === false) {
+	    returnValue.emit('error', error);
+	    returnValue.removeAllListeners();
+	    return;
+	  }
+	  if (typeof opts.back_off_function !== 'function') {
+	    opts.back_off_function = defaultBackOff;
+	  }
+	  returnValue.emit('requestError', error);
+	  if (returnValue.state === 'active' || returnValue.state === 'pending') {
+	    returnValue.emit('paused', error);
+	    returnValue.state = 'stopped';
+	    var backOffSet = function backoffTimeSet() {
+	      opts.current_back_off = STARTING_BACK_OFF;
+	    };
+	    var removeBackOffSetter = function removeBackOffTimeSet() {
+	      returnValue.removeListener('active', backOffSet);
+	    };
+	    returnValue.once('paused', removeBackOffSetter);
+	    returnValue.once('active', backOffSet);
+	  }
+
+	  opts.current_back_off = opts.current_back_off || STARTING_BACK_OFF;
+	  opts.current_back_off = opts.back_off_function(opts.current_back_off);
+	  setTimeout(callback, opts.current_back_off);
+	}
+
+	function sortObjectPropertiesByKey(queryParams) {
+	  return Object.keys(queryParams).sort(collate).reduce(function (result, key) {
+	    result[key] = queryParams[key];
+	    return result;
+	  }, {});
+	}
+
+	// Generate a unique id particular to this replication.
+	// Not guaranteed to align perfectly with CouchDB's rep ids.
+	function generateReplicationId(src, target, opts) {
+	  var docIds = opts.doc_ids ? opts.doc_ids.sort(collate) : '';
+	  var filterFun = opts.filter ? opts.filter.toString() : '';
+	  var queryParams = '';
+	  var filterViewName =  '';
+
+	  if (opts.filter && opts.query_params) {
+	    queryParams = JSON.stringify(sortObjectPropertiesByKey(opts.query_params));
+	  }
+
+	  if (opts.filter && opts.filter === '_view') {
+	    filterViewName = opts.view.toString();
+	  }
+
+	  return PouchPromise.all([src.id(), target.id()]).then(function (res) {
+	    var queryData = res[0] + res[1] + filterFun + filterViewName +
+	      queryParams + docIds;
+	    return new PouchPromise(function (resolve) {
+	      binaryMd5(queryData, resolve);
+	    });
+	  }).then(function (md5sum) {
+	    // can't use straight-up md5 alphabet, because
+	    // the char '/' is interpreted as being for attachments,
+	    // and + is also not url-safe
+	    md5sum = md5sum.replace(/\//g, '.').replace(/\+/g, '_');
+	    return '_local/' + md5sum;
+	  });
+	}
+
+	function replicate$1(src, target, opts, returnValue, result) {
+	  var batches = [];               // list of batches to be processed
+	  var currentBatch;               // the batch currently being processed
+	  var pendingBatch = {
+	    seq: 0,
+	    changes: [],
+	    docs: []
+	  }; // next batch, not yet ready to be processed
+	  var writingCheckpoint = false;  // true while checkpoint is being written
+	  var changesCompleted = false;   // true when all changes received
+	  var replicationCompleted = false; // true when replication has completed
+	  var last_seq = 0;
+	  var continuous = opts.continuous || opts.live || false;
+	  var batch_size = opts.batch_size || 100;
+	  var batches_limit = opts.batches_limit || 10;
+	  var changesPending = false;     // true while src.changes is running
+	  var doc_ids = opts.doc_ids;
+	  var repId;
+	  var checkpointer;
+	  var changedDocs = [];
+	  // Like couchdb, every replication gets a unique session id
+	  var session = uuid();
+
+	  result = result || {
+	    ok: true,
+	    start_time: new Date(),
+	    docs_read: 0,
+	    docs_written: 0,
+	    doc_write_failures: 0,
+	    errors: []
+	  };
+
+	  var changesOpts = {};
+	  returnValue.ready(src, target);
+
+	  function initCheckpointer() {
+	    if (checkpointer) {
+	      return PouchPromise.resolve();
+	    }
+	    return generateReplicationId(src, target, opts).then(function (res) {
+	      repId = res;
+	      checkpointer = new Checkpointer(src, target, repId, returnValue);
+	    });
+	  }
+
+	  function writeDocs() {
+	    changedDocs = [];
+
+	    if (currentBatch.docs.length === 0) {
+	      return;
+	    }
+	    var docs = currentBatch.docs;
+	    var bulkOpts = {timeout: opts.timeout};
+	    return target.bulkDocs({docs: docs, new_edits: false}, bulkOpts).then(function (res) {
+	      /* istanbul ignore if */
+	      if (returnValue.cancelled) {
+	        completeReplication();
+	        throw new Error('cancelled');
+	      }
+
+	      // `res` doesn't include full documents (which live in `docs`), so we create a map of 
+	      // (id -> error), and check for errors while iterating over `docs`
+	      var errorsById = Object.create(null);
+	      res.forEach(function (res) {
+	        if (res.error) {
+	          errorsById[res.id] = res;
+	        }
+	      });
+
+	      var errorsNo = Object.keys(errorsById).length;
+	      result.doc_write_failures += errorsNo;
+	      result.docs_written += docs.length - errorsNo;
+
+	      docs.forEach(function (doc) {
+	        var error = errorsById[doc._id];
+	        if (error) {
+	          result.errors.push(error);
+	          if (error.name === 'unauthorized' || error.name === 'forbidden') {
+	            returnValue.emit('denied', clone(error));
+	          } else {
+	            throw error;
+	          }
+	        } else {
+	          changedDocs.push(doc);
+	        }
+	      });
+
+	    }, function (err) {
+	      result.doc_write_failures += docs.length;
+	      throw err;
+	    });
+	  }
+
+	  function finishBatch() {
+	    if (currentBatch.error) {
+	      throw new Error('There was a problem getting docs.');
+	    }
+	    result.last_seq = last_seq = currentBatch.seq;
+	    var outResult = clone(result);
+	    if (changedDocs.length) {
+	      outResult.docs = changedDocs;
+	      returnValue.emit('change', outResult);
+	    }
+	    writingCheckpoint = true;
+	    return checkpointer.writeCheckpoint(currentBatch.seq,
+	        session).then(function () {
+	      writingCheckpoint = false;
+	      /* istanbul ignore if */
+	      if (returnValue.cancelled) {
+	        completeReplication();
+	        throw new Error('cancelled');
+	      }
+	      currentBatch = undefined;
+	      getChanges();
+	    }).catch(function (err) {
+	      onCheckpointError(err);
+	      throw err;
+	    });
+	  }
+
+	  function getDiffs() {
+	    var diff = {};
+	    currentBatch.changes.forEach(function (change) {
+	      // Couchbase Sync Gateway emits these, but we can ignore them
+	      /* istanbul ignore if */
+	      if (change.id === "_user/") {
+	        return;
+	      }
+	      diff[change.id] = change.changes.map(function (x) {
+	        return x.rev;
+	      });
+	    });
+	    return target.revsDiff(diff).then(function (diffs) {
+	      /* istanbul ignore if */
+	      if (returnValue.cancelled) {
+	        completeReplication();
+	        throw new Error('cancelled');
+	      }
+	      // currentBatch.diffs elements are deleted as the documents are written
+	      currentBatch.diffs = diffs;
+	    });
+	  }
+
+	  function getBatchDocs() {
+	    return getDocs(src, target, currentBatch.diffs, returnValue).then(function (got) {
+	      currentBatch.error = !got.ok;
+	      got.docs.forEach(function (doc) {
+	        delete currentBatch.diffs[doc._id];
+	        result.docs_read++;
+	        currentBatch.docs.push(doc);
+	      });
+	    });
+	  }
+
+	  function startNextBatch() {
+	    if (returnValue.cancelled || currentBatch) {
+	      return;
+	    }
+	    if (batches.length === 0) {
+	      processPendingBatch(true);
+	      return;
+	    }
+	    currentBatch = batches.shift();
+	    getDiffs()
+	      .then(getBatchDocs)
+	      .then(writeDocs)
+	      .then(finishBatch)
+	      .then(startNextBatch)
+	      .catch(function (err) {
+	        abortReplication('batch processing terminated with error', err);
+	      });
+	  }
+
+
+	  function processPendingBatch(immediate) {
+	    if (pendingBatch.changes.length === 0) {
+	      if (batches.length === 0 && !currentBatch) {
+	        if ((continuous && changesOpts.live) || changesCompleted) {
+	          returnValue.state = 'pending';
+	          returnValue.emit('paused');
+	        }
+	        if (changesCompleted) {
+	          completeReplication();
+	        }
+	      }
+	      return;
+	    }
+	    if (
+	      immediate ||
+	      changesCompleted ||
+	      pendingBatch.changes.length >= batch_size
+	    ) {
+	      batches.push(pendingBatch);
+	      pendingBatch = {
+	        seq: 0,
+	        changes: [],
+	        docs: []
+	      };
+	      if (returnValue.state === 'pending' || returnValue.state === 'stopped') {
+	        returnValue.state = 'active';
+	        returnValue.emit('active');
+	      }
+	      startNextBatch();
+	    }
+	  }
+
+
+	  function abortReplication(reason, err) {
+	    if (replicationCompleted) {
+	      return;
+	    }
+	    if (!err.message) {
+	      err.message = reason;
+	    }
+	    result.ok = false;
+	    result.status = 'aborting';
+	    batches = [];
+	    pendingBatch = {
+	      seq: 0,
+	      changes: [],
+	      docs: []
+	    };
+	    completeReplication(err);
+	  }
+
+
+	  function completeReplication(fatalError) {
+	    if (replicationCompleted) {
+	      return;
+	    }
+	    /* istanbul ignore if */
+	    if (returnValue.cancelled) {
+	      result.status = 'cancelled';
+	      if (writingCheckpoint) {
+	        return;
+	      }
+	    }
+	    result.status = result.status || 'complete';
+	    result.end_time = new Date();
+	    result.last_seq = last_seq;
+	    replicationCompleted = true;
+
+	    if (fatalError) {
+	      fatalError.result = result;
+
+	      if (fatalError.name === 'unauthorized' || fatalError.name === 'forbidden') {
+	        returnValue.emit('error', fatalError);
+	        returnValue.removeAllListeners();
+	      } else {
+	        backOff(opts, returnValue, fatalError, function () {
+	          replicate$1(src, target, opts, returnValue);
+	        });
+	      }
+	    } else {
+	      returnValue.emit('complete', result);
+	      returnValue.removeAllListeners();
+	    }
+	  }
+
+
+	  function onChange(change) {
+	    /* istanbul ignore if */
+	    if (returnValue.cancelled) {
+	      return completeReplication();
+	    }
+	    var filter = filterChange(opts)(change);
+	    if (!filter) {
+	      return;
+	    }
+	    pendingBatch.seq = change.seq;
+	    pendingBatch.changes.push(change);
+	    processPendingBatch(batches.length === 0 && changesOpts.live);
+	  }
+
+
+	  function onChangesComplete(changes) {
+	    changesPending = false;
+	    /* istanbul ignore if */
+	    if (returnValue.cancelled) {
+	      return completeReplication();
+	    }
+
+	    // if no results were returned then we're done,
+	    // else fetch more
+	    if (changes.results.length > 0) {
+	      changesOpts.since = changes.last_seq;
+	      getChanges();
+	      processPendingBatch(true);
+	    } else {
+
+	      var complete = function () {
+	        if (continuous) {
+	          changesOpts.live = true;
+	          getChanges();
+	        } else {
+	          changesCompleted = true;
+	        }
+	        processPendingBatch(true);
+	      };
+
+	      // update the checkpoint so we start from the right seq next time
+	      if (!currentBatch && changes.results.length === 0) {
+	        writingCheckpoint = true;
+	        checkpointer.writeCheckpoint(changes.last_seq,
+	            session).then(function () {
+	          writingCheckpoint = false;
+	          result.last_seq = last_seq = changes.last_seq;
+	          complete();
+	        })
+	        .catch(onCheckpointError);
+	      } else {
+	        complete();
+	      }
+	    }
+	  }
+
+
+	  function onChangesError(err) {
+	    changesPending = false;
+	    /* istanbul ignore if */
+	    if (returnValue.cancelled) {
+	      return completeReplication();
+	    }
+	    abortReplication('changes rejected', err);
+	  }
+
+
+	  function getChanges() {
+	    if (!(
+	      !changesPending &&
+	      !changesCompleted &&
+	      batches.length < batches_limit
+	      )) {
+	      return;
+	    }
+	    changesPending = true;
+	    function abortChanges() {
+	      changes.cancel();
+	    }
+	    function removeListener() {
+	      returnValue.removeListener('cancel', abortChanges);
+	    }
+
+	    if (returnValue._changes) { // remove old changes() and listeners
+	      returnValue.removeListener('cancel', returnValue._abortChanges);
+	      returnValue._changes.cancel();
+	    }
+	    returnValue.once('cancel', abortChanges);
+
+	    var changes = src.changes(changesOpts)
+	      .on('change', onChange);
+	    changes.then(removeListener, removeListener);
+	    changes.then(onChangesComplete)
+	      .catch(onChangesError);
+
+	    if (opts.retry) {
+	      // save for later so we can cancel if necessary
+	      returnValue._changes = changes;
+	      returnValue._abortChanges = abortChanges;
+	    }
+	  }
+
+
+	  function startChanges() {
+	    initCheckpointer().then(function () {
+	      /* istanbul ignore if */
+	      if (returnValue.cancelled) {
+	        completeReplication();
+	        return;
+	      }
+	      return checkpointer.getCheckpoint().then(function (checkpoint) {
+	        last_seq = checkpoint;
+	        changesOpts = {
+	          since: last_seq,
+	          limit: batch_size,
+	          batch_size: batch_size,
+	          style: 'all_docs',
+	          doc_ids: doc_ids,
+	          return_docs: true // required so we know when we're done
+	        };
+	        if (opts.filter) {
+	          if (typeof opts.filter !== 'string') {
+	            // required for the client-side filter in onChange
+	            changesOpts.include_docs = true;
+	          } else { // ddoc filter
+	            changesOpts.filter = opts.filter;
+	          }
+	        }
+	        if ('heartbeat' in opts) {
+	          changesOpts.heartbeat = opts.heartbeat;
+	        }
+	        if ('timeout' in opts) {
+	          changesOpts.timeout = opts.timeout;
+	        }
+	        if (opts.query_params) {
+	          changesOpts.query_params = opts.query_params;
+	        }
+	        if (opts.view) {
+	          changesOpts.view = opts.view;
+	        }
+	        getChanges();
+	      });
+	    }).catch(function (err) {
+	      abortReplication('getCheckpoint rejected with ', err);
+	    });
+	  }
+
+	  /* istanbul ignore next */
+	  function onCheckpointError(err) {
+	    writingCheckpoint = false;
+	    abortReplication('writeCheckpoint completed with error', err);
+	  }
+
+	  /* istanbul ignore if */
+	  if (returnValue.cancelled) { // cancelled immediately
+	    completeReplication();
+	    return;
+	  }
+
+	  if (!returnValue._addedListeners) {
+	    returnValue.once('cancel', completeReplication);
+
+	    if (typeof opts.complete === 'function') {
+	      returnValue.once('error', opts.complete);
+	      returnValue.once('complete', function (result) {
+	        opts.complete(null, result);
+	      });
+	    }
+	    returnValue._addedListeners = true;
+	  }
+
+	  if (typeof opts.since === 'undefined') {
+	    startChanges();
+	  } else {
+	    initCheckpointer().then(function () {
+	      writingCheckpoint = true;
+	      return checkpointer.writeCheckpoint(opts.since, session);
+	    }).then(function () {
+	      writingCheckpoint = false;
+	      /* istanbul ignore if */
+	      if (returnValue.cancelled) {
+	        completeReplication();
+	        return;
+	      }
+	      last_seq = opts.since;
+	      startChanges();
+	    }).catch(onCheckpointError);
+	  }
+	}
+
+	// We create a basic promise so the caller can cancel the replication possibly
+	// before we have actually started listening to changes etc
+	inherits(Replication, events.EventEmitter);
+	function Replication() {
+	  events.EventEmitter.call(this);
+	  this.cancelled = false;
+	  this.state = 'pending';
+	  var self = this;
+	  var promise = new PouchPromise(function (fulfill, reject) {
+	    self.once('complete', fulfill);
+	    self.once('error', reject);
+	  });
+	  self.then = function (resolve, reject) {
+	    return promise.then(resolve, reject);
+	  };
+	  self.catch = function (reject) {
+	    return promise.catch(reject);
+	  };
+	  // As we allow error handling via "error" event as well,
+	  // put a stub in here so that rejecting never throws UnhandledError.
+	  self.catch(function () {});
+	}
+
+	Replication.prototype.cancel = function () {
+	  this.cancelled = true;
+	  this.state = 'cancelled';
+	  this.emit('cancel');
+	};
+
+	Replication.prototype.ready = function (src, target) {
+	  var self = this;
+	  if (self._readyCalled) {
+	    return;
+	  }
+	  self._readyCalled = true;
+
+	  function onDestroy() {
+	    self.cancel();
+	  }
+	  src.once('destroyed', onDestroy);
+	  target.once('destroyed', onDestroy);
+	  function cleanup() {
+	    src.removeListener('destroyed', onDestroy);
+	    target.removeListener('destroyed', onDestroy);
+	  }
+	  self.once('complete', cleanup);
+	};
+
+	function toPouch(db, opts) {
+	  var PouchConstructor = opts.PouchConstructor;
+	  if (typeof db === 'string') {
+	    return new PouchConstructor(db, opts);
+	  } else {
+	    return db;
+	  }
+	}
+
+	function replicate(src, target, opts, callback) {
+
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+	  if (typeof opts === 'undefined') {
+	    opts = {};
+	  }
+
+	  if (opts.doc_ids && !Array.isArray(opts.doc_ids)) {
+	    throw createError(BAD_REQUEST,
+	                       "`doc_ids` filter parameter is not a list.");
+	  }
+
+	  opts.complete = callback;
+	  opts = clone(opts);
+	  opts.continuous = opts.continuous || opts.live;
+	  opts.retry = ('retry' in opts) ? opts.retry : false;
+	  /*jshint validthis:true */
+	  opts.PouchConstructor = opts.PouchConstructor || this;
+	  var replicateRet = new Replication(opts);
+	  var srcPouch = toPouch(src, opts);
+	  var targetPouch = toPouch(target, opts);
+	  replicate$1(srcPouch, targetPouch, opts, replicateRet);
+	  return replicateRet;
+	}
+
+	inherits(Sync, events.EventEmitter);
+	function sync(src, target, opts, callback) {
+	  if (typeof opts === 'function') {
+	    callback = opts;
+	    opts = {};
+	  }
+	  if (typeof opts === 'undefined') {
+	    opts = {};
+	  }
+	  opts = clone(opts);
+	  /*jshint validthis:true */
+	  opts.PouchConstructor = opts.PouchConstructor || this;
+	  src = toPouch(src, opts);
+	  target = toPouch(target, opts);
+	  return new Sync(src, target, opts, callback);
+	}
+
+	function Sync(src, target, opts, callback) {
+	  var self = this;
+	  this.canceled = false;
+
+	  var optsPush = opts.push ? jsExtend.extend({}, opts, opts.push) : opts;
+	  var optsPull = opts.pull ? jsExtend.extend({}, opts, opts.pull) : opts;
+
+	  this.push = replicate(src, target, optsPush);
+	  this.pull = replicate(target, src, optsPull);
+
+	  this.pushPaused = true;
+	  this.pullPaused = true;
+
+	  function pullChange(change) {
+	    self.emit('change', {
+	      direction: 'pull',
+	      change: change
+	    });
+	  }
+	  function pushChange(change) {
+	    self.emit('change', {
+	      direction: 'push',
+	      change: change
+	    });
+	  }
+	  function pushDenied(doc) {
+	    self.emit('denied', {
+	      direction: 'push',
+	      doc: doc
+	    });
+	  }
+	  function pullDenied(doc) {
+	    self.emit('denied', {
+	      direction: 'pull',
+	      doc: doc
+	    });
+	  }
+	  function pushPaused() {
+	    self.pushPaused = true;
+	    /* istanbul ignore if */
+	    if (self.pullPaused) {
+	      self.emit('paused');
+	    }
+	  }
+	  function pullPaused() {
+	    self.pullPaused = true;
+	    /* istanbul ignore if */
+	    if (self.pushPaused) {
+	      self.emit('paused');
+	    }
+	  }
+	  function pushActive() {
+	    self.pushPaused = false;
+	    /* istanbul ignore if */
+	    if (self.pullPaused) {
+	      self.emit('active', {
+	        direction: 'push'
+	      });
+	    }
+	  }
+	  function pullActive() {
+	    self.pullPaused = false;
+	    /* istanbul ignore if */
+	    if (self.pushPaused) {
+	      self.emit('active', {
+	        direction: 'pull'
+	      });
+	    }
+	  }
+
+	  var removed = {};
+
+	  function removeAll(type) { // type is 'push' or 'pull'
+	    return function (event, func) {
+	      var isChange = event === 'change' &&
+	        (func === pullChange || func === pushChange);
+	      var isDenied = event === 'denied' &&
+	        (func === pullDenied || func === pushDenied);
+	      var isPaused = event === 'paused' &&
+	        (func === pullPaused || func === pushPaused);
+	      var isActive = event === 'active' &&
+	        (func === pullActive || func === pushActive);
+
+	      if (isChange || isDenied || isPaused || isActive) {
+	        if (!(event in removed)) {
+	          removed[event] = {};
+	        }
+	        removed[event][type] = true;
+	        if (Object.keys(removed[event]).length === 2) {
+	          // both push and pull have asked to be removed
+	          self.removeAllListeners(event);
+	        }
+	      }
+	    };
+	  }
+
+	  if (opts.live) {
+	    this.push.on('complete', self.pull.cancel.bind(self.pull));
+	    this.pull.on('complete', self.push.cancel.bind(self.push));
+	  }
+
+	  this.on('newListener', function (event) {
+	    if (event === 'change') {
+	      self.pull.on('change', pullChange);
+	      self.push.on('change', pushChange);
+	    } else if (event === 'denied') {
+	      self.pull.on('denied', pullDenied);
+	      self.push.on('denied', pushDenied);
+	    } else if (event === 'active') {
+	      self.pull.on('active', pullActive);
+	      self.push.on('active', pushActive);
+	    } else if (event === 'paused') {
+	      self.pull.on('paused', pullPaused);
+	      self.push.on('paused', pushPaused);
+	    }
+	  });
+
+	  this.on('removeListener', function (event) {
+	    if (event === 'change') {
+	      self.pull.removeListener('change', pullChange);
+	      self.push.removeListener('change', pushChange);
+	    } else if (event === 'denied') {
+	      self.pull.removeListener('denied', pullDenied);
+	      self.push.removeListener('denied', pushDenied);
+	    } else if (event === 'active') {
+	      self.pull.removeListener('active', pullActive);
+	      self.push.removeListener('active', pushActive);
+	    } else if (event === 'paused') {
+	      self.pull.removeListener('paused', pullPaused);
+	      self.push.removeListener('paused', pushPaused);
+	    }
+	  });
+
+	  this.pull.on('removeListener', removeAll('pull'));
+	  this.push.on('removeListener', removeAll('push'));
+
+	  var promise = PouchPromise.all([
+	    this.push,
+	    this.pull
+	  ]).then(function (resp) {
+	    var out = {
+	      push: resp[0],
+	      pull: resp[1]
+	    };
+	    self.emit('complete', out);
+	    if (callback) {
+	      callback(null, out);
+	    }
+	    self.removeAllListeners();
+	    return out;
+	  }, function (err) {
+	    self.cancel();
+	    if (callback) {
+	      // if there's a callback, then the callback can receive
+	      // the error event
+	      callback(err);
+	    } else {
+	      // if there's no callback, then we're safe to emit an error
+	      // event, which would otherwise throw an unhandled error
+	      // due to 'error' being a special event in EventEmitters
+	      self.emit('error', err);
+	    }
+	    self.removeAllListeners();
+	    if (callback) {
+	      // no sense throwing if we're already emitting an 'error' event
+	      throw err;
+	    }
+	  });
+
+	  this.then = function (success, err) {
+	    return promise.then(success, err);
+	  };
+
+	  this.catch = function (err) {
+	    return promise.catch(err);
+	  };
+	}
+
+	Sync.prototype.cancel = function () {
+	  if (!this.canceled) {
+	    this.canceled = true;
+	    this.push.cancel();
+	    this.pull.cancel();
+	  }
+	};
+
+	function replication(PouchDB) {
+	  PouchDB.replicate = replicate;
+	  PouchDB.sync = sync;
+
+	  Object.defineProperty(PouchDB.prototype, 'replicate', {
+	    get: function () {
+	      var self = this;
+	      return {
+	        from: function (other, opts, callback) {
+	          return self.constructor.replicate(other, self, opts, callback);
+	        },
+	        to: function (other, opts, callback) {
+	          return self.constructor.replicate(self, other, opts, callback);
+	        }
+	      };
+	    }
+	  });
+
+	  PouchDB.prototype.sync = function (dbName, opts, callback) {
+	    return this.constructor.sync(this, dbName, opts, callback);
+	  };
+	}
+
+	PouchDB.plugin(IDBPouch)
+	  .plugin(WebSqlPouch)
+	  .plugin(HttpPouch$1)
+	  .plugin(mapreduce)
+	  .plugin(replication);
+
+	module.exports = PouchDB;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), (function() { return this; }())))
 
 /***/ },
-/* 586 */
+/* 608 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function(factory) {
+	  if(true) {
+	    factory(exports);
+	  } else {
+	    factory(this);
+	  }
+	}).call(this, function(root) { 
+
+	  var slice   = Array.prototype.slice,
+	      each    = Array.prototype.forEach;
+
+	  var extend = function(obj) {
+	    if(typeof obj !== 'object') throw obj + ' is not an object' ;
+
+	    var sources = slice.call(arguments, 1); 
+
+	    each.call(sources, function(source) {
+	      if(source) {
+	        for(var prop in source) {
+	          if(typeof source[prop] === 'object' && obj[prop]) {
+	            extend.call(obj, obj[prop], source[prop]);
+	          } else {
+	            obj[prop] = source[prop];
+	          }
+	        } 
+	      }
+	    });
+
+	    return obj;
+	  }
+
+	  root.extend = extend;
+	});
+
+
+/***/ },
+/* 609 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the web browser implementation of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = __webpack_require__(610);
+	exports.log = log;
+	exports.formatArgs = formatArgs;
+	exports.save = save;
+	exports.load = load;
+	exports.useColors = useColors;
+	exports.storage = 'undefined' != typeof chrome
+	               && 'undefined' != typeof chrome.storage
+	                  ? chrome.storage.local
+	                  : localstorage();
+
+	/**
+	 * Colors.
+	 */
+
+	exports.colors = [
+	  'lightseagreen',
+	  'forestgreen',
+	  'goldenrod',
+	  'dodgerblue',
+	  'darkorchid',
+	  'crimson'
+	];
+
+	/**
+	 * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+	 * and the Firebug extension (any Firefox version) are known
+	 * to support "%c" CSS customizations.
+	 *
+	 * TODO: add a `localStorage` variable to explicitly enable/disable colors
+	 */
+
+	function useColors() {
+	  // is webkit? http://stackoverflow.com/a/16459606/376773
+	  return ('WebkitAppearance' in document.documentElement.style) ||
+	    // is firebug? http://stackoverflow.com/a/398120/376773
+	    (window.console && (console.firebug || (console.exception && console.table))) ||
+	    // is firefox >= v31?
+	    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+	    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+	}
+
+	/**
+	 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+	 */
+
+	exports.formatters.j = function(v) {
+	  return JSON.stringify(v);
+	};
+
+
+	/**
+	 * Colorize log arguments if enabled.
+	 *
+	 * @api public
+	 */
+
+	function formatArgs() {
+	  var args = arguments;
+	  var useColors = this.useColors;
+
+	  args[0] = (useColors ? '%c' : '')
+	    + this.namespace
+	    + (useColors ? ' %c' : ' ')
+	    + args[0]
+	    + (useColors ? '%c ' : ' ')
+	    + '+' + exports.humanize(this.diff);
+
+	  if (!useColors) return args;
+
+	  var c = 'color: ' + this.color;
+	  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+	  // the final "%c" is somewhat tricky, because there could be other
+	  // arguments passed either before or after the %c, so we need to
+	  // figure out the correct index to insert the CSS into
+	  var index = 0;
+	  var lastC = 0;
+	  args[0].replace(/%[a-z%]/g, function(match) {
+	    if ('%%' === match) return;
+	    index++;
+	    if ('%c' === match) {
+	      // we only are interested in the *last* %c
+	      // (the user may have provided their own)
+	      lastC = index;
+	    }
+	  });
+
+	  args.splice(lastC, 0, c);
+	  return args;
+	}
+
+	/**
+	 * Invokes `console.log()` when available.
+	 * No-op when `console.log` is not a "function".
+	 *
+	 * @api public
+	 */
+
+	function log() {
+	  // this hackery is required for IE8/9, where
+	  // the `console.log` function doesn't have 'apply'
+	  return 'object' === typeof console
+	    && console.log
+	    && Function.prototype.apply.call(console.log, console, arguments);
+	}
+
+	/**
+	 * Save `namespaces`.
+	 *
+	 * @param {String} namespaces
+	 * @api private
+	 */
+
+	function save(namespaces) {
+	  try {
+	    if (null == namespaces) {
+	      exports.storage.removeItem('debug');
+	    } else {
+	      exports.storage.debug = namespaces;
+	    }
+	  } catch(e) {}
+	}
+
+	/**
+	 * Load `namespaces`.
+	 *
+	 * @return {String} returns the previously persisted debug modes
+	 * @api private
+	 */
+
+	function load() {
+	  var r;
+	  try {
+	    r = exports.storage.debug;
+	  } catch(e) {}
+	  return r;
+	}
+
+	/**
+	 * Enable namespaces listed in `localStorage.debug` initially.
+	 */
+
+	exports.enable(load());
+
+	/**
+	 * Localstorage attempts to return the localstorage.
+	 *
+	 * This is necessary because safari throws
+	 * when a user disables cookies/localstorage
+	 * and you attempt to access it.
+	 *
+	 * @return {LocalStorage}
+	 * @api private
+	 */
+
+	function localstorage(){
+	  try {
+	    return window.localStorage;
+	  } catch (e) {}
+	}
+
+
+/***/ },
+/* 610 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the common logic for both the Node.js and web browser
+	 * implementations of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+
+	exports = module.exports = debug;
+	exports.coerce = coerce;
+	exports.disable = disable;
+	exports.enable = enable;
+	exports.enabled = enabled;
+	exports.humanize = __webpack_require__(611);
+
+	/**
+	 * The currently active debug mode names, and names to skip.
+	 */
+
+	exports.names = [];
+	exports.skips = [];
+
+	/**
+	 * Map of special "%n" handling functions, for the debug "format" argument.
+	 *
+	 * Valid key names are a single, lowercased letter, i.e. "n".
+	 */
+
+	exports.formatters = {};
+
+	/**
+	 * Previously assigned color.
+	 */
+
+	var prevColor = 0;
+
+	/**
+	 * Previous log timestamp.
+	 */
+
+	var prevTime;
+
+	/**
+	 * Select a color.
+	 *
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function selectColor() {
+	  return exports.colors[prevColor++ % exports.colors.length];
+	}
+
+	/**
+	 * Create a debugger with the given `namespace`.
+	 *
+	 * @param {String} namespace
+	 * @return {Function}
+	 * @api public
+	 */
+
+	function debug(namespace) {
+
+	  // define the `disabled` version
+	  function disabled() {
+	  }
+	  disabled.enabled = false;
+
+	  // define the `enabled` version
+	  function enabled() {
+
+	    var self = enabled;
+
+	    // set `diff` timestamp
+	    var curr = +new Date();
+	    var ms = curr - (prevTime || curr);
+	    self.diff = ms;
+	    self.prev = prevTime;
+	    self.curr = curr;
+	    prevTime = curr;
+
+	    // add the `color` if not set
+	    if (null == self.useColors) self.useColors = exports.useColors();
+	    if (null == self.color && self.useColors) self.color = selectColor();
+
+	    var args = Array.prototype.slice.call(arguments);
+
+	    args[0] = exports.coerce(args[0]);
+
+	    if ('string' !== typeof args[0]) {
+	      // anything else let's inspect with %o
+	      args = ['%o'].concat(args);
+	    }
+
+	    // apply any `formatters` transformations
+	    var index = 0;
+	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+	      // if we encounter an escaped % then don't increase the array index
+	      if (match === '%%') return match;
+	      index++;
+	      var formatter = exports.formatters[format];
+	      if ('function' === typeof formatter) {
+	        var val = args[index];
+	        match = formatter.call(self, val);
+
+	        // now we need to remove `args[index]` since it's inlined in the `format`
+	        args.splice(index, 1);
+	        index--;
+	      }
+	      return match;
+	    });
+
+	    if ('function' === typeof exports.formatArgs) {
+	      args = exports.formatArgs.apply(self, args);
+	    }
+	    var logFn = enabled.log || exports.log || console.log.bind(console);
+	    logFn.apply(self, args);
+	  }
+	  enabled.enabled = true;
+
+	  var fn = exports.enabled(namespace) ? enabled : disabled;
+
+	  fn.namespace = namespace;
+
+	  return fn;
+	}
+
+	/**
+	 * Enables a debug mode by namespaces. This can include modes
+	 * separated by a colon and wildcards.
+	 *
+	 * @param {String} namespaces
+	 * @api public
+	 */
+
+	function enable(namespaces) {
+	  exports.save(namespaces);
+
+	  var split = (namespaces || '').split(/[\s,]+/);
+	  var len = split.length;
+
+	  for (var i = 0; i < len; i++) {
+	    if (!split[i]) continue; // ignore empty strings
+	    namespaces = split[i].replace(/\*/g, '.*?');
+	    if (namespaces[0] === '-') {
+	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+	    } else {
+	      exports.names.push(new RegExp('^' + namespaces + '$'));
+	    }
+	  }
+	}
+
+	/**
+	 * Disable debug output.
+	 *
+	 * @api public
+	 */
+
+	function disable() {
+	  exports.enable('');
+	}
+
+	/**
+	 * Returns true if the given mode name is enabled, false otherwise.
+	 *
+	 * @param {String} name
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	function enabled(name) {
+	  var i, len;
+	  for (i = 0, len = exports.skips.length; i < len; i++) {
+	    if (exports.skips[i].test(name)) {
+	      return false;
+	    }
+	  }
+	  for (i = 0, len = exports.names.length; i < len; i++) {
+	    if (exports.names[i].test(name)) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+
+	/**
+	 * Coerce `val`.
+	 *
+	 * @param {Mixed} val
+	 * @return {Mixed}
+	 * @api private
+	 */
+
+	function coerce(val) {
+	  if (val instanceof Error) return val.stack || val.message;
+	  return val;
+	}
+
+
+/***/ },
+/* 611 */
+/***/ function(module, exports) {
+
+	/**
+	 * Helpers.
+	 */
+
+	var s = 1000;
+	var m = s * 60;
+	var h = m * 60;
+	var d = h * 24;
+	var y = d * 365.25;
+
+	/**
+	 * Parse or format the given `val`.
+	 *
+	 * Options:
+	 *
+	 *  - `long` verbose formatting [false]
+	 *
+	 * @param {String|Number} val
+	 * @param {Object} options
+	 * @return {String|Number}
+	 * @api public
+	 */
+
+	module.exports = function(val, options){
+	  options = options || {};
+	  if ('string' == typeof val) return parse(val);
+	  return options.long
+	    ? long(val)
+	    : short(val);
+	};
+
+	/**
+	 * Parse the given `str` and return milliseconds.
+	 *
+	 * @param {String} str
+	 * @return {Number}
+	 * @api private
+	 */
+
+	function parse(str) {
+	  str = '' + str;
+	  if (str.length > 10000) return;
+	  var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+	  if (!match) return;
+	  var n = parseFloat(match[1]);
+	  var type = (match[2] || 'ms').toLowerCase();
+	  switch (type) {
+	    case 'years':
+	    case 'year':
+	    case 'yrs':
+	    case 'yr':
+	    case 'y':
+	      return n * y;
+	    case 'days':
+	    case 'day':
+	    case 'd':
+	      return n * d;
+	    case 'hours':
+	    case 'hour':
+	    case 'hrs':
+	    case 'hr':
+	    case 'h':
+	      return n * h;
+	    case 'minutes':
+	    case 'minute':
+	    case 'mins':
+	    case 'min':
+	    case 'm':
+	      return n * m;
+	    case 'seconds':
+	    case 'second':
+	    case 'secs':
+	    case 'sec':
+	    case 's':
+	      return n * s;
+	    case 'milliseconds':
+	    case 'millisecond':
+	    case 'msecs':
+	    case 'msec':
+	    case 'ms':
+	      return n;
+	  }
+	}
+
+	/**
+	 * Short format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function short(ms) {
+	  if (ms >= d) return Math.round(ms / d) + 'd';
+	  if (ms >= h) return Math.round(ms / h) + 'h';
+	  if (ms >= m) return Math.round(ms / m) + 'm';
+	  if (ms >= s) return Math.round(ms / s) + 's';
+	  return ms + 'ms';
+	}
+
+	/**
+	 * Long format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */
+
+	function long(ms) {
+	  return plural(ms, d, 'day')
+	    || plural(ms, h, 'hour')
+	    || plural(ms, m, 'minute')
+	    || plural(ms, s, 'second')
+	    || ms + ' ms';
+	}
+
+	/**
+	 * Pluralization helper.
+	 */
+
+	function plural(ms, n, name) {
+	  if (ms < n) return;
+	  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+	  return Math.ceil(ms / n) + ' ' + name + 's';
+	}
+
+
+/***/ },
+/* 612 */
+/***/ function(module, exports) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 613 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var immediate = __webpack_require__(614);
+
+	/* istanbul ignore next */
+	function INTERNAL() {}
+
+	var handlers = {};
+
+	var REJECTED = ['REJECTED'];
+	var FULFILLED = ['FULFILLED'];
+	var PENDING = ['PENDING'];
+
+	module.exports = Promise;
+
+	function Promise(resolver) {
+	  if (typeof resolver !== 'function') {
+	    throw new TypeError('resolver must be a function');
+	  }
+	  this.state = PENDING;
+	  this.queue = [];
+	  this.outcome = void 0;
+	  if (resolver !== INTERNAL) {
+	    safelyResolveThenable(this, resolver);
+	  }
+	}
+
+	Promise.prototype["catch"] = function (onRejected) {
+	  return this.then(null, onRejected);
+	};
+	Promise.prototype.then = function (onFulfilled, onRejected) {
+	  if (typeof onFulfilled !== 'function' && this.state === FULFILLED ||
+	    typeof onRejected !== 'function' && this.state === REJECTED) {
+	    return this;
+	  }
+	  var promise = new this.constructor(INTERNAL);
+	  if (this.state !== PENDING) {
+	    var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
+	    unwrap(promise, resolver, this.outcome);
+	  } else {
+	    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
+	  }
+
+	  return promise;
+	};
+	function QueueItem(promise, onFulfilled, onRejected) {
+	  this.promise = promise;
+	  if (typeof onFulfilled === 'function') {
+	    this.onFulfilled = onFulfilled;
+	    this.callFulfilled = this.otherCallFulfilled;
+	  }
+	  if (typeof onRejected === 'function') {
+	    this.onRejected = onRejected;
+	    this.callRejected = this.otherCallRejected;
+	  }
+	}
+	QueueItem.prototype.callFulfilled = function (value) {
+	  handlers.resolve(this.promise, value);
+	};
+	QueueItem.prototype.otherCallFulfilled = function (value) {
+	  unwrap(this.promise, this.onFulfilled, value);
+	};
+	QueueItem.prototype.callRejected = function (value) {
+	  handlers.reject(this.promise, value);
+	};
+	QueueItem.prototype.otherCallRejected = function (value) {
+	  unwrap(this.promise, this.onRejected, value);
+	};
+
+	function unwrap(promise, func, value) {
+	  immediate(function () {
+	    var returnValue;
+	    try {
+	      returnValue = func(value);
+	    } catch (e) {
+	      return handlers.reject(promise, e);
+	    }
+	    if (returnValue === promise) {
+	      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
+	    } else {
+	      handlers.resolve(promise, returnValue);
+	    }
+	  });
+	}
+
+	handlers.resolve = function (self, value) {
+	  var result = tryCatch(getThen, value);
+	  if (result.status === 'error') {
+	    return handlers.reject(self, result.value);
+	  }
+	  var thenable = result.value;
+
+	  if (thenable) {
+	    safelyResolveThenable(self, thenable);
+	  } else {
+	    self.state = FULFILLED;
+	    self.outcome = value;
+	    var i = -1;
+	    var len = self.queue.length;
+	    while (++i < len) {
+	      self.queue[i].callFulfilled(value);
+	    }
+	  }
+	  return self;
+	};
+	handlers.reject = function (self, error) {
+	  self.state = REJECTED;
+	  self.outcome = error;
+	  var i = -1;
+	  var len = self.queue.length;
+	  while (++i < len) {
+	    self.queue[i].callRejected(error);
+	  }
+	  return self;
+	};
+
+	function getThen(obj) {
+	  // Make sure we only access the accessor once as required by the spec
+	  var then = obj && obj.then;
+	  if (obj && typeof obj === 'object' && typeof then === 'function') {
+	    return function appyThen() {
+	      then.apply(obj, arguments);
+	    };
+	  }
+	}
+
+	function safelyResolveThenable(self, thenable) {
+	  // Either fulfill, reject or reject with error
+	  var called = false;
+	  function onError(value) {
+	    if (called) {
+	      return;
+	    }
+	    called = true;
+	    handlers.reject(self, value);
+	  }
+
+	  function onSuccess(value) {
+	    if (called) {
+	      return;
+	    }
+	    called = true;
+	    handlers.resolve(self, value);
+	  }
+
+	  function tryToUnwrap() {
+	    thenable(onSuccess, onError);
+	  }
+
+	  var result = tryCatch(tryToUnwrap);
+	  if (result.status === 'error') {
+	    onError(result.value);
+	  }
+	}
+
+	function tryCatch(func, value) {
+	  var out = {};
+	  try {
+	    out.value = func(value);
+	    out.status = 'success';
+	  } catch (e) {
+	    out.status = 'error';
+	    out.value = e;
+	  }
+	  return out;
+	}
+
+	Promise.resolve = resolve;
+	function resolve(value) {
+	  if (value instanceof this) {
+	    return value;
+	  }
+	  return handlers.resolve(new this(INTERNAL), value);
+	}
+
+	Promise.reject = reject;
+	function reject(reason) {
+	  var promise = new this(INTERNAL);
+	  return handlers.reject(promise, reason);
+	}
+
+	Promise.all = all;
+	function all(iterable) {
+	  var self = this;
+	  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+	    return this.reject(new TypeError('must be an array'));
+	  }
+
+	  var len = iterable.length;
+	  var called = false;
+	  if (!len) {
+	    return this.resolve([]);
+	  }
+
+	  var values = new Array(len);
+	  var resolved = 0;
+	  var i = -1;
+	  var promise = new this(INTERNAL);
+
+	  while (++i < len) {
+	    allResolver(iterable[i], i);
+	  }
+	  return promise;
+	  function allResolver(value, i) {
+	    self.resolve(value).then(resolveFromAll, function (error) {
+	      if (!called) {
+	        called = true;
+	        handlers.reject(promise, error);
+	      }
+	    });
+	    function resolveFromAll(outValue) {
+	      values[i] = outValue;
+	      if (++resolved === len && !called) {
+	        called = true;
+	        handlers.resolve(promise, values);
+	      }
+	    }
+	  }
+	}
+
+	Promise.race = race;
+	function race(iterable) {
+	  var self = this;
+	  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+	    return this.reject(new TypeError('must be an array'));
+	  }
+
+	  var len = iterable.length;
+	  var called = false;
+	  if (!len) {
+	    return this.resolve([]);
+	  }
+
+	  var i = -1;
+	  var promise = new this(INTERNAL);
+
+	  while (++i < len) {
+	    resolver(iterable[i]);
+	  }
+	  return promise;
+	  function resolver(value) {
+	    self.resolve(value).then(function (response) {
+	      if (!called) {
+	        called = true;
+	        handlers.resolve(promise, response);
+	      }
+	    }, function (error) {
+	      if (!called) {
+	        called = true;
+	        handlers.reject(promise, error);
+	      }
+	    });
+	  }
+	}
+
+
+/***/ },
+/* 614 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	var Mutation = global.MutationObserver || global.WebKitMutationObserver;
+
+	var scheduleDrain;
+
+	{
+	  if (Mutation) {
+	    var called = 0;
+	    var observer = new Mutation(nextTick);
+	    var element = global.document.createTextNode('');
+	    observer.observe(element, {
+	      characterData: true
+	    });
+	    scheduleDrain = function () {
+	      element.data = (called = ++called % 2);
+	    };
+	  } else if (!global.setImmediate && typeof global.MessageChannel !== 'undefined') {
+	    var channel = new global.MessageChannel();
+	    channel.port1.onmessage = nextTick;
+	    scheduleDrain = function () {
+	      channel.port2.postMessage(0);
+	    };
+	  } else if ('document' in global && 'onreadystatechange' in global.document.createElement('script')) {
+	    scheduleDrain = function () {
+
+	      // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
+	      // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
+	      var scriptEl = global.document.createElement('script');
+	      scriptEl.onreadystatechange = function () {
+	        nextTick();
+
+	        scriptEl.onreadystatechange = null;
+	        scriptEl.parentNode.removeChild(scriptEl);
+	        scriptEl = null;
+	      };
+	      global.document.documentElement.appendChild(scriptEl);
+	    };
+	  } else {
+	    scheduleDrain = function () {
+	      setTimeout(nextTick, 0);
+	    };
+	  }
+	}
+
+	var draining;
+	var queue = [];
+	//named nextTick for less confusing stack traces
+	function nextTick() {
+	  draining = true;
+	  var i, oldQueue;
+	  var len = queue.length;
+	  while (len) {
+	    oldQueue = queue;
+	    queue = [];
+	    i = -1;
+	    while (++i < len) {
+	      oldQueue[i]();
+	    }
+	    len = queue.length;
+	  }
+	  draining = false;
+	}
+
+	module.exports = immediate;
+	function immediate(task) {
+	  if (queue.push(task) === 1 && !draining) {
+	    scheduleDrain();
+	  }
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 615 */
+/***/ function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	module.exports = EventEmitter;
+
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function(n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n))
+	    throw TypeError('n must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+
+	EventEmitter.prototype.emit = function(type) {
+	  var er, handler, len, args, i, listeners;
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error ||
+	        (isObject(this._events.error) && !this._events.error.length)) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      } else {
+	        // At least give some kind of context to the user
+	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	        err.context = er;
+	        throw err;
+	      }
+	    }
+	  }
+
+	  handler = this._events[type];
+
+	  if (isUndefined(handler))
+	    return false;
+
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        args = Array.prototype.slice.call(arguments, 1);
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    args = Array.prototype.slice.call(arguments, 1);
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++)
+	      listeners[i].apply(this, args);
+	  }
+
+	  return true;
+	};
+
+	EventEmitter.prototype.addListener = function(type, listener) {
+	  var m;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener)
+	    this.emit('newListener', type,
+	              isFunction(listener.listener) ?
+	              listener.listener : listener);
+
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;
+	  else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);
+	  else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' +
+	                    'leak detected. %d listeners added. ' +
+	                    'Use emitter.setMaxListeners() to increase limit.',
+	                    this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+	      }
+	    }
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+	EventEmitter.prototype.once = function(type, listener) {
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  var fired = false;
+
+	  function g() {
+	    this.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  g.listener = listener;
+	  this.on(type, g);
+
+	  return this;
+	};
+
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function(type, listener) {
+	  var list, position, length, i;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events || !this._events[type])
+	    return this;
+
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+
+	  if (list === listener ||
+	      (isFunction(list.listener) && list.listener === listener)) {
+	    delete this._events[type];
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener ||
+	          (list[i].listener && list[i].listener === listener)) {
+	        position = i;
+	        break;
+	      }
+	    }
+
+	    if (position < 0)
+	      return this;
+
+	    if (list.length === 1) {
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.removeAllListeners = function(type) {
+	  var key, listeners;
+
+	  if (!this._events)
+	    return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0)
+	      this._events = {};
+	    else if (this._events[type])
+	      delete this._events[type];
+	    return this;
+	  }
+
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    for (key in this._events) {
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = {};
+	    return this;
+	  }
+
+	  listeners = this._events[type];
+
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else if (listeners) {
+	    // LIFO order
+	    while (listeners.length)
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	  }
+	  delete this._events[type];
+
+	  return this;
+	};
+
+	EventEmitter.prototype.listeners = function(type) {
+	  var ret;
+	  if (!this._events || !this._events[type])
+	    ret = [];
+	  else if (isFunction(this._events[type]))
+	    ret = [this._events[type]];
+	  else
+	    ret = this._events[type].slice();
+	  return ret;
+	};
+
+	EventEmitter.prototype.listenerCount = function(type) {
+	  if (this._events) {
+	    var evlistener = this._events[type];
+
+	    if (isFunction(evlistener))
+	      return 1;
+	    else if (evlistener)
+	      return evlistener.length;
+	  }
+	  return 0;
+	};
+
+	EventEmitter.listenerCount = function(emitter, type) {
+	  return emitter.listenerCount(type);
+	};
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+
+
+/***/ },
+/* 616 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = argsArray;
+
+	function argsArray(fun) {
+	  return function () {
+	    var len = arguments.length;
+	    if (len) {
+	      var args = [];
+	      var i = -1;
+	      while (++i < len) {
+	        args[i] = arguments[i];
+	      }
+	      return fun.call(this, args);
+	    } else {
+	      return fun.call(this, []);
+	    }
+	  };
+	}
+
+/***/ },
+/* 617 */
+/***/ function(module, exports) {
+
+	// Generated by CoffeeScript 1.9.2
+	(function() {
+	  var hasProp = {}.hasOwnProperty,
+	    slice = [].slice;
+
+	  module.exports = function(source, scope) {
+	    var key, keys, value, values;
+	    keys = [];
+	    values = [];
+	    for (key in scope) {
+	      if (!hasProp.call(scope, key)) continue;
+	      value = scope[key];
+	      if (key === 'this') {
+	        continue;
+	      }
+	      keys.push(key);
+	      values.push(value);
+	    }
+	    return Function.apply(null, slice.call(keys).concat([source])).apply(scope["this"], values);
+	  };
+
+	}).call(this);
+
+
+/***/ },
+/* 618 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function (factory) {
+	    if (true) {
+	        // Node/CommonJS
+	        module.exports = factory();
+	    } else if (typeof define === 'function' && define.amd) {
+	        // AMD
+	        define(factory);
+	    } else {
+	        // Browser globals (with support for web workers)
+	        var glob;
+
+	        try {
+	            glob = window;
+	        } catch (e) {
+	            glob = self;
+	        }
+
+	        glob.SparkMD5 = factory();
+	    }
+	}(function (undefined) {
+
+	    'use strict';
+
+	    /*
+	     * Fastest md5 implementation around (JKM md5).
+	     * Credits: Joseph Myers
+	     *
+	     * @see http://www.myersdaily.org/joseph/javascript/md5-text.html
+	     * @see http://jsperf.com/md5-shootout/7
+	     */
+
+	    /* this function is much faster,
+	      so if possible we use it. Some IEs
+	      are the only ones I know of that
+	      need the idiotic second function,
+	      generated by an if clause.  */
+	    var add32 = function (a, b) {
+	        return (a + b) & 0xFFFFFFFF;
+	    },
+	        hex_chr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+
+	    function cmn(q, a, b, x, s, t) {
+	        a = add32(add32(a, q), add32(x, t));
+	        return add32((a << s) | (a >>> (32 - s)), b);
+	    }
+
+	    function ff(a, b, c, d, x, s, t) {
+	        return cmn((b & c) | ((~b) & d), a, b, x, s, t);
+	    }
+
+	    function gg(a, b, c, d, x, s, t) {
+	        return cmn((b & d) | (c & (~d)), a, b, x, s, t);
+	    }
+
+	    function hh(a, b, c, d, x, s, t) {
+	        return cmn(b ^ c ^ d, a, b, x, s, t);
+	    }
+
+	    function ii(a, b, c, d, x, s, t) {
+	        return cmn(c ^ (b | (~d)), a, b, x, s, t);
+	    }
+
+	    function md5cycle(x, k) {
+	        var a = x[0],
+	            b = x[1],
+	            c = x[2],
+	            d = x[3];
+
+	        a = ff(a, b, c, d, k[0], 7, -680876936);
+	        d = ff(d, a, b, c, k[1], 12, -389564586);
+	        c = ff(c, d, a, b, k[2], 17, 606105819);
+	        b = ff(b, c, d, a, k[3], 22, -1044525330);
+	        a = ff(a, b, c, d, k[4], 7, -176418897);
+	        d = ff(d, a, b, c, k[5], 12, 1200080426);
+	        c = ff(c, d, a, b, k[6], 17, -1473231341);
+	        b = ff(b, c, d, a, k[7], 22, -45705983);
+	        a = ff(a, b, c, d, k[8], 7, 1770035416);
+	        d = ff(d, a, b, c, k[9], 12, -1958414417);
+	        c = ff(c, d, a, b, k[10], 17, -42063);
+	        b = ff(b, c, d, a, k[11], 22, -1990404162);
+	        a = ff(a, b, c, d, k[12], 7, 1804603682);
+	        d = ff(d, a, b, c, k[13], 12, -40341101);
+	        c = ff(c, d, a, b, k[14], 17, -1502002290);
+	        b = ff(b, c, d, a, k[15], 22, 1236535329);
+
+	        a = gg(a, b, c, d, k[1], 5, -165796510);
+	        d = gg(d, a, b, c, k[6], 9, -1069501632);
+	        c = gg(c, d, a, b, k[11], 14, 643717713);
+	        b = gg(b, c, d, a, k[0], 20, -373897302);
+	        a = gg(a, b, c, d, k[5], 5, -701558691);
+	        d = gg(d, a, b, c, k[10], 9, 38016083);
+	        c = gg(c, d, a, b, k[15], 14, -660478335);
+	        b = gg(b, c, d, a, k[4], 20, -405537848);
+	        a = gg(a, b, c, d, k[9], 5, 568446438);
+	        d = gg(d, a, b, c, k[14], 9, -1019803690);
+	        c = gg(c, d, a, b, k[3], 14, -187363961);
+	        b = gg(b, c, d, a, k[8], 20, 1163531501);
+	        a = gg(a, b, c, d, k[13], 5, -1444681467);
+	        d = gg(d, a, b, c, k[2], 9, -51403784);
+	        c = gg(c, d, a, b, k[7], 14, 1735328473);
+	        b = gg(b, c, d, a, k[12], 20, -1926607734);
+
+	        a = hh(a, b, c, d, k[5], 4, -378558);
+	        d = hh(d, a, b, c, k[8], 11, -2022574463);
+	        c = hh(c, d, a, b, k[11], 16, 1839030562);
+	        b = hh(b, c, d, a, k[14], 23, -35309556);
+	        a = hh(a, b, c, d, k[1], 4, -1530992060);
+	        d = hh(d, a, b, c, k[4], 11, 1272893353);
+	        c = hh(c, d, a, b, k[7], 16, -155497632);
+	        b = hh(b, c, d, a, k[10], 23, -1094730640);
+	        a = hh(a, b, c, d, k[13], 4, 681279174);
+	        d = hh(d, a, b, c, k[0], 11, -358537222);
+	        c = hh(c, d, a, b, k[3], 16, -722521979);
+	        b = hh(b, c, d, a, k[6], 23, 76029189);
+	        a = hh(a, b, c, d, k[9], 4, -640364487);
+	        d = hh(d, a, b, c, k[12], 11, -421815835);
+	        c = hh(c, d, a, b, k[15], 16, 530742520);
+	        b = hh(b, c, d, a, k[2], 23, -995338651);
+
+	        a = ii(a, b, c, d, k[0], 6, -198630844);
+	        d = ii(d, a, b, c, k[7], 10, 1126891415);
+	        c = ii(c, d, a, b, k[14], 15, -1416354905);
+	        b = ii(b, c, d, a, k[5], 21, -57434055);
+	        a = ii(a, b, c, d, k[12], 6, 1700485571);
+	        d = ii(d, a, b, c, k[3], 10, -1894986606);
+	        c = ii(c, d, a, b, k[10], 15, -1051523);
+	        b = ii(b, c, d, a, k[1], 21, -2054922799);
+	        a = ii(a, b, c, d, k[8], 6, 1873313359);
+	        d = ii(d, a, b, c, k[15], 10, -30611744);
+	        c = ii(c, d, a, b, k[6], 15, -1560198380);
+	        b = ii(b, c, d, a, k[13], 21, 1309151649);
+	        a = ii(a, b, c, d, k[4], 6, -145523070);
+	        d = ii(d, a, b, c, k[11], 10, -1120210379);
+	        c = ii(c, d, a, b, k[2], 15, 718787259);
+	        b = ii(b, c, d, a, k[9], 21, -343485551);
+
+	        x[0] = add32(a, x[0]);
+	        x[1] = add32(b, x[1]);
+	        x[2] = add32(c, x[2]);
+	        x[3] = add32(d, x[3]);
+	    }
+
+	    function md5blk(s) {
+	        var md5blks = [],
+	            i; /* Andy King said do it this way. */
+
+	        for (i = 0; i < 64; i += 4) {
+	            md5blks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(i + 1) << 8) + (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(i + 3) << 24);
+	        }
+	        return md5blks;
+	    }
+
+	    function md5blk_array(a) {
+	        var md5blks = [],
+	            i; /* Andy King said do it this way. */
+
+	        for (i = 0; i < 64; i += 4) {
+	            md5blks[i >> 2] = a[i] + (a[i + 1] << 8) + (a[i + 2] << 16) + (a[i + 3] << 24);
+	        }
+	        return md5blks;
+	    }
+
+	    function md51(s) {
+	        var n = s.length,
+	            state = [1732584193, -271733879, -1732584194, 271733878],
+	            i,
+	            length,
+	            tail,
+	            tmp,
+	            lo,
+	            hi;
+
+	        for (i = 64; i <= n; i += 64) {
+	            md5cycle(state, md5blk(s.substring(i - 64, i)));
+	        }
+	        s = s.substring(i - 64);
+	        length = s.length;
+	        tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	        for (i = 0; i < length; i += 1) {
+	            tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
+	        }
+	        tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+	        if (i > 55) {
+	            md5cycle(state, tail);
+	            for (i = 0; i < 16; i += 1) {
+	                tail[i] = 0;
+	            }
+	        }
+
+	        // Beware that the final length might not fit in 32 bits so we take care of that
+	        tmp = n * 8;
+	        tmp = tmp.toString(16).match(/(.*?)(.{0,8})$/);
+	        lo = parseInt(tmp[2], 16);
+	        hi = parseInt(tmp[1], 16) || 0;
+
+	        tail[14] = lo;
+	        tail[15] = hi;
+
+	        md5cycle(state, tail);
+	        return state;
+	    }
+
+	    function md51_array(a) {
+	        var n = a.length,
+	            state = [1732584193, -271733879, -1732584194, 271733878],
+	            i,
+	            length,
+	            tail,
+	            tmp,
+	            lo,
+	            hi;
+
+	        for (i = 64; i <= n; i += 64) {
+	            md5cycle(state, md5blk_array(a.subarray(i - 64, i)));
+	        }
+
+	        // Not sure if it is a bug, however IE10 will always produce a sub array of length 1
+	        // containing the last element of the parent array if the sub array specified starts
+	        // beyond the length of the parent array - weird.
+	        // https://connect.microsoft.com/IE/feedback/details/771452/typed-array-subarray-issue
+	        a = (i - 64) < n ? a.subarray(i - 64) : new Uint8Array(0);
+
+	        length = a.length;
+	        tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	        for (i = 0; i < length; i += 1) {
+	            tail[i >> 2] |= a[i] << ((i % 4) << 3);
+	        }
+
+	        tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+	        if (i > 55) {
+	            md5cycle(state, tail);
+	            for (i = 0; i < 16; i += 1) {
+	                tail[i] = 0;
+	            }
+	        }
+
+	        // Beware that the final length might not fit in 32 bits so we take care of that
+	        tmp = n * 8;
+	        tmp = tmp.toString(16).match(/(.*?)(.{0,8})$/);
+	        lo = parseInt(tmp[2], 16);
+	        hi = parseInt(tmp[1], 16) || 0;
+
+	        tail[14] = lo;
+	        tail[15] = hi;
+
+	        md5cycle(state, tail);
+
+	        return state;
+	    }
+
+	    function rhex(n) {
+	        var s = '',
+	            j;
+	        for (j = 0; j < 4; j += 1) {
+	            s += hex_chr[(n >> (j * 8 + 4)) & 0x0F] + hex_chr[(n >> (j * 8)) & 0x0F];
+	        }
+	        return s;
+	    }
+
+	    function hex(x) {
+	        var i;
+	        for (i = 0; i < x.length; i += 1) {
+	            x[i] = rhex(x[i]);
+	        }
+	        return x.join('');
+	    }
+
+	    // In some cases the fast add32 function cannot be used..
+	    if (hex(md51('hello')) !== '5d41402abc4b2a76b9719d911017c592') {
+	        add32 = function (x, y) {
+	            var lsw = (x & 0xFFFF) + (y & 0xFFFF),
+	                msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+	            return (msw << 16) | (lsw & 0xFFFF);
+	        };
+	    }
+
+	    // ---------------------------------------------------
+
+	    /**
+	     * ArrayBuffer slice polyfill.
+	     *
+	     * @see https://github.com/ttaubert/node-arraybuffer-slice
+	     */
+
+	    if (typeof ArrayBuffer !== 'undefined' && !ArrayBuffer.prototype.slice) {
+	        (function () {
+	            function clamp(val, length) {
+	                val = (val | 0) || 0;
+
+	                if (val < 0) {
+	                    return Math.max(val + length, 0);
+	                }
+
+	                return Math.min(val, length);
+	            }
+
+	            ArrayBuffer.prototype.slice = function (from, to) {
+	                var length = this.byteLength,
+	                    begin = clamp(from, length),
+	                    end = length,
+	                    num,
+	                    target,
+	                    targetArray,
+	                    sourceArray;
+
+	                if (to !== undefined) {
+	                    end = clamp(to, length);
+	                }
+
+	                if (begin > end) {
+	                    return new ArrayBuffer(0);
+	                }
+
+	                num = end - begin;
+	                target = new ArrayBuffer(num);
+	                targetArray = new Uint8Array(target);
+
+	                sourceArray = new Uint8Array(this, begin, num);
+	                targetArray.set(sourceArray);
+
+	                return target;
+	            };
+	        })();
+	    }
+
+	    // ---------------------------------------------------
+
+	    /**
+	     * Helpers.
+	     */
+
+	    function toUtf8(str) {
+	        if (/[\u0080-\uFFFF]/.test(str)) {
+	            str = unescape(encodeURIComponent(str));
+	        }
+
+	        return str;
+	    }
+
+	    function utf8Str2ArrayBuffer(str, returnUInt8Array) {
+	        var length = str.length,
+	           buff = new ArrayBuffer(length),
+	           arr = new Uint8Array(buff),
+	           i;
+
+	        for (i = 0; i < length; i += 1) {
+	            arr[i] = str.charCodeAt(i);
+	        }
+
+	        return returnUInt8Array ? arr : buff;
+	    }
+
+	    function arrayBuffer2Utf8Str(buff) {
+	        return String.fromCharCode.apply(null, new Uint8Array(buff));
+	    }
+
+	    function concatenateArrayBuffers(first, second, returnUInt8Array) {
+	        var result = new Uint8Array(first.byteLength + second.byteLength);
+
+	        result.set(new Uint8Array(first));
+	        result.set(new Uint8Array(second), first.byteLength);
+
+	        return returnUInt8Array ? result : result.buffer;
+	    }
+
+	    function hexToBinaryString(hex) {
+	        var bytes = [],
+	            length = hex.length,
+	            x;
+
+	        for (x = 0; x < length - 1; x += 2) {
+	            bytes.push(parseInt(hex.substr(x, 2), 16));
+	        }
+
+	        return String.fromCharCode.apply(String, bytes);
+	    }
+
+	    // ---------------------------------------------------
+
+	    /**
+	     * SparkMD5 OOP implementation.
+	     *
+	     * Use this class to perform an incremental md5, otherwise use the
+	     * static methods instead.
+	     */
+
+	    function SparkMD5() {
+	        // call reset to init the instance
+	        this.reset();
+	    }
+
+	    /**
+	     * Appends a string.
+	     * A conversion will be applied if an utf8 string is detected.
+	     *
+	     * @param {String} str The string to be appended
+	     *
+	     * @return {SparkMD5} The instance itself
+	     */
+	    SparkMD5.prototype.append = function (str) {
+	        // Converts the string to utf8 bytes if necessary
+	        // Then append as binary
+	        this.appendBinary(toUtf8(str));
+
+	        return this;
+	    };
+
+	    /**
+	     * Appends a binary string.
+	     *
+	     * @param {String} contents The binary string to be appended
+	     *
+	     * @return {SparkMD5} The instance itself
+	     */
+	    SparkMD5.prototype.appendBinary = function (contents) {
+	        this._buff += contents;
+	        this._length += contents.length;
+
+	        var length = this._buff.length,
+	            i;
+
+	        for (i = 64; i <= length; i += 64) {
+	            md5cycle(this._hash, md5blk(this._buff.substring(i - 64, i)));
+	        }
+
+	        this._buff = this._buff.substring(i - 64);
+
+	        return this;
+	    };
+
+	    /**
+	     * Finishes the incremental computation, reseting the internal state and
+	     * returning the result.
+	     *
+	     * @param {Boolean} raw True to get the raw string, false to get the hex string
+	     *
+	     * @return {String} The result
+	     */
+	    SparkMD5.prototype.end = function (raw) {
+	        var buff = this._buff,
+	            length = buff.length,
+	            i,
+	            tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	            ret;
+
+	        for (i = 0; i < length; i += 1) {
+	            tail[i >> 2] |= buff.charCodeAt(i) << ((i % 4) << 3);
+	        }
+
+	        this._finish(tail, length);
+	        ret = hex(this._hash);
+
+	        if (raw) {
+	            ret = hexToBinaryString(ret);
+	        }
+
+	        this.reset();
+
+	        return ret;
+	    };
+
+	    /**
+	     * Resets the internal state of the computation.
+	     *
+	     * @return {SparkMD5} The instance itself
+	     */
+	    SparkMD5.prototype.reset = function () {
+	        this._buff = '';
+	        this._length = 0;
+	        this._hash = [1732584193, -271733879, -1732584194, 271733878];
+
+	        return this;
+	    };
+
+	    /**
+	     * Gets the internal state of the computation.
+	     *
+	     * @return {Object} The state
+	     */
+	    SparkMD5.prototype.getState = function () {
+	        return {
+	            buff: this._buff,
+	            length: this._length,
+	            hash: this._hash
+	        };
+	    };
+
+	    /**
+	     * Gets the internal state of the computation.
+	     *
+	     * @param {Object} state The state
+	     *
+	     * @return {SparkMD5} The instance itself
+	     */
+	    SparkMD5.prototype.setState = function (state) {
+	        this._buff = state.buff;
+	        this._length = state.length;
+	        this._hash = state.hash;
+
+	        return this;
+	    };
+
+	    /**
+	     * Releases memory used by the incremental buffer and other additional
+	     * resources. If you plan to use the instance again, use reset instead.
+	     */
+	    SparkMD5.prototype.destroy = function () {
+	        delete this._hash;
+	        delete this._buff;
+	        delete this._length;
+	    };
+
+	    /**
+	     * Finish the final calculation based on the tail.
+	     *
+	     * @param {Array}  tail   The tail (will be modified)
+	     * @param {Number} length The length of the remaining buffer
+	     */
+	    SparkMD5.prototype._finish = function (tail, length) {
+	        var i = length,
+	            tmp,
+	            lo,
+	            hi;
+
+	        tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+	        if (i > 55) {
+	            md5cycle(this._hash, tail);
+	            for (i = 0; i < 16; i += 1) {
+	                tail[i] = 0;
+	            }
+	        }
+
+	        // Do the final computation based on the tail and length
+	        // Beware that the final length may not fit in 32 bits so we take care of that
+	        tmp = this._length * 8;
+	        tmp = tmp.toString(16).match(/(.*?)(.{0,8})$/);
+	        lo = parseInt(tmp[2], 16);
+	        hi = parseInt(tmp[1], 16) || 0;
+
+	        tail[14] = lo;
+	        tail[15] = hi;
+	        md5cycle(this._hash, tail);
+	    };
+
+	    /**
+	     * Performs the md5 hash on a string.
+	     * A conversion will be applied if utf8 string is detected.
+	     *
+	     * @param {String}  str The string
+	     * @param {Boolean} raw True to get the raw string, false to get the hex string
+	     *
+	     * @return {String} The result
+	     */
+	    SparkMD5.hash = function (str, raw) {
+	        // Converts the string to utf8 bytes if necessary
+	        // Then compute it using the binary function
+	        return SparkMD5.hashBinary(toUtf8(str), raw);
+	    };
+
+	    /**
+	     * Performs the md5 hash on a binary string.
+	     *
+	     * @param {String}  content The binary string
+	     * @param {Boolean} raw     True to get the raw string, false to get the hex string
+	     *
+	     * @return {String} The result
+	     */
+	    SparkMD5.hashBinary = function (content, raw) {
+	        var hash = md51(content),
+	            ret = hex(hash);
+
+	        return raw ? hexToBinaryString(ret) : ret;
+	    };
+
+	    // ---------------------------------------------------
+
+	    /**
+	     * SparkMD5 OOP implementation for array buffers.
+	     *
+	     * Use this class to perform an incremental md5 ONLY for array buffers.
+	     */
+	    SparkMD5.ArrayBuffer = function () {
+	        // call reset to init the instance
+	        this.reset();
+	    };
+
+	    /**
+	     * Appends an array buffer.
+	     *
+	     * @param {ArrayBuffer} arr The array to be appended
+	     *
+	     * @return {SparkMD5.ArrayBuffer} The instance itself
+	     */
+	    SparkMD5.ArrayBuffer.prototype.append = function (arr) {
+	        var buff = concatenateArrayBuffers(this._buff.buffer, arr, true),
+	            length = buff.length,
+	            i;
+
+	        this._length += arr.byteLength;
+
+	        for (i = 64; i <= length; i += 64) {
+	            md5cycle(this._hash, md5blk_array(buff.subarray(i - 64, i)));
+	        }
+
+	        this._buff = (i - 64) < length ? new Uint8Array(buff.buffer.slice(i - 64)) : new Uint8Array(0);
+
+	        return this;
+	    };
+
+	    /**
+	     * Finishes the incremental computation, reseting the internal state and
+	     * returning the result.
+	     *
+	     * @param {Boolean} raw True to get the raw string, false to get the hex string
+	     *
+	     * @return {String} The result
+	     */
+	    SparkMD5.ArrayBuffer.prototype.end = function (raw) {
+	        var buff = this._buff,
+	            length = buff.length,
+	            tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	            i,
+	            ret;
+
+	        for (i = 0; i < length; i += 1) {
+	            tail[i >> 2] |= buff[i] << ((i % 4) << 3);
+	        }
+
+	        this._finish(tail, length);
+	        ret = hex(this._hash);
+
+	        if (raw) {
+	            ret = hexToBinaryString(ret);
+	        }
+
+	        this.reset();
+
+	        return ret;
+	    };
+
+	    /**
+	     * Resets the internal state of the computation.
+	     *
+	     * @return {SparkMD5.ArrayBuffer} The instance itself
+	     */
+	    SparkMD5.ArrayBuffer.prototype.reset = function () {
+	        this._buff = new Uint8Array(0);
+	        this._length = 0;
+	        this._hash = [1732584193, -271733879, -1732584194, 271733878];
+
+	        return this;
+	    };
+
+	    /**
+	     * Gets the internal state of the computation.
+	     *
+	     * @return {Object} The state
+	     */
+	    SparkMD5.ArrayBuffer.prototype.getState = function () {
+	        var state = SparkMD5.prototype.getState.call(this);
+
+	        // Convert buffer to a string
+	        state.buff = arrayBuffer2Utf8Str(state.buff);
+
+	        return state;
+	    };
+
+	    /**
+	     * Gets the internal state of the computation.
+	     *
+	     * @param {Object} state The state
+	     *
+	     * @return {SparkMD5.ArrayBuffer} The instance itself
+	     */
+	    SparkMD5.ArrayBuffer.prototype.setState = function (state) {
+	        // Convert string to buffer
+	        state.buff = utf8Str2ArrayBuffer(state.buff, true);
+
+	        return SparkMD5.prototype.setState.call(this, state);
+	    };
+
+	    SparkMD5.ArrayBuffer.prototype.destroy = SparkMD5.prototype.destroy;
+
+	    SparkMD5.ArrayBuffer.prototype._finish = SparkMD5.prototype._finish;
+
+	    /**
+	     * Performs the md5 hash on an array buffer.
+	     *
+	     * @param {ArrayBuffer} arr The array buffer
+	     * @param {Boolean}     raw True to get the raw string, false to get the hex one
+	     *
+	     * @return {String} The result
+	     */
+	    SparkMD5.ArrayBuffer.hash = function (arr, raw) {
+	        var hash = md51_array(new Uint8Array(arr)),
+	            ret = hex(hash);
+
+	        return raw ? hexToBinaryString(ret) : ret;
+	    };
+
+	    return SparkMD5;
+	}));
+
+
+/***/ },
+/* 619 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * Stringify/parse functions that don't operate
+	 * recursively, so they avoid call stack exceeded
+	 * errors.
+	 */
+	exports.stringify = function stringify(input) {
+	  var queue = [];
+	  queue.push({obj: input});
+
+	  var res = '';
+	  var next, obj, prefix, val, i, arrayPrefix, keys, k, key, value, objPrefix;
+	  while ((next = queue.pop())) {
+	    obj = next.obj;
+	    prefix = next.prefix || '';
+	    val = next.val || '';
+	    res += prefix;
+	    if (val) {
+	      res += val;
+	    } else if (typeof obj !== 'object') {
+	      res += typeof obj === 'undefined' ? null : JSON.stringify(obj);
+	    } else if (obj === null) {
+	      res += 'null';
+	    } else if (Array.isArray(obj)) {
+	      queue.push({val: ']'});
+	      for (i = obj.length - 1; i >= 0; i--) {
+	        arrayPrefix = i === 0 ? '' : ',';
+	        queue.push({obj: obj[i], prefix: arrayPrefix});
+	      }
+	      queue.push({val: '['});
+	    } else { // object
+	      keys = [];
+	      for (k in obj) {
+	        if (obj.hasOwnProperty(k)) {
+	          keys.push(k);
+	        }
+	      }
+	      queue.push({val: '}'});
+	      for (i = keys.length - 1; i >= 0; i--) {
+	        key = keys[i];
+	        value = obj[key];
+	        objPrefix = (i > 0 ? ',' : '');
+	        objPrefix += JSON.stringify(key) + ':';
+	        queue.push({obj: value, prefix: objPrefix});
+	      }
+	      queue.push({val: '{'});
+	    }
+	  }
+	  return res;
+	};
+
+	// Convenience function for the parse function.
+	// This pop function is basically copied from
+	// pouchCollate.parseIndexableString
+	function pop(obj, stack, metaStack) {
+	  var lastMetaElement = metaStack[metaStack.length - 1];
+	  if (obj === lastMetaElement.element) {
+	    // popping a meta-element, e.g. an object whose value is another object
+	    metaStack.pop();
+	    lastMetaElement = metaStack[metaStack.length - 1];
+	  }
+	  var element = lastMetaElement.element;
+	  var lastElementIndex = lastMetaElement.index;
+	  if (Array.isArray(element)) {
+	    element.push(obj);
+	  } else if (lastElementIndex === stack.length - 2) { // obj with key+value
+	    var key = stack.pop();
+	    element[key] = obj;
+	  } else {
+	    stack.push(obj); // obj with key only
+	  }
+	}
+
+	exports.parse = function (str) {
+	  var stack = [];
+	  var metaStack = []; // stack for arrays and objects
+	  var i = 0;
+	  var collationIndex,parsedNum,numChar;
+	  var parsedString,lastCh,numConsecutiveSlashes,ch;
+	  var arrayElement, objElement;
+	  while (true) {
+	    collationIndex = str[i++];
+	    if (collationIndex === '}' ||
+	        collationIndex === ']' ||
+	        typeof collationIndex === 'undefined') {
+	      if (stack.length === 1) {
+	        return stack.pop();
+	      } else {
+	        pop(stack.pop(), stack, metaStack);
+	        continue;
+	      }
+	    }
+	    switch (collationIndex) {
+	      case ' ':
+	      case '\t':
+	      case '\n':
+	      case ':':
+	      case ',':
+	        break;
+	      case 'n':
+	        i += 3; // 'ull'
+	        pop(null, stack, metaStack);
+	        break;
+	      case 't':
+	        i += 3; // 'rue'
+	        pop(true, stack, metaStack);
+	        break;
+	      case 'f':
+	        i += 4; // 'alse'
+	        pop(false, stack, metaStack);
+	        break;
+	      case '0':
+	      case '1':
+	      case '2':
+	      case '3':
+	      case '4':
+	      case '5':
+	      case '6':
+	      case '7':
+	      case '8':
+	      case '9':
+	      case '-':
+	        parsedNum = '';
+	        i--;
+	        while (true) {
+	          numChar = str[i++];
+	          if (/[\d\.\-e\+]/.test(numChar)) {
+	            parsedNum += numChar;
+	          } else {
+	            i--;
+	            break;
+	          }
+	        }
+	        pop(parseFloat(parsedNum), stack, metaStack);
+	        break;
+	      case '"':
+	        parsedString = '';
+	        lastCh = void 0;
+	        numConsecutiveSlashes = 0;
+	        while (true) {
+	          ch = str[i++];
+	          if (ch !== '"' || (lastCh === '\\' &&
+	              numConsecutiveSlashes % 2 === 1)) {
+	            parsedString += ch;
+	            lastCh = ch;
+	            if (lastCh === '\\') {
+	              numConsecutiveSlashes++;
+	            } else {
+	              numConsecutiveSlashes = 0;
+	            }
+	          } else {
+	            break;
+	          }
+	        }
+	        pop(JSON.parse('"' + parsedString + '"'), stack, metaStack);
+	        break;
+	      case '[':
+	        arrayElement = { element: [], index: stack.length };
+	        stack.push(arrayElement.element);
+	        metaStack.push(arrayElement);
+	        break;
+	      case '{':
+	        objElement = { element: {}, index: stack.length };
+	        stack.push(objElement.element);
+	        metaStack.push(objElement);
+	        break;
+	      default:
+	        throw new Error(
+	          'unexpectedly reached end of input: ' + collationIndex);
+	    }
+	  }
+	};
+
+
+/***/ },
+/* 620 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+	  /* istanbul ignore next */
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__))
+	  } else if (typeof exports === 'object') {
+	    module.exports = factory()
+	  } else {
+	    root.PromisePool = factory()
+	    // Legacy API
+	    root.promisePool = root.PromisePool
+	  }
+	})(this, function () {
+	  'use strict'
+
+	  var EventTarget = function () {
+	    this._listeners = {}
+	  }
+
+	  EventTarget.prototype.addEventListener = function (type, listener) {
+	    this._listeners[type] = this._listeners[type] || []
+	    if (this._listeners[type].indexOf(listener) < 0) {
+	      this._listeners[type].push(listener)
+	    }
+	  }
+
+	  EventTarget.prototype.removeEventListener = function (type, listener) {
+	    if (this._listeners[type]) {
+	      var p = this._listeners[type].indexOf(listener)
+	      if (p >= 0) {
+	        this._listeners[type].splice(p, 1)
+	      }
+	    }
+	  }
+
+	  EventTarget.prototype.dispatchEvent = function (evt) {
+	    if (this._listeners[evt.type] && this._listeners[evt.type].length) {
+	      var listeners = this._listeners[evt.type].slice()
+	      for (var i = 0, l = listeners.length; i < l; ++i) {
+	        listeners[i].call(this, evt)
+	      }
+	    }
+	  }
+
+	  var isGenerator = function (func) {
+	    return (typeof func.constructor === 'function' &&
+	      func.constructor.name === 'GeneratorFunction')
+	  }
+
+	  var functionToIterator = function (func) {
+	    return {
+	      next: function () {
+	        var promise = func()
+	        return promise ? {value: promise} : {done: true}
+	      }
+	    }
+	  }
+
+	  var promiseToIterator = function (promise) {
+	    var called = false
+	    return {
+	      next: function () {
+	        if (called) {
+	          return {done: true}
+	        }
+	        called = true
+	        return {value: promise}
+	      }
+	    }
+	  }
+
+	  var toIterator = function (obj, Promise) {
+	    var type = typeof obj
+	    if (type === 'object') {
+	      if (typeof obj.next === 'function') {
+	        return obj
+	      }
+	      /* istanbul ignore else */
+	      if (typeof obj.then === 'function') {
+	        return promiseToIterator(obj)
+	      }
+	    }
+	    if (type === 'function') {
+	      return isGenerator(obj) ? obj() : functionToIterator(obj)
+	    }
+	    return promiseToIterator(Promise.resolve(obj))
+	  }
+
+	  var PromisePoolEvent = function (target, type, data) {
+	    this.target = target
+	    this.type = type
+	    this.data = data
+	  }
+
+	  var PromisePool = function (source, concurrency, options) {
+	    EventTarget.call(this)
+	    if (typeof concurrency !== 'number' ||
+	        Math.floor(concurrency) !== concurrency ||
+	        concurrency < 1) {
+	      throw new Error('Invalid concurrency')
+	    }
+	    this._concurrency = concurrency
+	    this._options = options || {}
+	    this._options.promise = this._options.promise || Promise
+	    this._iterator = toIterator(source, this._options.promise)
+	    this._done = false
+	    this._size = 0
+	    this._promise = null
+	    this._callbacks = null
+	  }
+	  PromisePool.prototype = new EventTarget()
+	  PromisePool.prototype.constructor = PromisePool
+
+	  PromisePool.prototype.concurrency = function (value) {
+	    if (typeof value !== 'undefined') {
+	      this._concurrency = value
+	      if (this.active()) {
+	        this._proceed()
+	      }
+	    }
+	    return this._concurrency
+	  }
+
+	  PromisePool.prototype.size = function () {
+	    return this._size
+	  }
+
+	  PromisePool.prototype.active = function () {
+	    return !!this._promise
+	  }
+
+	  PromisePool.prototype.promise = function () {
+	    return this._promise
+	  }
+
+	  PromisePool.prototype.start = function () {
+	    var that = this
+	    var Promise = this._options.promise
+	    this._promise = new Promise(function (resolve, reject) {
+	      that._callbacks = {
+	        reject: reject,
+	        resolve: resolve
+	      }
+	      that._proceed()
+	    })
+	    return this._promise
+	  }
+
+	  PromisePool.prototype._fireEvent = function (type, data) {
+	    this.dispatchEvent(new PromisePoolEvent(this, type, data))
+	  }
+
+	  PromisePool.prototype._settle = function (error) {
+	    if (error) {
+	      this._callbacks.reject(error)
+	    } else {
+	      this._callbacks.resolve()
+	    }
+	    this._promise = null
+	    this._callbacks = null
+	  }
+
+	  PromisePool.prototype._onPooledPromiseFulfilled = function (promise, result) {
+	    this._size--
+	    if (this.active()) {
+	      this._fireEvent('fulfilled', {
+	        promise: promise,
+	        result: result
+	      })
+	      this._proceed()
+	    }
+	  }
+
+	  PromisePool.prototype._onPooledPromiseRejected = function (promise, error) {
+	    this._size--
+	    if (this.active()) {
+	      this._fireEvent('rejected', {
+	        promise: promise,
+	        error: error
+	      })
+	      this._settle(error || new Error('Unknown error'))
+	    }
+	  }
+
+	  PromisePool.prototype._trackPromise = function (promise) {
+	    var that = this
+	    promise
+	      .then(function (result) {
+	        that._onPooledPromiseFulfilled(promise, result)
+	      }, function (error) {
+	        that._onPooledPromiseRejected(promise, error)
+	      })['catch'](function (err) {
+	        that._settle(new Error('Promise processing failed: ' + err))
+	      })
+	  }
+
+	  PromisePool.prototype._proceed = function () {
+	    if (!this._done) {
+	      var result = null
+	      while (this._size < this._concurrency &&
+	          !(result = this._iterator.next()).done) {
+	        this._size++
+	        this._trackPromise(result.value)
+	      }
+	      this._done = (result === null || !!result.done)
+	    }
+	    if (this._done && this._size === 0) {
+	      this._settle()
+	    }
+	  }
+
+	  PromisePool.PromisePoolEvent = PromisePoolEvent
+	  // Legacy API
+	  PromisePool.PromisePool = PromisePool
+
+	  return PromisePool
+	})
+
+
+/***/ },
+/* 621 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37634,13 +48052,19 @@ webpackJsonp([0],[
 
 	exports.doFilter = doFilter;
 
-	var _TodoFilters = __webpack_require__(488);
+	var _TodoFilters = __webpack_require__(489);
 
-	var _moment = __webpack_require__(363);
+	var _NavigationTypes = __webpack_require__(329);
+
+	var MenuItemType = _interopRequireWildcard(_NavigationTypes);
+
+	var _moment = __webpack_require__(364);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -37652,30 +48076,48 @@ webpackJsonp([0],[
 	    return todo.completed;
 	}), _TODO_FILTERS);
 
-	function doFilter(todoFilters) {
+	/**
+	 * 需要根据过滤条件和当前选中的标签页来判断
+	 * @param todoFilters
+	 * @param navigation
+	 * @return {function(*=)}
+	 */
+	function doFilter(todoFilters, navigation) {
 	    var status = todoFilters.status;
 	    var startDate = todoFilters.startDate;
 	    var endDate = todoFilters.endDate;
 
 	    return function (todo) {
-	        if (TODO_FILTERS[status](todo)) {
-	            if (startDate && endDate) {
-	                return (0, _moment2.default)(todo.date).isBetween(startDate, endDate);
-	            }
-	            if (startDate) {
-	                return (0, _moment2.default)(todo.date).isAfter(startDate);
-	            }
-	            if (endDate) {
-	                return (0, _moment2.default)(todo.date).isBefore(endDate);
-	            }
-	            return true;
+	        switch (navigation) {
+	            case MenuItemType.TODOS:
+	                {
+	                    if (TODO_FILTERS[status](todo)) {
+	                        if (startDate && endDate) {
+	                            return (0, _moment2.default)(todo.date).isBetween(startDate, endDate);
+	                        }
+	                        if (startDate) {
+	                            return (0, _moment2.default)(todo.date).isAfter(startDate);
+	                        }
+	                        if (endDate) {
+	                            return (0, _moment2.default)(todo.date).isBefore(endDate);
+	                        }
+	                        return true;
+	                    }
+	                    return false;
+	                }
+	            case MenuItemType.TODAY:
+	                {
+	                    if (todo.date) {
+	                        return (0, _moment2.default)(todo.date).isSame(new Date(), 'day');
+	                    }
+	                    return false;
+	                }
 	        }
-	        return false;
 	    };
 	}
 
 /***/ },
-/* 587 */
+/* 622 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37686,30 +48128,40 @@ webpackJsonp([0],[
 
 	var _redux = __webpack_require__(172);
 
-	var _todos = __webpack_require__(588);
+	var _todos = __webpack_require__(623);
 
 	var _todos2 = _interopRequireDefault(_todos);
 
-	var _todoDialog = __webpack_require__(589);
+	var _todoDialog = __webpack_require__(624);
 
 	var _todoDialog2 = _interopRequireDefault(_todoDialog);
 
-	var _todoFilter = __webpack_require__(590);
+	var _todoFilter = __webpack_require__(625);
 
 	var _todoFilter2 = _interopRequireDefault(_todoFilter);
+
+	var _tags = __webpack_require__(626);
+
+	var _tags2 = _interopRequireDefault(_tags);
+
+	var _navigate = __webpack_require__(627);
+
+	var _navigate2 = _interopRequireDefault(_navigate);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var rootReducer = (0, _redux.combineReducers)({
 	    todos: _todos2.default,
 	    todoDialog: _todoDialog2.default,
-	    todoFilter: _todoFilter2.default
+	    todoFilter: _todoFilter2.default,
+	    tags: _tags2.default,
+	    navigation: _navigate2.default
 	});
 
 	exports.default = rootReducer;
 
 /***/ },
-/* 588 */
+/* 623 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37724,7 +48176,7 @@ webpackJsonp([0],[
 
 	exports.default = todos;
 
-	var _ActionTypes = __webpack_require__(582);
+	var _ActionTypes = __webpack_require__(605);
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -37809,7 +48261,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 589 */
+/* 624 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37819,7 +48271,7 @@ webpackJsonp([0],[
 	});
 	exports.default = TodoDialog;
 
-	var _ActionTypes = __webpack_require__(582);
+	var _ActionTypes = __webpack_require__(605);
 
 	var initialState = {
 	    visible: false,
@@ -37847,7 +48299,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 590 */
+/* 625 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37860,11 +48312,11 @@ webpackJsonp([0],[
 
 	exports.default = TodoFilter;
 
-	var _TodoFilters = __webpack_require__(488);
+	var _TodoFilters = __webpack_require__(489);
 
 	var Filters = _interopRequireWildcard(_TodoFilters);
 
-	var _ActionTypes = __webpack_require__(582);
+	var _ActionTypes = __webpack_require__(605);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -37887,13 +48339,71 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 591 */
+/* 626 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = tags;
+
+	var _ActionTypes = __webpack_require__(605);
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	var initialState = [];
+
+	function tags() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	        case _ActionTypes.GET_TAGS:
+	            return [].concat(_toConsumableArray(action.tags));
+	        case _ActionTypes.ADD_TAGS:
+	            return [].concat(_toConsumableArray(state), _toConsumableArray(action.tags));
+	        default:
+	            return state;
+	    }
+	}
+
+/***/ },
+/* 627 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = navigation;
+
+	var _ActionTypes = __webpack_require__(605);
+
+	var _NavigationTypes = __webpack_require__(329);
+
+	function navigation() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _NavigationTypes.TODOS;
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	        case _ActionTypes.SWITCH_MENU:
+	            return action.key;
+	        default:
+	            return state;
+	    }
+	}
+
+/***/ },
+/* 628 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(592);
+	var content = __webpack_require__(629);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -37902,8 +48412,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(592, function() {
-				var newContent = __webpack_require__(592);
+			module.hot.accept(629, function() {
+				var newContent = __webpack_require__(629);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -37913,7 +48423,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 592 */
+/* 629 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
@@ -37927,13 +48437,13 @@ webpackJsonp([0],[
 
 
 /***/ },
-/* 593 */
+/* 630 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(594);
+	var content = __webpack_require__(631);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(202)(content, {});
@@ -37942,8 +48452,8 @@ webpackJsonp([0],[
 	if(true) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept(594, function() {
-				var newContent = __webpack_require__(594);
+			module.hot.accept(631, function() {
+				var newContent = __webpack_require__(631);
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -37953,7 +48463,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 594 */
+/* 631 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(201)();
