@@ -34,9 +34,7 @@ export function doFilter (todoFilters, navigation) {
                 return false;
             }
             case MenuItemType.TODAY: {
-                console.log('filter today', todo.date);
                 if (todo.date) {
-                    console.log('is same: ', moment(todo.date).isSame(new Date(), 'day'));
                     return moment(todo.date).isSame(new Date(), 'day');
                 }
                 return false;

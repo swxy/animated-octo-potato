@@ -4,7 +4,6 @@ import { doFilter } from './doFilter';
 import { SWITCH_MENU } from '../constants/ActionTypes';
 
 function queryTodos (dispatch, state) {
-    console.log(state.navigation);
     const filter = doFilter(state.todoFilter, state.navigation);
     return getTodosFromDb().then(todos => {
         const transformTodo = [];
