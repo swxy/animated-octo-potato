@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import Header from './Header';
 import TodoList from './TodoList';
 import TodayNeedTodo from './TodayNeedTodo';
+import Time from './Time';
 import * as MenuItemType from '../constants/NavigationTypes';
 
 export default class MainSection extends Component {
@@ -28,11 +29,18 @@ export default class MainSection extends Component {
                 <TodoList todos={todos} todoConstraint={this.props.filters} {...actions} />
             </section>
         );
+        const timeTab = (
+            <section className="main">
+                <Time />
+            </section>
+        );
         switch (current) {
             case MenuItemType.TODAY:
                 return todayTab;
             case MenuItemType.TODOS:
                 return todoTab;
+            case MenuItemType.TIME:
+                return timeTab;
         }
     }
 
