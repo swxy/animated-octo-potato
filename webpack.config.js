@@ -1,15 +1,22 @@
 const webpack = require('webpack');
-
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 module.exports = {
     entry: {
         index: './src/index.js',
         // 第三方包
         vendor: [
-            'react',
-            'react-dom',
+            'pouchdb-browser',
             'antd',
             'moment'
         ]
+    },
+    externals: {
+        "antd": 'antd',
+        'react': 'React',
+        'react-dom': 'ReactDOM',
+        'moment': 'moment',
+        'redux': 'Redux',
+        'react-redux': 'ReactRedux'
     },
     output: {
         path: './dist',
@@ -33,16 +40,17 @@ module.exports = {
             }]]
         },{
             test: /\.css$/,
-            loader: 'style!css'
+            loader: ExtractTextPlugin.extract("style-loader", "css-loader")
         },{
             test: /\.less$/,
-            loader: "style!css!less"
+            loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
         }]
     },
     plugins: [
         new webpack.optimize.CommonsChunkPlugin(/* chunkName= */"vendor", /* filename= */"vendor.bundle.js"),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+        new ExtractTextPlugin("[name].css")
     ],
     devServer: {
         inline: true,
