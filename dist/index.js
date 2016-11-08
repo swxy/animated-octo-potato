@@ -22,13 +22,13 @@ webpackJsonp([0],[
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _reducers = __webpack_require__(437);
+	var _reducers = __webpack_require__(452);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	__webpack_require__(443);
+	__webpack_require__(458);
 
-	__webpack_require__(445);
+	__webpack_require__(460);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -120,11 +120,11 @@ webpackJsonp([0],[
 
 	var _MainSection2 = _interopRequireDefault(_MainSection);
 
-	var _TodoDialog = __webpack_require__(414);
+	var _TodoDialog = __webpack_require__(429);
 
 	var _TodoDialog2 = _interopRequireDefault(_TodoDialog);
 
-	var _actions = __webpack_require__(419);
+	var _actions = __webpack_require__(434);
 
 	var TodoActions = _interopRequireWildcard(_actions);
 
@@ -6840,6 +6840,7 @@ webpackJsonp([0],[
 	});
 	var TODOS = exports.TODOS = 'todos';
 	var TODAY = exports.TODAY = 'today';
+	var TIME = exports.TIME = 'time';
 
 /***/ },
 /* 142 */
@@ -6870,6 +6871,10 @@ webpackJsonp([0],[
 	var _TodayNeedTodo = __webpack_require__(392);
 
 	var _TodayNeedTodo2 = _interopRequireDefault(_TodayNeedTodo);
+
+	var _Time = __webpack_require__(414);
+
+	var _Time2 = _interopRequireDefault(_Time);
 
 	var _NavigationTypes = __webpack_require__(141);
 
@@ -6916,11 +6921,18 @@ webpackJsonp([0],[
 	                    filterTodo: actions.filterTodo }),
 	                _react2.default.createElement(_TodoList2.default, _extends({ todos: todos, todoConstraint: this.props.filters }, actions))
 	            );
+	            var timeTab = _react2.default.createElement(
+	                'section',
+	                { className: 'main' },
+	                _react2.default.createElement(_Time2.default, null)
+	            );
 	            switch (current) {
 	                case MenuItemType.TODAY:
 	                    return todayTab;
 	                case MenuItemType.TODOS:
 	                    return todoTab;
+	                case MenuItemType.TIME:
+	                    return timeTab;
 	            }
 	        }
 	    }, {
@@ -35529,6 +35541,1284 @@ webpackJsonp([0],[
 	    value: true
 	});
 
+	var _css = __webpack_require__(144);
+
+	var _button = __webpack_require__(147);
+
+	var _button2 = _interopRequireDefault(_button);
+
+	var _css2 = __webpack_require__(415);
+
+	var _slider = __webpack_require__(421);
+
+	var _slider2 = _interopRequireDefault(_slider);
+
+	var _css3 = __webpack_require__(250);
+
+	var _form = __webpack_require__(256);
+
+	var _form2 = _interopRequireDefault(_form);
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var FormItem = _form2.default.Item;
+
+	var URL = {
+	    'smooth night': 'http://mr3.doubanio.com/a6336b5a2f2e572f33950494ccfb08a5/0/fm/song/p1835658_128k.mp3',
+	    'rain mood': 'http://107.182.230.196/audio1110/0.m4a'
+	};
+
+	var playing = false;
+
+	var Time = function (_Component) {
+	    _inherits(Time, _Component);
+
+	    function Time() {
+	        var _ref;
+
+	        var _temp2, _this, _ret;
+
+	        _classCallCheck(this, Time);
+
+	        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	            args[_key] = arguments[_key];
+	        }
+
+	        return _ret = (_temp2 = (_this = _possibleConstructorReturn(this, (_ref = Time.__proto__ || Object.getPrototypeOf(Time)).call.apply(_ref, [this].concat(args))), _this), _this.state = {}, _this.start = function () {
+	            var that = _this;
+	            if (playing) {
+	                return;
+	            }
+	            playing = true;
+	            _this.audio.play();
+	            _this.timerToStop = setTimeout(function () {
+	                that.audio.pause();
+	                playing = false;
+	            }, 20 * 1000);
+	            _this.timerToStart = setTimeout(function () {
+	                that.audio.play();
+	                playing = true;
+	            }, that.interval * 60 * 1000);
+	        }, _this.slideChange = function (val) {
+	            _this.interval = val;
+	        }, _this.stop = function () {
+	            _this.audio.pause();
+	            if (_this.timerToStop) {
+	                clearTimeout(_this.timerToStop);
+	            }
+	            if (_this.timerToStart) {
+	                clearTimeout(_this.timerToStart);
+	            }
+	            playing = false;
+	        }, _temp2), _possibleConstructorReturn(_this, _ret);
+	    }
+
+	    _createClass(Time, [{
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+
+	            var formItemLayout = {
+	                labelCol: { span: 6 },
+	                wrapperCol: { span: 14 }
+	            };
+
+	            return _react2.default.createElement(
+	                _form2.default,
+	                { horizontal: true, onSubmit: this.handleSubmit },
+	                _react2.default.createElement(
+	                    FormItem,
+	                    _extends({}, formItemLayout, {
+	                        label: '\u95F4\u9694' }),
+	                    _react2.default.createElement(_slider2.default, {
+	                        marks: { 0: '0', 15: '15', 25: '25', 30: '30', 45: '45', 60: '60' },
+	                        onChange: this.slideChange,
+	                        defaultValue: 25,
+	                        max: '60' })
+	                ),
+	                _react2.default.createElement(
+	                    FormItem,
+	                    { wrapperCol: { span: 16, offset: 6 } },
+	                    _react2.default.createElement(
+	                        _button2.default,
+	                        { type: 'primary', htmlType: 'button', size: 'large', style: { marginRight: 8 }, onClick: this.start },
+	                        '\u5F00\u59CB'
+	                    ),
+	                    _react2.default.createElement(
+	                        _button2.default,
+	                        { htmlType: 'button', size: 'large', onClick: this.stop },
+	                        '\u7ED3\u675F'
+	                    )
+	                ),
+	                _react2.default.createElement('audio', { src: URL['smooth night'], preload: 'true', ref: function ref(input) {
+	                        _this2.audio = input;
+	                    } })
+	            );
+	        }
+	    }]);
+
+	    return Time;
+	}(_react.Component);
+
+	Time.propTypes = {
+	    // 暂时没有
+	};
+	exports.default = Time;
+
+/***/ },
+/* 415 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(9);
+
+	__webpack_require__(416);
+
+	__webpack_require__(418);
+
+/***/ },
+/* 416 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 417 */,
+/* 418 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	__webpack_require__(9);
+
+	__webpack_require__(419);
+
+/***/ },
+/* 419 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 420 */,
+/* 421 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports["default"] = undefined;
+
+	var _classCallCheck2 = __webpack_require__(54);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(55);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(91);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _rcSlider = __webpack_require__(422);
+
+	var _rcSlider2 = _interopRequireDefault(_rcSlider);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var Slider = function (_React$Component) {
+	    (0, _inherits3["default"])(Slider, _React$Component);
+
+	    function Slider() {
+	        (0, _classCallCheck3["default"])(this, Slider);
+	        return (0, _possibleConstructorReturn3["default"])(this, _React$Component.apply(this, arguments));
+	    }
+
+	    Slider.prototype.render = function render() {
+	        return _react2["default"].createElement(_rcSlider2["default"], this.props);
+	    };
+
+	    return Slider;
+	}(_react2["default"].Component);
+
+	exports["default"] = Slider;
+
+	Slider.defaultProps = {
+	    prefixCls: 'ant-slider',
+	    tooltipPrefixCls: 'ant-tooltip',
+	    tipTransitionName: 'zoom-down'
+	};
+	Slider.propTypes = {
+	    prefixCls: _react.PropTypes.string,
+	    tipTransitionName: _react.PropTypes.string
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 422 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(423);
+
+/***/ },
+/* 423 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _defineProperty2 = __webpack_require__(102);
+
+	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+	var _toConsumableArray2 = __webpack_require__(344);
+
+	var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+	var _extends2 = __webpack_require__(16);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _classCallCheck2 = __webpack_require__(54);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(55);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(91);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _addEventListener = __webpack_require__(424);
+
+	var _addEventListener2 = _interopRequireDefault(_addEventListener);
+
+	var _classnames = __webpack_require__(108);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _Track = __webpack_require__(425);
+
+	var _Track2 = _interopRequireDefault(_Track);
+
+	var _Handle = __webpack_require__(426);
+
+	var _Handle2 = _interopRequireDefault(_Handle);
+
+	var _Steps = __webpack_require__(427);
+
+	var _Steps2 = _interopRequireDefault(_Steps);
+
+	var _Marks = __webpack_require__(428);
+
+	var _Marks2 = _interopRequireDefault(_Marks);
+
+	var _warning = __webpack_require__(137);
+
+	var _warning2 = _interopRequireDefault(_warning);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function noop() {}
+
+	function isNotTouchEvent(e) {
+	  return e.touches.length > 1 || e.type.toLowerCase() === 'touchend' && e.touches.length > 0;
+	}
+
+	function getTouchPosition(vertical, e) {
+	  return vertical ? e.touches[0].clientY : e.touches[0].pageX;
+	}
+
+	function getMousePosition(vertical, e) {
+	  return vertical ? e.clientY : e.pageX;
+	}
+
+	function pauseEvent(e) {
+	  e.stopPropagation();
+	  e.preventDefault();
+	}
+
+	var Slider = function (_React$Component) {
+	  (0, _inherits3["default"])(Slider, _React$Component);
+
+	  function Slider(props) {
+	    (0, _classCallCheck3["default"])(this, Slider);
+
+	    var _this = (0, _possibleConstructorReturn3["default"])(this, _React$Component.call(this, props));
+
+	    var range = props.range;
+	    var min = props.min;
+	    var max = props.max;
+	    var step = props.step;
+
+	    var initialValue = range ? Array.apply(null, Array(range + 1)).map(function () {
+	      return min;
+	    }) : min;
+	    var defaultValue = 'defaultValue' in props ? props.defaultValue : initialValue;
+	    var value = props.value !== undefined ? props.value : defaultValue;
+
+	    var bounds = (range ? value : [min, value]).map(function (v) {
+	      return _this.trimAlignValue(v);
+	    });
+
+	    var recent = void 0;
+	    if (range && bounds[0] === bounds[bounds.length - 1] && bounds[0] === max) {
+	      recent = 0;
+	    } else {
+	      recent = bounds.length - 1;
+	    }
+
+	    if (process.env.NODE_ENV !== 'production' && step && Math.floor(step) === step && (max - min) % step !== 0) {
+	      (0, _warning2["default"])(false, 'Slider[max] - Slider[min] (%s) should be a multiple of Slider[step] (%s)', max - min, step);
+	    }
+
+	    _this.state = {
+	      handle: null,
+	      recent: recent,
+	      bounds: bounds
+	    };
+	    return _this;
+	  }
+
+	  Slider.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+	    var _this2 = this;
+
+	    if (!('value' in nextProps || 'min' in nextProps || 'max' in nextProps)) return;
+
+	    var bounds = this.state.bounds;
+
+	    if (nextProps.range) {
+	      var value = nextProps.value || bounds;
+	      var nextBounds = value.map(function (v) {
+	        return _this2.trimAlignValue(v, nextProps);
+	      });
+	      if (nextBounds.every(function (v, i) {
+	        return v === bounds[i];
+	      })) return;
+
+	      this.setState({ bounds: nextBounds });
+	      if (bounds.some(function (v) {
+	        return _this2.isValueOutOfBounds(v, nextProps);
+	      })) {
+	        this.props.onChange(nextBounds);
+	      }
+	    } else {
+	      var _value = nextProps.value !== undefined ? nextProps.value : bounds[1];
+	      var nextValue = this.trimAlignValue(_value, nextProps);
+	      if (nextValue === bounds[1] && bounds[0] === nextProps.min) return;
+
+	      this.setState({ bounds: [nextProps.min, nextValue] });
+	      if (this.isValueOutOfBounds(bounds[1], nextProps)) {
+	        this.props.onChange(nextValue);
+	      }
+	    }
+	  };
+
+	  Slider.prototype.onChange = function onChange(state) {
+	    var props = this.props;
+	    var isNotControlled = !('value' in props);
+	    if (isNotControlled) {
+	      this.setState(state);
+	    } else if (state.handle) {
+	      this.setState({ handle: state.handle });
+	    }
+
+	    var data = (0, _extends3["default"])({}, this.state, state);
+	    var changedValue = props.range ? data.bounds : data.bounds[1];
+	    props.onChange(changedValue);
+	  };
+
+	  Slider.prototype.onMouseMove = function onMouseMove(e) {
+	    var position = getMousePosition(this.props.vertical, e);
+	    this.onMove(e, position);
+	  };
+
+	  Slider.prototype.onTouchMove = function onTouchMove(e) {
+	    if (isNotTouchEvent(e)) {
+	      this.end('touch');
+	      return;
+	    }
+
+	    var position = getTouchPosition(this.props.vertical, e);
+	    this.onMove(e, position);
+	  };
+
+	  Slider.prototype.onMove = function onMove(e, position) {
+	    pauseEvent(e);
+	    var props = this.props;
+	    var state = this.state;
+
+	    var diffPosition = position - this.startPosition;
+	    diffPosition = this.props.vertical ? -diffPosition : diffPosition;
+	    var diffValue = diffPosition / this.getSliderLength() * (props.max - props.min);
+
+	    var value = this.trimAlignValue(this.startValue + diffValue);
+	    var oldValue = state.bounds[state.handle];
+	    if (value === oldValue) return;
+
+	    var nextBounds = [].concat((0, _toConsumableArray3["default"])(state.bounds));
+	    nextBounds[state.handle] = value;
+	    var nextHandle = state.handle;
+	    if (props.pushable !== false) {
+	      var originalValue = state.bounds[nextHandle];
+	      this.pushSurroundingHandles(nextBounds, nextHandle, originalValue);
+	    } else if (props.allowCross) {
+	      nextBounds.sort(function (a, b) {
+	        return a - b;
+	      });
+	      nextHandle = nextBounds.indexOf(value);
+	    }
+	    this.onChange({
+	      handle: nextHandle,
+	      bounds: nextBounds
+	    });
+	  };
+
+	  Slider.prototype.onTouchStart = function onTouchStart(e) {
+	    if (isNotTouchEvent(e)) return;
+
+	    var position = getTouchPosition(this.props.vertical, e);
+	    this.onStart(position);
+	    this.addDocumentEvents('touch');
+	    pauseEvent(e);
+	  };
+
+	  Slider.prototype.onMouseDown = function onMouseDown(e) {
+	    if (e.button !== 0) {
+	      return;
+	    }
+	    var position = getMousePosition(this.props.vertical, e);
+	    this.onStart(position);
+	    this.addDocumentEvents('mouse');
+	    pauseEvent(e);
+	  };
+
+	  Slider.prototype.onStart = function onStart(position) {
+	    var props = this.props;
+	    props.onBeforeChange(this.getValue());
+
+	    var value = this.calcValueByPos(position);
+	    this.startValue = value;
+	    this.startPosition = position;
+
+	    var state = this.state;
+	    var bounds = state.bounds;
+
+
+	    var valueNeedChanging = 1;
+	    if (this.props.range) {
+	      var closestBound = 0;
+	      for (var i = 1; i < bounds.length - 1; ++i) {
+	        if (value > bounds[i]) {
+	          closestBound = i;
+	        }
+	      }
+	      if (Math.abs(bounds[closestBound + 1] - value) < Math.abs(bounds[closestBound] - value)) {
+	        closestBound = closestBound + 1;
+	      }
+	      valueNeedChanging = closestBound;
+
+	      var isAtTheSamePoint = bounds[closestBound + 1] === bounds[closestBound];
+	      if (isAtTheSamePoint) {
+	        valueNeedChanging = state.recent;
+	      }
+
+	      if (isAtTheSamePoint && value !== bounds[closestBound + 1]) {
+	        valueNeedChanging = value < bounds[closestBound + 1] ? closestBound : closestBound + 1;
+	      }
+	    }
+
+	    this.setState({
+	      handle: valueNeedChanging,
+	      recent: valueNeedChanging
+	    });
+
+	    var oldValue = state.bounds[valueNeedChanging];
+	    if (value === oldValue) return;
+
+	    var nextBounds = [].concat((0, _toConsumableArray3["default"])(state.bounds));
+	    nextBounds[valueNeedChanging] = value;
+	    this.onChange({ bounds: nextBounds });
+	  };
+
+	  Slider.prototype.getValue = function getValue() {
+	    var bounds = this.state.bounds;
+
+	    return this.props.range ? bounds : bounds[1];
+	  };
+
+	  Slider.prototype.getSliderLength = function getSliderLength() {
+	    var slider = this.refs.slider;
+	    if (!slider) {
+	      return 0;
+	    }
+
+	    return this.props.vertical ? slider.clientHeight : slider.clientWidth;
+	  };
+
+	  Slider.prototype.getSliderStart = function getSliderStart() {
+	    var slider = this.refs.slider;
+	    var rect = slider.getBoundingClientRect();
+
+	    return this.props.vertical ? rect.top : rect.left;
+	  };
+
+	  Slider.prototype.getPrecision = function getPrecision(step) {
+	    var stepString = step.toString();
+	    var precision = 0;
+	    if (stepString.indexOf('.') >= 0) {
+	      precision = stepString.length - stepString.indexOf('.') - 1;
+	    }
+	    return precision;
+	  };
+
+	  /**
+	   * Returns an array of possible slider points, taking into account both
+	   * `marks` and `step`. The result is cached.
+	   */
+
+
+	  Slider.prototype.getPoints = function getPoints() {
+	    var _props = this.props;
+	    var marks = _props.marks;
+	    var step = _props.step;
+	    var min = _props.min;
+	    var max = _props.max;
+
+	    var cache = this._getPointsCache;
+	    if (!cache || cache.marks !== marks || cache.step !== step) {
+	      var pointsObject = (0, _extends3["default"])({}, marks);
+	      if (step !== null) {
+	        for (var point = min; point <= max; point += step) {
+	          pointsObject[point] = point;
+	        }
+	      }
+	      var points = Object.keys(pointsObject).map(parseFloat);
+	      points.sort(function (a, b) {
+	        return a - b;
+	      });
+	      this._getPointsCache = { marks: marks, step: step, points: points };
+	    }
+	    return this._getPointsCache.points;
+	  };
+
+	  Slider.prototype.isValueOutOfBounds = function isValueOutOfBounds(value, props) {
+	    return value < props.min || value > props.max;
+	  };
+
+	  Slider.prototype.trimAlignValue = function trimAlignValue(v, nextProps) {
+	    var state = this.state || {};
+	    var handle = state.handle;
+	    var bounds = state.bounds;
+
+	    var _props2 = (0, _extends3["default"])({}, this.props, nextProps || {});
+
+	    var marks = _props2.marks;
+	    var step = _props2.step;
+	    var min = _props2.min;
+	    var max = _props2.max;
+	    var allowCross = _props2.allowCross;
+
+
+	    var val = v;
+	    if (val <= min) {
+	      val = min;
+	    }
+	    if (val >= max) {
+	      val = max;
+	    }
+	    /* eslint-disable eqeqeq */
+	    if (!allowCross && handle != null && handle > 0 && val <= bounds[handle - 1]) {
+	      val = bounds[handle - 1];
+	    }
+	    if (!allowCross && handle != null && handle < bounds.length - 1 && val >= bounds[handle + 1]) {
+	      val = bounds[handle + 1];
+	    }
+	    /* eslint-enable eqeqeq */
+
+	    var points = Object.keys(marks).map(parseFloat);
+	    if (step !== null) {
+	      var closestStep = Math.round((val - min) / step) * step + min;
+	      points.push(closestStep);
+	    }
+
+	    var diffs = points.map(function (point) {
+	      return Math.abs(val - point);
+	    });
+	    var closestPoint = points[diffs.indexOf(Math.min.apply(Math, diffs))];
+
+	    return step !== null ? parseFloat(closestPoint.toFixed(this.getPrecision(step))) : closestPoint;
+	  };
+
+	  Slider.prototype.pushHandleOnePoint = function pushHandleOnePoint(bounds, handle, direction) {
+	    var points = this.getPoints();
+	    var pointIndex = points.indexOf(bounds[handle]);
+	    var nextPointIndex = pointIndex + direction;
+	    if (nextPointIndex >= points.length || nextPointIndex < 0) {
+	      // reached the minimum or maximum available point, can't push anymore
+	      return false;
+	    }
+	    var nextHandle = handle + direction;
+	    var nextValue = points[nextPointIndex];
+	    var threshold = this.props.pushable;
+
+	    var diffToNext = direction * (bounds[nextHandle] - nextValue);
+	    if (!this.pushHandle(bounds, nextHandle, direction, threshold - diffToNext)) {
+	      // couldn't push next handle, so we won't push this one either
+	      return false;
+	    }
+	    // push the handle
+	    bounds[handle] = nextValue;
+	    return true;
+	  };
+
+	  Slider.prototype.pushHandle = function pushHandle(bounds, handle, direction, amount) {
+	    var originalValue = bounds[handle];
+	    var currentValue = bounds[handle];
+	    while (direction * (currentValue - originalValue) < amount) {
+	      if (!this.pushHandleOnePoint(bounds, handle, direction)) {
+	        // can't push handle enough to create the needed `amount` gap, so we
+	        // revert its position to the original value
+	        bounds[handle] = originalValue;
+	        return false;
+	      }
+	      currentValue = bounds[handle];
+	    }
+	    // the handle was pushed enough to create the needed `amount` gap
+	    return true;
+	  };
+
+	  Slider.prototype.pushSurroundingHandles = function pushSurroundingHandles(bounds, handle, originalValue) {
+	    var threshold = this.props.pushable;
+
+	    var value = bounds[handle];
+
+	    var direction = 0;
+	    if (bounds[handle + 1] - value < threshold) {
+	      direction = +1;
+	    } else if (value - bounds[handle - 1] < threshold) {
+	      direction = -1;
+	    }
+
+	    if (direction === 0) {
+	      return;
+	    }
+
+	    var nextHandle = handle + direction;
+	    var diffToNext = direction * (bounds[nextHandle] - value);
+	    if (!this.pushHandle(bounds, nextHandle, direction, threshold - diffToNext)) {
+	      // revert to original value if pushing is impossible
+	      bounds[handle] = originalValue;
+	    }
+	  };
+
+	  Slider.prototype.calcOffset = function calcOffset(value) {
+	    var _props3 = this.props;
+	    var min = _props3.min;
+	    var max = _props3.max;
+
+	    var ratio = (value - min) / (max - min);
+	    return ratio * 100;
+	  };
+
+	  Slider.prototype.calcValue = function calcValue(offset) {
+	    var _props4 = this.props;
+	    var vertical = _props4.vertical;
+	    var min = _props4.min;
+	    var max = _props4.max;
+
+	    var ratio = Math.abs(offset / this.getSliderLength());
+	    var value = vertical ? (1 - ratio) * (max - min) + min : ratio * (max - min) + min;
+	    return value;
+	  };
+
+	  Slider.prototype.calcValueByPos = function calcValueByPos(position) {
+	    var pixelOffset = position - this.getSliderStart();
+	    var nextValue = this.trimAlignValue(this.calcValue(pixelOffset));
+	    return nextValue;
+	  };
+
+	  Slider.prototype.addDocumentEvents = function addDocumentEvents(type) {
+	    if (type === 'touch') {
+	      // just work for chrome iOS Safari and Android Browser
+	      this.onTouchMoveListener = (0, _addEventListener2["default"])(document, 'touchmove', this.onTouchMove.bind(this));
+	      this.onTouchUpListener = (0, _addEventListener2["default"])(document, 'touchend', this.end.bind(this, 'touch'));
+	    } else if (type === 'mouse') {
+	      this.onMouseMoveListener = (0, _addEventListener2["default"])(document, 'mousemove', this.onMouseMove.bind(this));
+	      this.onMouseUpListener = (0, _addEventListener2["default"])(document, 'mouseup', this.end.bind(this, 'mouse'));
+	    }
+	  };
+
+	  Slider.prototype.removeEvents = function removeEvents(type) {
+	    if (type === 'touch') {
+	      this.onTouchMoveListener.remove();
+	      this.onTouchUpListener.remove();
+	    } else if (type === 'mouse') {
+	      this.onMouseMoveListener.remove();
+	      this.onMouseUpListener.remove();
+	    }
+	  };
+
+	  Slider.prototype.end = function end(type) {
+	    this.removeEvents(type);
+	    this.props.onAfterChange(this.getValue());
+	    this.setState({ handle: null });
+	  };
+
+	  Slider.prototype.render = function render() {
+	    var _this3 = this,
+	        _classNames3;
+
+	    var _state = this.state;
+	    var handle = _state.handle;
+	    var bounds = _state.bounds;
+	    var _props5 = this.props;
+	    var className = _props5.className;
+	    var prefixCls = _props5.prefixCls;
+	    var tooltipPrefixCls = _props5.tooltipPrefixCls;
+	    var disabled = _props5.disabled;
+	    var vertical = _props5.vertical;
+	    var dots = _props5.dots;
+	    var included = _props5.included;
+	    var range = _props5.range;
+	    var step = _props5.step;
+	    var marks = _props5.marks;
+	    var max = _props5.max;
+	    var min = _props5.min;
+	    var tipTransitionName = _props5.tipTransitionName;
+	    var tipFormatter = _props5.tipFormatter;
+	    var children = _props5.children;
+
+
+	    var customHandle = this.props.handle;
+
+	    var offsets = bounds.map(function (v) {
+	      return _this3.calcOffset(v);
+	    });
+
+	    var handleClassName = prefixCls + '-handle';
+
+	    var handlesClassNames = bounds.map(function (v, i) {
+	      var _classNames;
+
+	      return (0, _classnames2["default"])((_classNames = {}, (0, _defineProperty3["default"])(_classNames, handleClassName, true), (0, _defineProperty3["default"])(_classNames, handleClassName + '-' + (i + 1), true), (0, _defineProperty3["default"])(_classNames, handleClassName + '-lower', i === 0), (0, _defineProperty3["default"])(_classNames, handleClassName + '-upper', i === bounds.length - 1), _classNames));
+	    });
+
+	    var isNoTip = step === null || tipFormatter === null;
+
+	    var commonHandleProps = {
+	      prefixCls: prefixCls,
+	      tooltipPrefixCls: tooltipPrefixCls,
+	      noTip: isNoTip,
+	      tipTransitionName: tipTransitionName,
+	      tipFormatter: tipFormatter,
+	      vertical: vertical
+	    };
+
+	    var handles = bounds.map(function (v, i) {
+	      return (0, _react.cloneElement)(customHandle, (0, _extends3["default"])({}, commonHandleProps, {
+	        className: handlesClassNames[i],
+	        value: v,
+	        offset: offsets[i],
+	        dragging: handle === i,
+	        key: i
+	      }));
+	    });
+	    if (!range) {
+	      handles.shift();
+	    }
+
+	    var isIncluded = included || range;
+
+	    var tracks = [];
+	    for (var i = 1; i < bounds.length; ++i) {
+	      var _classNames2;
+
+	      var trackClassName = (0, _classnames2["default"])((_classNames2 = {}, (0, _defineProperty3["default"])(_classNames2, prefixCls + '-track', true), (0, _defineProperty3["default"])(_classNames2, prefixCls + '-track-' + i, true), _classNames2));
+	      tracks.push(_react2["default"].createElement(_Track2["default"], { className: trackClassName, vertical: vertical, included: isIncluded,
+	        offset: offsets[i - 1], length: offsets[i] - offsets[i - 1], key: i
+	      }));
+	    }
+
+	    var sliderClassName = (0, _classnames2["default"])((_classNames3 = {}, (0, _defineProperty3["default"])(_classNames3, prefixCls, true), (0, _defineProperty3["default"])(_classNames3, prefixCls + '-disabled', disabled), (0, _defineProperty3["default"])(_classNames3, className, !!className), (0, _defineProperty3["default"])(_classNames3, prefixCls + '-vertical', this.props.vertical), _classNames3));
+
+	    return _react2["default"].createElement(
+	      'div',
+	      { ref: 'slider', className: sliderClassName,
+	        onTouchStart: disabled ? noop : this.onTouchStart.bind(this),
+	        onMouseDown: disabled ? noop : this.onMouseDown.bind(this)
+	      },
+	      tracks,
+	      _react2["default"].createElement(_Steps2["default"], { prefixCls: prefixCls, vertical: vertical, marks: marks, dots: dots, step: step,
+	        included: isIncluded, lowerBound: bounds[0],
+	        upperBound: bounds[bounds.length - 1], max: max, min: min
+	      }),
+	      handles,
+	      _react2["default"].createElement(_Marks2["default"], { className: prefixCls + '-mark', vertical: vertical, marks: marks,
+	        included: isIncluded, lowerBound: bounds[0],
+	        upperBound: bounds[bounds.length - 1], max: max, min: min
+	      }),
+	      children
+	    );
+	  };
+
+	  return Slider;
+	}(_react2["default"].Component);
+
+	Slider.propTypes = {
+	  min: _react2["default"].PropTypes.number,
+	  max: _react2["default"].PropTypes.number,
+	  step: _react2["default"].PropTypes.number,
+	  defaultValue: _react2["default"].PropTypes.oneOfType([_react2["default"].PropTypes.number, _react2["default"].PropTypes.arrayOf(_react2["default"].PropTypes.number)]),
+	  value: _react2["default"].PropTypes.oneOfType([_react2["default"].PropTypes.number, _react2["default"].PropTypes.arrayOf(_react2["default"].PropTypes.number)]),
+	  marks: _react2["default"].PropTypes.object,
+	  included: _react2["default"].PropTypes.bool,
+	  className: _react2["default"].PropTypes.string,
+	  prefixCls: _react2["default"].PropTypes.string,
+	  tooltipPrefixCls: _react2["default"].PropTypes.string,
+	  disabled: _react2["default"].PropTypes.bool,
+	  children: _react2["default"].PropTypes.any,
+	  onBeforeChange: _react2["default"].PropTypes.func,
+	  onChange: _react2["default"].PropTypes.func,
+	  onAfterChange: _react2["default"].PropTypes.func,
+	  handle: _react2["default"].PropTypes.element,
+	  tipTransitionName: _react2["default"].PropTypes.string,
+	  tipFormatter: _react2["default"].PropTypes.func,
+	  dots: _react2["default"].PropTypes.bool,
+	  range: _react2["default"].PropTypes.oneOfType([_react2["default"].PropTypes.bool, _react2["default"].PropTypes.number]),
+	  vertical: _react2["default"].PropTypes.bool,
+	  allowCross: _react2["default"].PropTypes.bool,
+	  pushable: _react2["default"].PropTypes.oneOfType([_react2["default"].PropTypes.bool, _react2["default"].PropTypes.number])
+	};
+
+	Slider.defaultProps = {
+	  prefixCls: 'rc-slider',
+	  className: '',
+	  tipTransitionName: '',
+	  min: 0,
+	  max: 100,
+	  step: 1,
+	  marks: {},
+	  handle: _react2["default"].createElement(_Handle2["default"], null),
+	  onBeforeChange: noop,
+	  onChange: noop,
+	  onAfterChange: noop,
+	  tipFormatter: function tipFormatter(value) {
+	    return value;
+	  },
+	  included: true,
+	  disabled: false,
+	  dots: false,
+	  range: false,
+	  vertical: false,
+	  allowCross: true,
+	  pushable: false
+	};
+
+	exports["default"] = Slider;
+	module.exports = exports['default'];
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(138)))
+
+/***/ },
+/* 424 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports["default"] = addEventListenerWrap;
+
+	var _addDomEventListener = __webpack_require__(128);
+
+	var _addDomEventListener2 = _interopRequireDefault(_addDomEventListener);
+
+	var _reactDom = __webpack_require__(2);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function addEventListenerWrap(target, eventType, cb) {
+	  /* eslint camelcase: 2 */
+	  var callback = _reactDom2["default"].unstable_batchedUpdates ? function run(e) {
+	    _reactDom2["default"].unstable_batchedUpdates(cb, e);
+	  } : cb;
+	  return (0, _addDomEventListener2["default"])(target, eventType, callback);
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 425 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var Track = function Track(_ref) {
+	  var className = _ref.className;
+	  var included = _ref.included;
+	  var vertical = _ref.vertical;
+	  var offset = _ref.offset;
+	  var length = _ref.length;
+
+	  var style = {
+	    visibility: included ? 'visible' : 'hidden'
+	  };
+	  if (vertical) {
+	    style.bottom = offset + '%';
+	    style.height = length + '%';
+	  } else {
+	    style.left = offset + '%';
+	    style.width = length + '%';
+	  }
+	  return _react2["default"].createElement('div', { className: className, style: style });
+	};
+
+	exports["default"] = Track;
+	module.exports = exports['default'];
+
+/***/ },
+/* 426 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _classCallCheck2 = __webpack_require__(54);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(55);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(91);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _rcTooltip = __webpack_require__(410);
+
+	var _rcTooltip2 = _interopRequireDefault(_rcTooltip);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var Handle = function (_React$Component) {
+	  (0, _inherits3["default"])(Handle, _React$Component);
+
+	  function Handle(props) {
+	    (0, _classCallCheck3["default"])(this, Handle);
+
+	    var _this = (0, _possibleConstructorReturn3["default"])(this, _React$Component.call(this, props));
+
+	    _this.state = {
+	      isTooltipVisible: false
+	    };
+	    return _this;
+	  }
+
+	  Handle.prototype.showTooltip = function showTooltip() {
+	    this.setState({
+	      isTooltipVisible: true
+	    });
+	  };
+
+	  Handle.prototype.hideTooltip = function hideTooltip() {
+	    this.setState({
+	      isTooltipVisible: false
+	    });
+	  };
+
+	  Handle.prototype.render = function render() {
+	    var _props = this.props;
+	    var prefixCls = _props.prefixCls;
+	    var tooltipPrefixCls = _props.tooltipPrefixCls;
+	    var className = _props.className;
+	    var tipTransitionName = _props.tipTransitionName;
+	    var tipFormatter = _props.tipFormatter;
+	    var vertical = _props.vertical;
+	    var offset = _props.offset;
+	    var value = _props.value;
+	    var dragging = _props.dragging;
+	    var noTip = _props.noTip;
+
+
+	    var style = vertical ? { bottom: offset + '%' } : { left: offset + '%' };
+	    var handle = _react2["default"].createElement('div', { className: className, style: style,
+	      onMouseUp: this.showTooltip.bind(this),
+	      onMouseEnter: this.showTooltip.bind(this),
+	      onMouseLeave: this.hideTooltip.bind(this)
+	    });
+
+	    if (noTip) {
+	      return handle;
+	    }
+
+	    var isTooltipVisible = dragging || this.state.isTooltipVisible;
+	    return _react2["default"].createElement(
+	      _rcTooltip2["default"],
+	      {
+	        prefixCls: tooltipPrefixCls || prefixCls + '-tooltip',
+	        placement: 'top',
+	        visible: isTooltipVisible,
+	        overlay: _react2["default"].createElement(
+	          'span',
+	          null,
+	          tipFormatter(value)
+	        ),
+	        delay: 0,
+	        transitionName: tipTransitionName
+	      },
+	      handle
+	    );
+	  };
+
+	  return Handle;
+	}(_react2["default"].Component);
+
+	exports["default"] = Handle;
+
+
+	Handle.propTypes = {
+	  prefixCls: _react2["default"].PropTypes.string,
+	  tooltipPrefixCls: _react2["default"].PropTypes.string,
+	  className: _react2["default"].PropTypes.string,
+	  vertical: _react2["default"].PropTypes.bool,
+	  offset: _react2["default"].PropTypes.number,
+	  tipTransitionName: _react2["default"].PropTypes.string,
+	  tipFormatter: _react2["default"].PropTypes.func,
+	  value: _react2["default"].PropTypes.number,
+	  dragging: _react2["default"].PropTypes.bool,
+	  noTip: _react2["default"].PropTypes.bool
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 427 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _defineProperty2 = __webpack_require__(102);
+
+	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(108);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _warning = __webpack_require__(137);
+
+	var _warning2 = _interopRequireDefault(_warning);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function calcPoints(vertical, marks, dots, step, min, max) {
+	  (0, _warning2["default"])(dots ? step > 0 : true, '`Slider[step]` should be a positive number in order to make Slider[dots] work.');
+	  var points = Object.keys(marks).map(parseFloat);
+	  if (dots) {
+	    for (var i = min; i <= max; i = i + step) {
+	      if (points.indexOf(i) >= 0) continue;
+	      points.push(i);
+	    }
+	  }
+	  return points;
+	}
+
+	var Steps = function Steps(_ref) {
+	  var prefixCls = _ref.prefixCls;
+	  var vertical = _ref.vertical;
+	  var marks = _ref.marks;
+	  var dots = _ref.dots;
+	  var step = _ref.step;
+	  var included = _ref.included;
+	  var lowerBound = _ref.lowerBound;
+	  var upperBound = _ref.upperBound;
+	  var max = _ref.max;
+	  var min = _ref.min;
+
+	  var range = max - min;
+	  var elements = calcPoints(vertical, marks, dots, step, min, max).map(function (point) {
+	    var _classNames;
+
+	    var offset = Math.abs(point - min) / range * 100 + '%';
+	    var style = vertical ? { bottom: offset } : { left: offset };
+
+	    var isActived = !included && point === upperBound || included && point <= upperBound && point >= lowerBound;
+	    var pointClassName = (0, _classnames2["default"])((_classNames = {}, (0, _defineProperty3["default"])(_classNames, prefixCls + '-dot', true), (0, _defineProperty3["default"])(_classNames, prefixCls + '-dot-active', isActived), _classNames));
+
+	    return _react2["default"].createElement('span', { className: pointClassName, style: style, key: point });
+	  });
+
+	  return _react2["default"].createElement(
+	    'div',
+	    { className: prefixCls + '-step' },
+	    elements
+	  );
+	};
+
+	exports["default"] = Steps;
+	module.exports = exports['default'];
+
+/***/ },
+/* 428 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends2 = __webpack_require__(16);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _typeof2 = __webpack_require__(56);
+
+	var _typeof3 = _interopRequireDefault(_typeof2);
+
+	var _defineProperty2 = __webpack_require__(102);
+
+	var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(108);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var Marks = function Marks(_ref) {
+	  var className = _ref.className;
+	  var vertical = _ref.vertical;
+	  var marks = _ref.marks;
+	  var included = _ref.included;
+	  var upperBound = _ref.upperBound;
+	  var lowerBound = _ref.lowerBound;
+	  var max = _ref.max;
+	  var min = _ref.min;
+
+	  var marksKeys = Object.keys(marks);
+	  var marksCount = marksKeys.length;
+	  var unit = 100 / (marksCount - 1);
+	  var markWidth = unit * 0.9;
+
+	  var range = max - min;
+	  var elements = marksKeys.map(parseFloat).sort(function (a, b) {
+	    return a - b;
+	  }).map(function (point) {
+	    var _classNames;
+
+	    var isActived = !included && point === upperBound || included && point <= upperBound && point >= lowerBound;
+	    var markClassName = (0, _classnames2["default"])((_classNames = {}, (0, _defineProperty3["default"])(_classNames, className + '-text', true), (0, _defineProperty3["default"])(_classNames, className + '-text-active', isActived), _classNames));
+
+	    var bottomStyle = {
+	      // height: markWidth + '%',
+	      marginBottom: '-200%',
+	      bottom: (point - min) / range * 100 + '%'
+	    };
+
+	    var leftStyle = {
+	      width: markWidth + '%',
+	      marginLeft: -markWidth / 2 + '%',
+	      left: (point - min) / range * 100 + '%'
+	    };
+
+	    var style = vertical ? bottomStyle : leftStyle;
+
+	    var markPoint = marks[point];
+	    var markPointIsObject = (typeof markPoint === 'undefined' ? 'undefined' : (0, _typeof3["default"])(markPoint)) === 'object' && !_react2["default"].isValidElement(markPoint);
+	    var markLabel = markPointIsObject ? markPoint.label : markPoint;
+	    var markStyle = markPointIsObject ? (0, _extends3["default"])({}, style, markPoint.style) : style;
+	    return _react2["default"].createElement(
+	      'span',
+	      { className: markClassName, style: markStyle, key: point },
+	      markLabel
+	    );
+	  });
+
+	  return _react2["default"].createElement(
+	    'div',
+	    { className: className },
+	    elements
+	  );
+	};
+
+	exports["default"] = Marks;
+	module.exports = exports['default'];
+
+/***/ },
+/* 429 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
 	var _css = __webpack_require__(378);
 
 	var _modal = __webpack_require__(381);
@@ -35543,7 +36833,7 @@ webpackJsonp([0],[
 
 	var _css3 = __webpack_require__(163);
 
-	var _input = __webpack_require__(415);
+	var _input = __webpack_require__(430);
 
 	var _input2 = _interopRequireDefault(_input);
 
@@ -35770,7 +37060,7 @@ webpackJsonp([0],[
 	exports.default = TodoDialog;
 
 /***/ },
-/* 415 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35779,11 +37069,11 @@ webpackJsonp([0],[
 	  value: true
 	});
 
-	var _Input = __webpack_require__(416);
+	var _Input = __webpack_require__(431);
 
 	var _Input2 = _interopRequireDefault(_Input);
 
-	var _Group = __webpack_require__(418);
+	var _Group = __webpack_require__(433);
 
 	var _Group2 = _interopRequireDefault(_Group);
 
@@ -35794,7 +37084,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 416 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35832,7 +37122,7 @@ webpackJsonp([0],[
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _calculateNodeHeight = __webpack_require__(417);
+	var _calculateNodeHeight = __webpack_require__(432);
 
 	var _calculateNodeHeight2 = _interopRequireDefault(_calculateNodeHeight);
 
@@ -36008,7 +37298,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 417 */
+/* 432 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -36108,7 +37398,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 418 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36151,7 +37441,7 @@ webpackJsonp([0],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 419 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36163,13 +37453,13 @@ webpackJsonp([0],[
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _ActionTypes = __webpack_require__(420);
+	var _ActionTypes = __webpack_require__(435);
 
 	var types = _interopRequireWildcard(_ActionTypes);
 
-	var _pouchdb = __webpack_require__(421);
+	var _pouchdb = __webpack_require__(436);
 
-	var _doFilter = __webpack_require__(436);
+	var _doFilter = __webpack_require__(451);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -36296,7 +37586,7 @@ webpackJsonp([0],[
 	};
 
 /***/ },
-/* 420 */
+/* 435 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -36320,7 +37610,7 @@ webpackJsonp([0],[
 	var SWITCH_MENU = exports.SWITCH_MENU = 'SWITCH_MENU';
 
 /***/ },
-/* 421 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36334,7 +37624,7 @@ webpackJsonp([0],[
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _pouchdbBrowser = __webpack_require__(422);
+	var _pouchdbBrowser = __webpack_require__(437);
 
 	var _pouchdbBrowser2 = _interopRequireDefault(_pouchdbBrowser);
 
@@ -36452,21 +37742,21 @@ webpackJsonp([0],[
 	//https://github.com/nolanlawson/pouchdb-find
 
 /***/ },
-/* 422 */,
-/* 423 */,
-/* 424 */,
-/* 425 */,
-/* 426 */,
-/* 427 */,
-/* 428 */,
-/* 429 */,
-/* 430 */,
-/* 431 */,
-/* 432 */,
-/* 433 */,
-/* 434 */,
-/* 435 */,
-/* 436 */
+/* 437 */,
+/* 438 */,
+/* 439 */,
+/* 440 */,
+/* 441 */,
+/* 442 */,
+/* 443 */,
+/* 444 */,
+/* 445 */,
+/* 446 */,
+/* 447 */,
+/* 448 */,
+/* 449 */,
+/* 450 */,
+/* 451 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36544,7 +37834,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 437 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36555,23 +37845,23 @@ webpackJsonp([0],[
 
 	var _redux = __webpack_require__(3);
 
-	var _todos = __webpack_require__(438);
+	var _todos = __webpack_require__(453);
 
 	var _todos2 = _interopRequireDefault(_todos);
 
-	var _todoDialog = __webpack_require__(439);
+	var _todoDialog = __webpack_require__(454);
 
 	var _todoDialog2 = _interopRequireDefault(_todoDialog);
 
-	var _todoFilter = __webpack_require__(440);
+	var _todoFilter = __webpack_require__(455);
 
 	var _todoFilter2 = _interopRequireDefault(_todoFilter);
 
-	var _tags = __webpack_require__(441);
+	var _tags = __webpack_require__(456);
 
 	var _tags2 = _interopRequireDefault(_tags);
 
-	var _navigate = __webpack_require__(442);
+	var _navigate = __webpack_require__(457);
 
 	var _navigate2 = _interopRequireDefault(_navigate);
 
@@ -36588,7 +37878,7 @@ webpackJsonp([0],[
 	exports.default = rootReducer;
 
 /***/ },
-/* 438 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36603,7 +37893,7 @@ webpackJsonp([0],[
 
 	exports.default = todos;
 
-	var _ActionTypes = __webpack_require__(420);
+	var _ActionTypes = __webpack_require__(435);
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -36688,7 +37978,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 439 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36698,7 +37988,7 @@ webpackJsonp([0],[
 	});
 	exports.default = TodoDialog;
 
-	var _ActionTypes = __webpack_require__(420);
+	var _ActionTypes = __webpack_require__(435);
 
 	var initialState = {
 	    visible: false,
@@ -36726,7 +38016,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 440 */
+/* 455 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36743,7 +38033,7 @@ webpackJsonp([0],[
 
 	var Filters = _interopRequireWildcard(_TodoFilters);
 
-	var _ActionTypes = __webpack_require__(420);
+	var _ActionTypes = __webpack_require__(435);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -36766,7 +38056,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 441 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36776,7 +38066,7 @@ webpackJsonp([0],[
 	});
 	exports.default = tags;
 
-	var _ActionTypes = __webpack_require__(420);
+	var _ActionTypes = __webpack_require__(435);
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -36797,7 +38087,7 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 442 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36807,7 +38097,7 @@ webpackJsonp([0],[
 	});
 	exports.default = navigation;
 
-	var _ActionTypes = __webpack_require__(420);
+	var _ActionTypes = __webpack_require__(435);
 
 	var _NavigationTypes = __webpack_require__(141);
 
@@ -36824,14 +38114,14 @@ webpackJsonp([0],[
 	}
 
 /***/ },
-/* 443 */
+/* 458 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 444 */,
-/* 445 */
+/* 459 */,
+/* 460 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
